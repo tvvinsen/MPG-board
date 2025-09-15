@@ -329,11 +329,17 @@
         const tbody = document.getElementById(tbodyElement);
         tbody.innerHTML = '';
 
+        const nbJoueurs = joueurs.length;
+
         joueurs.forEach((joueur, index) => {
             const tr = document.createElement('tr');
             const position = index + 1;
             let positionClass = '';
             let badge = '';
+
+			if (position < 4) {
+				tr.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
+			}
 
             if (position === 1) {
                 positionClass = 'first';
@@ -342,7 +348,9 @@
                 positionClass = 'second';
             } else if (position === 3) {
                 positionClass = 'third';
-            }
+            } else if (position > nbJoueurs - 3) {
+				tr.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+			}
 
             tr.innerHTML = `
                     <td class="position ${positionClass}">${position}</td>
