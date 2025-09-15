@@ -314,6 +314,7 @@
                 mpgGoals: (team.MPGGP > 0 ? '+' : '') + team.MPGGP + '/' + (team.MPGGC > 0 ? '-' : '') + team.MPGGC,
                 realGP: team.realGP,
                 realGC: team.realGC
+				, a: team.timeline.reduce((timeline, index) => ({a: timeline.a}))
             }));
         }
 
@@ -323,6 +324,7 @@
             || (b.goalAvg - a.goalAvg) 
             || (b.realGP - a.realGP)
             || (b.realGC - a.realGC)
+			|| (b.a.a - a.a.a)
         );
 
         // Affichage du classement
