@@ -301,7 +301,26 @@
 
     function displayClassement(data, tbodyElement) {
         hideLoading();
+		
+		const mapPlayers = new Map();
+		mapPlayers.set(188049, "Yannick");
+		mapPlayers.set(3535140, "Jérôme");
+		mapPlayers.set(649848, "Vincent");
+		mapPlayers.set(5142264, "Richard");
+		mapPlayers.set(3536346, "David");
+		mapPlayers.set(521473, "Robin");
+		mapPlayers.set(6429552, "Benoît");
+		mapPlayers.set(6430884, "Julien");
 
+		mapPlayers.set(5892169, "Nicolas");
+		mapPlayers.set(1497344, "Antoine P.");
+		mapPlayers.set(1519479, "Jean-Philippe");
+		mapPlayers.set(6429841, "Stéphane");
+		mapPlayers.set(7143201, "Charlotte");
+		mapPlayers.set(7206496, "Leïla");
+		mapPlayers.set(6942448, "Thomas");
+		mapPlayers.set(6742055, "Antoine C.");
+		
         let joueurs = [];
 
         if (data.teams && Array.isArray(data.teams)) {
@@ -313,7 +332,8 @@
                 realGoals: (team.realGP > 0 ? '+' : '') + team.realGP + '/' + ((team.realGC > 0 ? '-' : '')) + team.realGC,
                 mpgGoals: (team.MPGGP > 0 ? '+' : '') + team.MPGGP + '/' + (team.MPGGC > 0 ? '-' : '') + team.MPGGC,
                 realGP: team.realGP,
-                realGC: team.realGC
+                realGC: team.realGC,
+				player: mapPlayers.get(team.MPGuserId)
 				, a: team.timeline.reduce((timeline, index) => ({a: timeline.a}))
             }));
         }
@@ -356,7 +376,7 @@
 
             tr.innerHTML = `
                     <td class="position ${positionClass}">${position}</td>
-                    <td class="joueur-name">${joueur.nom}${badge}</td>
+                    <td class="joueur-name">${joueur.nom}<br><span style="font-size: 80%;">${joueur.player}</span></td>
                     <td class="points">${joueur.points} pts</td>
                     <td>${joueur.wdl}</td>
                     <td>${joueur.goalAvg}</td>
