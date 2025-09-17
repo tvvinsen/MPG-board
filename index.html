@@ -174,6 +174,40 @@
                 font-size: 0.9em;
             }
         }
+
+		.divisions {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 20px;
+			padding: 20px;
+		}
+
+		.division h2 {
+			text-align: center;
+			font-size: 1.5em;
+			margin-bottom: 10px;
+			color: #2c3e50;
+		}
+
+		@media (max-width: 900px) {
+			.divisions {
+				grid-template-columns: 1fr;
+			}
+
+			.classement-table th,
+			.classement-table td {
+				font-size: 0.85em;
+				padding: 10px 6px;
+			}
+
+			.position {
+				font-size: 1em;
+			}
+		}
+
+		.division {
+		    overflow-x: auto;
+		}
     </style>
 </head>
 <body>
@@ -195,50 +229,45 @@
         Erreur lors du chargement des données. Veuillez réessayer.
     </div>
 
-    <div id="content" style="display: none;">
-        <table class="classement-table">
-            <thead>
-                <tr>
-                    <th style="font-weight: bold;text-align: center">Division 1</th>
-                    <th style="font-weight: bold;text-align: center">Division 2</th>
-                </tr>
-            </thead>
-            <td>
-                <table class="classement-table">
-                    <thead>
-                    <tr>
-                        <th class="position">Position</th>
-                        <th>Equipe</th>
-                        <th>Points</th>
-                        <th>V/N/D</th>
-                        <th>Diff.</th>
-                        <th>Buts réels</th>
-                        <th>Buts MPG</th>
-                    </tr>
-                    </thead>
-                    <tbody id="classementBodyDiv1">
-                    </tbody>
-                </table>
-            </td>
-            <td>
-                <table class="classement-table">
-                    <thead>
-                    <tr>
-                        <th class="position">Position</th>
-                        <th>Equipe</th>
-                        <th>Points</th>
-                        <th>V/N/D</th>
-                        <th>Diff.</th>
-                        <th>Buts réels</th>
-                        <th>Buts MPG</th>
-                    </tr>
-                    </thead>
-                    <tbody id="classementBodyDiv2">
-                    </tbody>
-                </table>
-            </td>
-        </table>
+<div id="content" style="display: none;">
+  <div class="divisions">
+    <div class="division">
+      <h2>Division 1</h2>
+      <table class="classement-table">
+        <!-- Table headers + body -->
+        <thead>
+          <tr>
+            <th class="position">Position</th>
+            <th>Equipe</th>
+            <th>Points</th>
+            <th>V/N/D</th>
+            <th>Diff.</th>
+            <th>Buts réels</th>
+            <th>Buts MPG</th>
+          </tr>
+        </thead>
+        <tbody id="classementBodyDiv1"></tbody>
+      </table>
     </div>
+    <div class="division">
+      <h2>Division 2</h2>
+      <table class="classement-table">
+        <!-- Table headers + body -->
+        <thead>
+          <tr>
+            <th class="position">Position</th>
+            <th>Equipe</th>
+            <th>Points</th>
+            <th>V/N/D</th>
+            <th>Diff.</th>
+            <th>Buts réels</th>
+            <th>Buts MPG</th>
+          </tr>
+        </thead>
+        <tbody id="classementBodyDiv2"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <script>
