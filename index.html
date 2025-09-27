@@ -312,8 +312,7 @@
                                                 fill="#fff"></path>
                                         </svg>
                                     </div>
-                                    <div class="imso-hide-overflow TiMwHe" id="l5l-w">
-                                        Victoire</div>
+                                    <div class="imso-hide-overflow TiMwHe" id="l5l-w">Victoire</div>
                                 </div>
                             </td>
                         </tr>
@@ -333,12 +332,12 @@
                                     </div>
                                     <div class="imso-hide-overflow TiMwHe" id="l5l-t">Match
                                         nul</div>
-                                </div>        
+                                </div>
                             </td>
                         </tr>
                         <tr>
                             <td></td>
-                                <td>
+                            <td>
                                 <div style="display: flex;">
                                     <div aria-labelledby="l5l-l">
                                         <svg aria-hidden="true" viewBox="0 0 22 22"
@@ -353,6 +352,20 @@
                                     </div>
                                     <div class="imso-hide-overflow TiMwHe" id="l5l-l">
                                         Défaite</div>
+                                </div>
+                            </td>    
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div style="display: flex;">
+                                    <div aria-labelledby="l5l-np">
+                                        <svg aria-hidden="true" viewBox="0 0 22 22"
+                                            style="height: 22px; width: 22px">
+                                            <path d="M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" fill="none" stroke="#9D9BA7" stroke-width="2"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="imso-hide-overflow TiMwHe" id="l5l-np">Non disputé</div>
                                 </div>        
                             </td>    
                         </tr>
@@ -373,6 +386,18 @@
             const API_URL_DIV_1 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_1";
             const API_URL_DIV_2 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_2";
 
+            const createNotPlayedIconElement = (labelId = 'validation-notplayed') => {
+                const div = document.createElement('div');
+                div.setAttribute('aria-labelledby', labelId);
+
+                div.innerHTML = `
+                    <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
+                        <path d="M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" fill="none" stroke="#9D9BA7" stroke-width="2"></path>
+                    </svg>`;
+
+                return div;
+            };
+            
             const createSuccessIconElement = (labelId = 'validation-success') => {
                 const div = document.createElement('div');
                 div.setAttribute('aria-labelledby', labelId);
@@ -611,12 +636,11 @@
                     // Résultats des journées de match
                     const lastMatches = document.createElement('div');
                     const lastMatchesChild = document.createElement('div');
-                    lastMatchesChild.style.display = 'flex';
+                    lastMatchesChild.style.display = 'inline-flex';
                     lastMatches.appendChild(lastMatchesChild);
 
                     joueur.days
                         .slice(-5)  // Prend les 5 derniers éléments
-                        // .reverse()  // Inverse l'ordre 
                         .forEach((day, index) => {
                             switch (day.r) {
                                 case 'W': lastMatchesChild.appendChild(createSuccessIconElement()); break;
@@ -624,6 +648,11 @@
                                 case 'L': lastMatchesChild.appendChild(createDefeatIconElement()); break;
                             }
                         });
+
+                    const nbDaysMissing = 5 - joueur.days.length;
+                    Array.from({ length: nbDaysMissing }, () => {
+                        lastMatchesChild.appendChild(createNotPlayedIconElement());
+                    });
 
 
                     tr.innerHTML = `
