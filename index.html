@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="favicon.ico" rel="icon">
+    <link href="favicon.ico" rel="icon">
     <title>MPG-Recast</title>
     <style>
         * {
@@ -52,6 +53,7 @@
             0% {
                 transform: translate(-50%, -50%) rotate(0deg);
             }
+
             100% {
                 transform: translate(-50%, -50%) rotate(360deg);
             }
@@ -92,6 +94,7 @@
             0% {
                 transform: rotate(0deg);
             }
+
             100% {
                 transform: rotate(360deg);
             }
@@ -115,7 +118,7 @@
 
         .classement-table th,
         .classement-table td {
-            padding: 15px;
+            padding: 10px;
             text-align: left;
             border-bottom: 1px solid #e0e0e0;
         }
@@ -157,6 +160,7 @@
         .joueur-name {
             font-weight: 600;
             color: #2c3e50;
+            /* text-align: left; */
         }
 
         .points {
@@ -172,7 +176,6 @@
             font-weight: 500;
             margin-left: 10px;
         }
-
 
         @media (max-width: 768px) {
             .header h1 {
@@ -216,315 +219,450 @@
             }
         }
 
-		.division {
-		    overflow-x: auto;
-		}        
+        .division {
+            overflow-x: auto;
+        }
     </style>
 </head>
+
 <body>
-<div class="container">
-    <div class="header"
-         style="align-items: center;justify-content: center;gap: 20px;padding: 15px 30px;background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
-        <table style="width: 100%;">
-            <td style="width: 10%;"><img src="https://ligue1.com/images/Logo_Ligue1.webp" style="width: 70%"/></td>
-            <td><h1 id="leagueTitle"></h1></td>
-            <td style="width: 10%;"><img
-                    src="https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/110825_mpg_2_56f655b391.webp"
-                    style="width: 70%"/></td>
-        </table>
-    </div>
+    <div class="container">
+        <div class="header"
+            style="align-items: center;justify-content: center;gap: 20px;padding: 15px 30px;background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+            <table style="width: 100%;">
+                <td style="width: 10%;"><img
+                        src="https://ligue1.com/images/Logo_Ligue1.webp"
+                        style="width: 70%" /></td>
+                <td>
+                    <h1 id="leagueTitle"></h1>
+                </td>
+                <td style="width: 10%;"><img
+                        src="https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/110825_mpg_2_56f655b391.webp"
+                        style="width: 70%" /></td>
+            </table>
+        </div>
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            Chargement des données...
+        </div>
+        <div id="error" class="error" style="display: none;">
+            Erreur lors du chargement des données. Veuillez réessayer.
+        </div>
+        <div id="content" style="display: none;">
+            <div class="divisions">
+                <div class="division">
+                    <h2 id="divisionTitle1">Division 1</h2>
+                    <table class="classement-table">
+                        <!-- Table headers + body -->
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Equipe</th>
+                                <th>Points</th>
+                                <th style="text-align: center">MJ</th>
+                                <th style="text-align: center">V/N/D</th>
+                                <th style="text-align: center">Diff.</th>
+                                <th style="text-align: center">Buts<br>réels
+                                </th>
+                                <th style="text-align: center">Buts<br>MPG</th>
+                                <th style="text-align: center">5 derniers</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classementBodyDiv1"></tbody>
+                    </table>
+                </div>
+                <div class="division">
+                    <h2 id="divisionTitle2">Division 2</h2>
+                    <table class="classement-table">
+                        <!-- Table headers + body -->
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Equipe</th>
+                                <th>Points</th>
+                                <th style="text-align: center">MJ</th>
+                                <th style="text-align: center">V/N/D</th>
+                                <th style="text-align: center">Diff.</th>
+                                <th style="text-align: center">Buts<br>réels
+                                </th>
+                                <th style="text-align: center">Buts<br>MPG</th>
+                                <th style="text-align: center">5 derniers</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classementBodyDiv2"></tbody>
+                    </table>
+                </div>
 
-    <div id="loading" class="loading">
-        <div class="spinner"></div>
-        Chargement des données...
-    </div>
 
-    <div id="error" class="error" style="display: none;">
-        Erreur lors du chargement des données. Veuillez réessayer.
-    </div>
-
-    <div id="content" style="display: none;">
-        <div class="divisions">
-            <div class="division">
-                <h2 id="divisionTitle1">Division 1</h2>
-                <table class="classement-table">
-                    <!-- Table headers + body -->
-                    <thead>
-                    <tr>
-                        <th></th>
-                        <th>Equipe</th>
-                        <th>Points</th>
-                        <th>V/N/D</th>
-                        <th>Diff.</th>
-                        <th>Buts réels</th>
-                        <th>Buts MPG</th>
-                    </tr>
-                    </thead>
-                    <tbody id="classementBodyDiv1"></tbody>
-                </table>
-            </div>
-            <div class="division">
-                <h2 id="divisionTitle2">Division 2</h2>
-                <table class="classement-table">
-                    <!-- Table headers + body -->
-                    <thead>
-                    <tr>
-                        <th></th>
-                        <th>Equipe</th>
-                        <th>Points</th>
-                        <th>V/N/D</th>
-                        <th>Diff.</th>
-                        <th>Buts réels</th>
-                        <th>Buts MPG</th>
-                    </tr>
-                    </thead>
-                    <tbody id="classementBodyDiv2"></tbody>
-                </table>
+                <div>
+                    <div class="imso-hide-overflow">Cinq derniers matchs</div>
+                    <div>
+                    <table>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div style="display: flex;">
+                                    <div aria-labelledby="l5l-w">
+                                        <svg aria-hidden="true" viewBox="0 0 22 22"
+                                            style="height: 22px; width: 22px">
+                                            <path d="M11 3a8 8 0 1 1 0 16 8 8 0 0 1 0-16"
+                                                fill="#34A853"></path>
+                                            <path
+                                                d="M9.2 12.28 7.12 10.2 6 11.32l3.2 3.2 6.4-6.4L14.48 7z"
+                                                fill="#fff"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="imso-hide-overflow TiMwHe" id="l5l-w">
+                                        Victoire</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div style="display: flex;">
+                                    <div aria-labelledby="l5l-t">
+                                        <svg aria-hidden="true" viewBox="0 0 22 22"
+                                            style="height: 22px; width: 22px">
+                                            <path clip-rule="evenodd"
+                                                d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16"
+                                                fill="#9D9BA7" fill-rule="evenodd"></path>
+                                            <path clip-rule="evenodd" d="M8 10h6v2H8z"
+                                                fill="#fff" fill-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="imso-hide-overflow TiMwHe" id="l5l-t">Match
+                                        nul</div>
+                                </div>        
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                                <td>
+                                <div style="display: flex;">
+                                    <div aria-labelledby="l5l-l">
+                                        <svg aria-hidden="true" viewBox="0 0 22 22"
+                                            style="height: 22px; width: 22px">
+                                            <path clip-rule="evenodd"
+                                                d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16"
+                                                fill="#EA4335" fill-rule="evenodd"></path>
+                                            <path clip-rule="evenodd"
+                                                d="M13.263 14.394 11 12.131l-2.263 2.263-1.131-1.131L9.869 11 7.606 8.737l1.131-1.131L11 9.869l2.263-2.263 1.131 1.131L12.131 11l2.263 2.263z"
+                                                fill="#fff" fill-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="imso-hide-overflow TiMwHe" id="l5l-l">
+                                        Défaite</div>
+                                </div>        
+                            </td>    
+                        </tr>
+                    </table>
+                </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script>
+        <script>
 
-        const codeLeague = "PNAL4RJN";
-        const seasonNum = "9";
+            const codeLeague = "PNAL4RJN";
+            const seasonNum = "9";
 
-        const API_URL_LEAGUE = 'https://api.mlnstats.com/mpgleague/league/' + codeLeague;
+            const API_URL_LEAGUE = 'https://api.mlnstats.com/mpgleague/league/' + codeLeague;
 
-        const codeLeagueAndSeasonNum = codeLeague + '_' + seasonNum;
-        const API_URL_DIV_1 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_1";
-        const API_URL_DIV_2 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_2";
+            const codeLeagueAndSeasonNum = codeLeague + '_' + seasonNum;
+            const API_URL_DIV_1 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_1";
+            const API_URL_DIV_2 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_2";
 
-        async function fetchJson(url) {
-            const resp = await fetch(url);
-            if (!resp.ok) throw new Error('Erreur HTTP ' + resp.status);
-            return resp.json();
-        }
+            const createSuccessIconElement = (labelId = 'validation-success') => {
+                const div = document.createElement('div');
+                div.setAttribute('aria-labelledby', labelId);
 
-        async function fetchLeague() {
+                div.innerHTML = `
+                    <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
+                        <path clip-rule="evenodd" d="M11 3a8 8 0 1 1 0 16 8 8 0 0 1 0-16" fill="#34A853"></path>
+                        <path clip-rule="evenodd" d="M9.2 12.28 7.12 10.2 6 11.32l3.2 3.2 6.4-6.4L14.48 7z" fill="#fff"></path>
+                    </svg>`;
 
-            try {
-                const response = await fetch(API_URL_LEAGUE);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-                displayLeague(data);
-            } catch (error) {
-                console.error('Erreur:', error);
-                showError();
+                return div;
+            };
+
+            const createNulIconElement = (labelId = 'validation-nul') => {
+                const div = document.createElement('div');
+                div.setAttribute('aria-labelledby', labelId);
+
+                div.innerHTML = `
+                    <svg class="nB9CIe" aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">  
+                        <path clip-rule="evenodd" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16" fill="#9D9BA7" fill-rule="evenodd"></path> 
+                        <path clip-rule="evenodd" d="M8 10h6v2H8z" fill="#fff" fill-rule="evenodd"></path>  
+                    </svg>`;
+
+                return div;
+            };
+
+            const createDefeatIconElement = (labelId = 'validation-defeat') => {
+                const div = document.createElement('div');
+                div.setAttribute('aria-labelledby', labelId);
+
+                div.innerHTML = `
+                    <svg class="nB9CIe" aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">  
+                        <path clip-rule="evenodd" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16" fill="#EA4335" fill-rule="evenodd"></path> 
+                        <path clip-rule="evenodd" d="M13.263 14.394 11 12.131l-2.263 2.263-1.131-1.131L9.869 11 7.606 8.737l1.131-1.131L11 9.869l2.263-2.263 1.131 1.131L12.131 11l2.263 2.263z" fill="#fff" fill-rule="evenodd"></path>  
+                    </svg>`;
+
+                return div;
+            };
+
+            async function fetchJson(url) {
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error('Erreur HTTP ' + resp.status);
+                return resp.json();
             }
-        }
 
-        function displayLeague(data) {
-            hideLoading();
-            // Affichage de la ligue
-            const leagueTitle = document.getElementById('leagueTitle');
-            leagueTitle.innerHTML = '';
-            const spanELement = document.createElement('span');
-            spanELement.innerHTML = `<p>${data.name} / Saison ${data.seasonNum}</p>`;
-            leagueTitle.appendChild(spanELement);
+            async function fetchLeague() {
 
-            contentDisplay();
-        }
+                try {
+                    const response = await fetch(API_URL_LEAGUE);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    displayLeague(data);
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    showError();
+                }
+            }
 
-        async function fetchMatches() {
-            try {
-                const divisionConfigs = [
-                    [API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1'],
-                    [API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2']
-                ];
+            function displayLeague(data) {
+                hideLoading();
+                // Affichage de la ligue
+                const leagueTitle = document.getElementById('leagueTitle');
+                leagueTitle.innerHTML = '';
+                const spanELement = document.createElement('span');
+                spanELement.innerHTML = `<p>${data.name} / Saison ${data.seasonNum}</p>`;
+                leagueTitle.appendChild(spanELement);
 
-                const allMatches = await Promise.all(
-                    divisionConfigs.map(([url]) => fetchJson(url))
+                contentDisplay();
+            }
+
+            async function fetchMatches() {
+                try {
+                    const divisionConfigs = [
+                        [API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1'],
+                        [API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2']
+                    ];
+
+                    const allMatches = await Promise.all(
+                        divisionConfigs.map(([url]) => fetchJson(url))
+                    );
+
+                    allMatches.forEach((matches, i) => {
+                        displayClassement(matches.division, divisionConfigs[i][1], divisionConfigs[i][2]);
+                    });
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    showError();
+                }
+            }
+
+            function bonusTitle() {
+                const bonusTitle = new Map();
+                bonusTitle.set("valise", ["La valise à Nanard", 1]);
+                bonusTitle.set("tonton", ["Tonton Pat", 1]);
+                bonusTitle.set("uber", ["McDo+", 3]);
+                bonusTitle.set("suarez", ["Suarez", 1]);
+                bonusTitle.set("decat", ["Decat'", 1]);
+                bonusTitle.set("miroir", ["Miroir", 1]);
+                bonusTitle.set("cheat", ["Cheat Code 18-26", 1]);
+                bonusTitle.set("zahia", ["Zahia", 1]);
+                return bonusTitle;
+            }
+
+            function farmersPlayers() {
+                const mapPlayerNames = new Map();
+                mapPlayerNames.set(188049, "Yannick");
+                mapPlayerNames.set(3535140, "Jérôme");
+                mapPlayerNames.set(649848, "Vincent");
+                mapPlayerNames.set(5142264, "Richard");
+                mapPlayerNames.set(3536346, "David");
+                mapPlayerNames.set(521473, "Robin");
+                mapPlayerNames.set(6429552, "Benoît");
+                mapPlayerNames.set(6430884, "Julien");
+
+                mapPlayerNames.set(5892169, "Nicolas");
+                mapPlayerNames.set(1497344, "Antoine P.");
+                mapPlayerNames.set(1519479, "Jean-Philippe");
+                mapPlayerNames.set(6429841, "Stéphane");
+                mapPlayerNames.set(7143201, "Charlotte");
+                mapPlayerNames.set(7206496, "Leïla");
+                mapPlayerNames.set(6942448, "Thomas");
+                mapPlayerNames.set(6742055, "Antoine C.");
+                return mapPlayerNames;
+            }
+
+            function formatGP(goalGP) {
+                return (goalGP > 0 ? '+' : '') + goalGP;
+            }
+
+            function formatGC(goalGC) {
+                return (goalGC > 0 ? '-' : '') + goalGC;
+            }
+
+            function selectBonuses(joueurName, bonusTab) {
+                // Décrémenter le compteur de chaque bonus joué
+                let bonusList = bonusTitle();
+                const bonusRestants = Object.entries(bonusTab)
+                    .forEach(([key, value]) => {
+                        const valeur = bonusList.get(key);
+                        if (valeur)
+                            valeur[1]--;
+                    });
+
+                const complet = [...bonusList.values()]
+                    .filter(([nom, compteur]) => compteur > 0)
+                    .map(([nom, compteur]) => `${nom} (${compteur})`)
+                    .join(' - ');
+
+                return complet.length > 0 ? "Bonus restants : " + complet : "Plus aucun bonus disponible !"
+            }
+
+            function displayClassement(division, tbodyElement, divTitleElement) {
+                hideLoading();
+
+                // Affichage du nom de la division
+                const divisionTitle = document.getElementById(divTitleElement);
+                divisionTitle.innerHTML = '';
+                const divisionSpan = document.createElement('span');
+                divisionSpan.innerHTML = `<p>${division.name}</p>`;
+                divisionTitle.appendChild(divisionSpan);
+
+                const nbDaysPlayed = division.leagueDayScan;
+                const mapPlayerNames = farmersPlayers();
+
+                let joueurs = [];
+                if (division.teams && Array.isArray(division.teams)) {
+                    joueurs = division.teams.map((team, index) => ({
+                        nom: team.name + ' (' + team.abbr + ')',
+                        points: team.points,
+                        wdl: team.win + '/' + team.draw + '/' + team.loss,
+                        goalAvg: team.goalAvg,
+                        realGoals: formatGP(team.realGP) + '/' + formatGC(team.realGC),
+                        mpgGoals: formatGP(team.MPGGP) + '/' + formatGC(team.MPGGC),
+                        realGP: team.realGP,
+                        realGC: team.realGC,
+                        mpgGP: team.MPGGP,
+                        playerName: mapPlayerNames.get(team.MPGuserId) || '',
+                        days: team.timeline,
+                        lastTimeline: [...team.timeline].pop(), // Extraire la dernière journée de championnat
+                        bonusTab: team.bonusTab
+                    }));
+                }
+
+                // Tri des joueurs
+                joueurs.sort((j1, j2) =>
+                    (j2.points - j1.points)
+                    || (j2.goalAvg - j1.goalAvg)
+                    || ((j2.realGP + j2.mpgGP) - (j1.realGP + j1.mpgGP))
+                    || (j2.realGP - j1.realGP)
+                    || (j2.realGC - j1.realGC)
+                    || (j2.lastTimeline.a - j1.lastTimeline.a)
                 );
 
-                allMatches.forEach((matches, i) => {
-                    displayClassement(matches.division, divisionConfigs[i][1], divisionConfigs[i][2]);
-                });
-            } catch (error) {
-                console.error('Erreur:', error);
-                showError();
-            }
-        }
+                // Affichage du classement
+                const tbody = document.getElementById(tbodyElement);
+                tbody.innerHTML = '';
 
-        function bonusTitle() {
-            const bonusTitle = new Map();
-            bonusTitle.set("valise", ["La valise à Nanard", 1]);
-            bonusTitle.set("tonton", ["Tonton Pat", 1]);
-            bonusTitle.set("uber", ["McDo+", 3]);
-            bonusTitle.set("suarez", ["Suarez", 1]);
-            bonusTitle.set("decat", ["Decat'", 1]);
-            bonusTitle.set("miroir", ["Miroir", 1]);
-            bonusTitle.set("cheat", ["Cheat Code 18-26", 1]);
-            bonusTitle.set("zahia", ["Zahia", 1]);
-            return bonusTitle;
-        }
+                const nbJoueurs = joueurs.length;
 
-        function farmersPlayers() {
-            const mapPlayerNames = new Map();
-            mapPlayerNames.set(188049, "Yannick");
-            mapPlayerNames.set(3535140, "Jérôme");
-            mapPlayerNames.set(649848, "Vincent");
-            mapPlayerNames.set(5142264, "Richard");
-            mapPlayerNames.set(3536346, "David");
-            mapPlayerNames.set(521473, "Robin");
-            mapPlayerNames.set(6429552, "Benoît");
-            mapPlayerNames.set(6430884, "Julien");
+                const numDivision = division.divisionNum;
 
-            mapPlayerNames.set(5892169, "Nicolas");
-            mapPlayerNames.set(1497344, "Antoine P.");
-            mapPlayerNames.set(1519479, "Jean-Philippe");
-            mapPlayerNames.set(6429841, "Stéphane");
-            mapPlayerNames.set(7143201, "Charlotte");
-            mapPlayerNames.set(7206496, "Leïla");
-            mapPlayerNames.set(6942448, "Thomas");
-            mapPlayerNames.set(6742055, "Antoine C.");
-            return mapPlayerNames;
-        }
+                joueurs.forEach((joueur, index) => {
+                    const tr = document.createElement('tr');
+                    const position = index + 1;
+                    let positionClass = '';
+                    let ring = '';
 
-        function formatGP(goalGP) {
-            return (goalGP > 0 ? '+' : '') + goalGP;
-        }
+                    // Construire une liste des bonus utilisés par le joueur
+                    const bonusFormates = selectBonuses(joueur.nom, joueur.bonusTab);
 
-        function formatGC(goalGC) {
-            return (goalGC > 0 ? '-' : '') + goalGC;
-        }
+                    // Gestion de l'anneau
+                    if (joueur.lastTimeline.P === 1) {
+                        ring = '<span class="badge"><img src="data:image/png;base64,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" style="vertical-align: bottom; width: 20px"/></span>';
+                    }
 
-        function selectBonuses(joueurName, bonusTab) {
-            // Décrémenter le compteur de chaque bonus joué
-            let bonusList = bonusTitle();
-            const bonusRestants = Object.entries(bonusTab)
-                .forEach(([key, value]) => {
-                    const valeur = bonusList.get(key);
-                    if (valeur)
-                        valeur[1]--;
-                });
+                    // Gestion du classement
+                    if (position === 1) {
+                        positionClass = 'first';
+                    } else if (position === 2) {
+                        positionClass = 'second';
+                    } else if (position === 3) {
+                        positionClass = 'third';
+                    }
 
-            const complet = [...bonusList.values()]
-                .filter(([nom, compteur]) => compteur > 0)
-                .map(([nom, compteur]) => `${nom} (${compteur})`)
-                .join(' - ');
+                    // Mise en évidence des leaders de la division
+                    if ((numDivision !== 1 && position < 4) || position === 1) {
+                        tr.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
+                    }
+                    // Mise en évidence des derniers de la division
+                    else if (numDivision === 1 && (position > nbJoueurs - 3) || position === nbJoueurs) {
+                        tr.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+                    }
 
-            return complet.length > 0 ? "Bonus restants : " + complet : "Plus aucun bonus disponible !"
-        }
+                    // Résultats des journées de match
+                    const lastMatches = document.createElement('div');
+                    const lastMatchesChild = document.createElement('div');
+                    lastMatchesChild.style.display = 'flex';
+                    lastMatches.appendChild(lastMatchesChild);
 
-        function displayClassement(division, tbodyElement, divTitleElement) {
-            hideLoading();
+                    joueur.days
+                        .slice(-5)  // Prend les 5 derniers éléments
+                        // .reverse()  // Inverse l'ordre 
+                        .forEach((day, index) => {
+                            switch (day.r) {
+                                case 'W': lastMatchesChild.appendChild(createSuccessIconElement()); break;
+                                case 'D': lastMatchesChild.appendChild(createNulIconElement()); break;
+                                case 'L': lastMatchesChild.appendChild(createDefeatIconElement()); break;
+                            }
+                        });
 
-            // Affichage du nom de la division
-            const divisionTitle = document.getElementById(divTitleElement);
-            divisionTitle.innerHTML = '';
-            const divisionSpan = document.createElement('span');
-            divisionSpan.innerHTML = `<p>${division.name}</p>`;
-            divisionTitle.appendChild(divisionSpan);
 
-            const mapPlayerNames = farmersPlayers();
-
-            let joueurs = [];
-            if (division.teams && Array.isArray(division.teams)) {
-                joueurs = division.teams.map((team, index) => ({
-                    nom: team.name + ' (' + team.abbr + ')',
-                    points: team.points,
-                    wdl: team.win + '/' + team.draw + '/' + team.loss,
-                    goalAvg: team.goalAvg,
-                    realGoals: formatGP(team.realGP) + '/' + formatGC(team.realGC),
-                    mpgGoals: formatGP(team.MPGGP) + '/' + formatGC(team.MPGGC),
-                    realGP: team.realGP,
-                    realGC: team.realGC,
-                    mpgGP: team.MPGGP,
-                    playerName: mapPlayerNames.get(team.MPGuserId) || '',
-                    lastTimeline: team.timeline.pop(), // Extraire la dernière journée de championnat
-                    bonusTab: team.bonusTab
-                }));
-            }
-
-            // Tri des joueurs
-            joueurs.sort((j1, j2) =>
-                (j2.points - j1.points)
-                || (j2.goalAvg - j1.goalAvg)
-                || ((j2.realGP + j2.mpgGP) - (j1.realGP + j1.mpgGP))
-                || (j2.realGP - j1.realGP)
-                || (j2.realGC - j1.realGC)
-                || (j2.lastTimeline.a - j1.lastTimeline.a)
-            );
-
-            // Affichage du classement
-            const tbody = document.getElementById(tbodyElement);
-            tbody.innerHTML = '';
-
-            const nbJoueurs = joueurs.length;
-
-            const numDivision = division.divisionNum;
-
-            joueurs.forEach((joueur, index) => {
-                const tr = document.createElement('tr');
-                const position = index + 1;
-                let positionClass = '';
-                let ring = '';
-
-                // Construire une liste des bonus utilisés par le joueur
-                const bonusFormates = selectBonuses(joueur.nom, joueur.bonusTab);
-
-                // Gestion de l'anneau
-                if (joueur.lastTimeline.P === 1) {
-                    ring = '<span class="badge"><img src="data:image/png;base64,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" style="vertical-align: bottom; width: 20px"/></span>';
-                }
-
-                // Gestion du classement
-                if (position === 1) {
-                    positionClass = 'first';
-                } else if (position === 2) {
-                    positionClass = 'second';
-                } else if (position === 3) {
-                    positionClass = 'third';
-                } 
-                
-                // Mise en évidence des leaders de la division
-                if ((numDivision !== 1 && position < 4) || position === 1) {
-                    tr.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
-                }
-                // Mise en évidence des derniers de la division
-                else if (numDivision === 1 && (position > nbJoueurs - 3) || position === nbJoueurs) {
-                    tr.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
-                }
-
-                tr.innerHTML = `
+                    tr.innerHTML = `
                     <td class="position ${positionClass}">${position}</td>
                     <td class="joueur-name" title="${bonusFormates}">${joueur.nom} ${ring}<br><span style="font-size: 80%;">${joueur.playerName}</span></td>
                     <td class="points">${joueur.points} pts</td>
-                    <td>${joueur.wdl}</td>
-                    <td>${joueur.goalAvg}</td>
-                    <td>${joueur.realGoals}</td>
-                    <td>${joueur.mpgGoals}</td>
-                `;
+                    <td style="text-align: center">${nbDaysPlayed}</td>
+                    <td style="text-align: center">${joueur.wdl}</td>
+                    <td style="text-align: center">${joueur.goalAvg}</td>
+                    <td style="text-align: center">${joueur.realGoals}</td>
+                    <td style="text-align: center">${joueur.mpgGoals}</td>
+                    <td style="text-align: center">${lastMatches.innerHTML}</td>`;
 
-                tbody.appendChild(tr);
-            });
+                    tbody.appendChild(tr);
+                });
 
-            contentDisplay();
-        }
+                contentDisplay();
+            }
 
-        function contentDisplay() {
-            document.getElementById('content').style.display = 'block';
-            // document.getElementById('content').style.backgroundColor = '#0000FF';
-        }
+            function contentDisplay() {
+                document.getElementById('content').style.display = 'block';
+            }
 
-        function hideLoading() {
-            document.getElementById('loading').style.display = 'none';
-        }
+            function hideLoading() {
+                document.getElementById('loading').style.display = 'none';
+            }
 
-        function showError() {
-            hideLoading();
-            document.getElementById('error').style.display = 'block';
-        }
+            function showError() {
+                hideLoading();
+                document.getElementById('error').style.display = 'block';
+            }
 
-        // Chargement initial
-        fetchLeague();
-        fetchMatches();
+            // Chargement initial
+            fetchLeague();
+            fetchMatches();
 
-        // Actualisation automatique toutes les 5 minutes
-        // setInterval(fetchMatches, 5 * 60 * 1000);
-    </script>
+            // Actualisation automatique toutes les 5 minutes
+            // setInterval(fetchMatches, 5 * 60 * 1000);
+        </script>
 </body>
+
 </html>
