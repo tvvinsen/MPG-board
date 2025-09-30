@@ -473,10 +473,22 @@
                     mpgTeam.timeline
                         .slice(-5)  // Garder uniquement les 5 derniers éléments
                         .forEach((day, index) => {
+                            // Sommer les buts réels marqués
+                            let butsGP = day.G?.flatMap(obj => Object.values(obj))
+                                .reduce((a, b) => a + b, 0) || 0;
+                            // Ajouter les buts MPG
+                            butsGP += day.M?.length || 0;
+
+                            // Somme des buts encaissés
+                            const butsGC = (day.g || 0) + (day.m || 0);
+
+                            // Titre de l'icône
+                            const title = `${farmersPlayersId().get(mpgTeam.id) || 'Inconnu'} ${butsGP} - ${butsGC} ${farmersPlayersId().get(day.o) || 'Inconnu'}`;
+
                             switch (day.r) {
-                                case 'W': lastFiveMatchesChild.appendChild(createSuccessIconElement()); break;
-                                case 'D': lastFiveMatchesChild.appendChild(createNulIconElement()); break;
-                                case 'L': lastFiveMatchesChild.appendChild(createDefeatIconElement()); break;
+                                case 'W': lastFiveMatchesChild.appendChild(createSuccessIconElement(title)); break;
+                                case 'D': lastFiveMatchesChild.appendChild(createNulIconElement(title)); break;
+                                case 'L': lastFiveMatchesChild.appendChild(createDefeatIconElement(title)); break;
                             }
                         });
 
@@ -613,41 +625,50 @@
                 return div;
             };
 
-            const createSuccessIconElement = (labelId = 'validation-success') => {
+            const createSuccessIconElement = (title) => {
+                const labelId = 'validation-success'
                 const div = document.createElement('div');
                 div.setAttribute('aria-labelledby', labelId);
 
                 div.innerHTML = `
+                <span title="${title}">
                     <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
                         <path clip-rule="evenodd" d="M11 3a8 8 0 1 1 0 16 8 8 0 0 1 0-16" fill="#34A853"></path>
                         <path clip-rule="evenodd" d="M9.2 12.28 7.12 10.2 6 11.32l3.2 3.2 6.4-6.4L14.48 7z" fill="#fff"></path>
-                    </svg>`;
+                    </svg>
+                </span>`;
 
                 return div;
             };
 
-            const createNulIconElement = (labelId = 'validation-nul') => {
+            const createNulIconElement = (title) => {
+                const labelId = 'validation-nul';
                 const div = document.createElement('div');
                 div.setAttribute('aria-labelledby', labelId);
 
                 div.innerHTML = `
+                <span title="${title}">
                     <svg class="nB9CIe" aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">  
                         <path clip-rule="evenodd" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16" fill="#9D9BA7" fill-rule="evenodd"></path> 
                         <path clip-rule="evenodd" d="M8 10h6v2H8z" fill="#fff" fill-rule="evenodd"></path>  
-                    </svg>`;
+                    </svg>
+                </span>`;
 
                 return div;
             };
 
-            const createDefeatIconElement = (labelId = 'validation-defeat') => {
+            const createDefeatIconElement = (title) => {
+                const labelId = 'validation-defeat';
                 const div = document.createElement('div');
                 div.setAttribute('aria-labelledby', labelId);
 
                 div.innerHTML = `
+                <span title="${title}">
                     <svg class="nB9CIe" aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">  
                         <path clip-rule="evenodd" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16" fill="#EA4335" fill-rule="evenodd"></path> 
                         <path clip-rule="evenodd" d="M13.263 14.394 11 12.131l-2.263 2.263-1.131-1.131L9.869 11 7.606 8.737l1.131-1.131L11 9.869l2.263-2.263 1.131 1.131L12.131 11l2.263 2.263z" fill="#fff" fill-rule="evenodd"></path>  
-                    </svg>`;
+                    </svg>
+                </span>`;
 
                 return div;
             };
@@ -738,6 +759,28 @@
                 mapPlayerNames.set(7206496, "Leïla");
                 mapPlayerNames.set(6942448, "Thomas");
                 mapPlayerNames.set(6742055, "Antoine C.");
+                return mapPlayerNames;
+            }
+
+            function farmersPlayersId() {
+                const mapPlayerNames = new Map();
+                mapPlayerNames.set(2919624, "Yannick");
+                mapPlayerNames.set(2919625, "Jérôme");
+                mapPlayerNames.set(2919631, "Vincent");
+                mapPlayerNames.set(2919627, "Richard");
+                mapPlayerNames.set(2919626, "David");
+                mapPlayerNames.set(2919628, "Robin");
+                mapPlayerNames.set(2919629, "Benoît");
+                mapPlayerNames.set(2919630, "Julien");
+
+                mapPlayerNames.set(2919634, "Nicolas");
+                mapPlayerNames.set(2919632, "Antoine P.");
+                mapPlayerNames.set(2919633, "Jean-Philippe");
+                mapPlayerNames.set(2919635, "Stéphane");
+                mapPlayerNames.set(2919638, "Charlotte");
+                mapPlayerNames.set(2919639, "Leïla");
+                mapPlayerNames.set(2919637, "Thomas");
+                mapPlayerNames.set(2919636, "Antoine C.");
                 return mapPlayerNames;
             }
 
