@@ -482,13 +482,22 @@
                             // Somme des buts encaissés
                             const butsGC = (day.g || 0) + (day.m || 0);
 
-                            // Titre de l'icône
-                            const title = `${farmersPlayersId().get(mpgTeam.id) || 'Inconnu'} ${butsGP} - ${butsGC} ${farmersPlayersId().get(day.o) || 'Inconnu'}`;
+                            console.log(`${mpgTeam.name} -> Sens : ${day.S}`);
+
+                            // Construction du titre de l'icône
+                            let titleDay;
+                            if (day.S === 'H') {
+                                // Match à domicile 'Home'
+                                titleDay = `${farmersPlayersId().get(mpgTeam.id) || 'Inconnu'} ${butsGP} - ${butsGC} ${farmersPlayersId().get(day.o) || 'Inconnu'}`;
+                            } else {
+                                // Match à l'extérieur 'Away'
+                                titleDay = `${farmersPlayersId().get(day.o) || 'Inconnu'} ${butsGC} - ${butsGP} ${farmersPlayersId().get(mpgTeam.id) || 'Inconnu'}`;
+                            }
 
                             switch (day.r) {
-                                case 'W': lastFiveMatchesChild.appendChild(createSuccessIconElement(title)); break;
-                                case 'D': lastFiveMatchesChild.appendChild(createNulIconElement(title)); break;
-                                case 'L': lastFiveMatchesChild.appendChild(createDefeatIconElement(title)); break;
+                                case 'W': lastFiveMatchesChild.appendChild(createSuccessIconElement(titleDay)); break;
+                                case 'D': lastFiveMatchesChild.appendChild(createNulIconElement(titleDay)); break;
+                                case 'L': lastFiveMatchesChild.appendChild(createDefeatIconElement(titleDay)); break;
                             }
                         });
 
