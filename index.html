@@ -238,6 +238,17 @@
                 transform: translateY(0);
             }
         }
+
+        .legend-table {
+            width: 50%;
+        }
+
+        .legend-table th,
+        .legend-table td {
+            padding: 10px 10px;
+            text-align: center;
+        }
+
     </style>
 </head>
 
@@ -309,7 +320,7 @@
                 <div>
                     <div class="imso-hide-overflow">Cinq derniers matchs</div>
                     <div>
-                        <table>
+                        <table class="legend-table">
                             <tr>
                                 <td>
                                     <div style="display: flex;">
@@ -521,14 +532,20 @@
 
                     const bonusCount = getBonusCountUpdated(mpgUser.bonusTab);
 
+                    const bonusDispos = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
+
+                    let nbBonusDispos = bonusDispos.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+                    const nbBonusDefault = Array.from(bonusDetails().entries()).map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);   
+
                     td.innerHTML = `
                         <div class="details-panel">
                             <h4>Informations du joueur ${mpgUser.name} (${mpgUser.abbr})</h4>
                             <div class="details-grid">
-                                <div>Bonus disponibles
-                                    ${Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0).map(([nom, [description, compteur, linkImg]]) => `
+                                <div>Bonus disponibles (${nbBonusDispos}/${nbBonusDefault}) :</div>
+                                    ${bonusDispos.map(([nom, [description, compteur, linkImg]]) => `
                                         <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-                                            ${Array.from({ length: compteur }, () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}                                            
+                                            ${Array.from({ length: compteur }, 
+                                                () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
                                         </div>
                                     `).join('')}
                                 </div>
