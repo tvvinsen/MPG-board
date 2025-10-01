@@ -550,7 +550,7 @@
                         <div class="details-panel">
                             <h4>Informations du joueur ${mpgUser.name} (${mpgUser.abbr})</h4>
                             <div class="details-grid">
-                                <div>Bonus disponibles (${nbBonusDispos}/${nbBonusDefault}) :</div>
+                                <div>Bonus disponibles (${nbBonusDispos}/${nbBonusDefault})</div>
                                     ${bonusDispos.map(([nom, [description, compteur, linkImg]]) => `
                                         <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                             ${Array.from({ length: compteur }, 
@@ -558,7 +558,8 @@
                                         </div>
                                     `).join('')}
                                 </div>
-                            </div>
+                                <div>Classement général moyen : Points ${mpgUser.gScoreAvg} / Rang ${mpgUser.gRankAvg}</div>
+                                </div>
                         </div>
                     `;
 
