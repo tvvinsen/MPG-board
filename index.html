@@ -493,8 +493,6 @@
                             // Somme des buts encaissés
                             const butsGC = (day.g || 0) + (day.m || 0);
 
-                            console.log(`${mpgTeam.name} -> Sens : ${day.S}`);
-
                             // Construction du titre de l'icône
                             let titleDay;
                             if (day.S === 'H') {
@@ -539,17 +537,20 @@
                     const td = document.createElement('td');
                     td.colSpan = 9; // Nombre de colonnes dans le tableau principal
 
-                    const bonusCount = getBonusCountUpdated(mpgUser.bonusTab);
-
-                    const bonusDispos = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
-
-                    let nbBonusDispos = bonusDispos.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
                     const nbBonusDefault = Array.from(bonusDetails().entries()).map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);   
+
+                    const bonusCount = getBonusCountUpdated(mpgUser.bonusTab);
+                    const bonusDispos = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
+                    let nbBonusDispos = bonusDispos.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
 
                     td.innerHTML = `
                         <div class="details-panel">
                             <h4>Informations du joueur ${mpgUser.name} (${mpgUser.abbr})</h4>
                             <div class="details-grid">
+                    `;
+                            
+                    if (nbBonusDispos > 0) {
+                        td.innerHTML += `
                                 <div>Bonus disponibles (${nbBonusDispos}/${nbBonusDefault})</div>
                                     ${bonusDispos.map(([nom, [description, compteur, linkImg]]) => `
                                         <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
@@ -557,9 +558,27 @@
                                                 () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
                                         </div>
                                     `).join('')}
-                                </div>
+                                </div>`;
+                    }
+
+                    const usedBonus = Array.from(getBonusUsed(mpgUser.bonusTab));
+                    let nbBonusUsed = usedBonus.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+
+                    if (nbBonusUsed > 0) {
+                        td.innerHTML += `
+                                <div>Bonus utilisés (${nbBonusUsed}/${nbBonusDefault})</div>
+                                    ${usedBonus.map(([nom, [description, compteur, linkImg]]) => `
+                                        <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                            ${Array.from({ length: compteur }, 
+                                                () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                        </div>
+                                    `).join('')}
+                                </div>`;
+                    }
+
+                    td.innerHTML += `
                                 <div>Classement général moyen : Points ${mpgUser.gScoreAvg} / Rang ${mpgUser.gRankAvg}</div>
-                                </div>
+                            </div>
                         </div>
                     `;
 
@@ -829,6 +848,19 @@
                             detail[1]--;
                     });
                 return detailsBonus;
+            }
+
+            function getBonusUsed(bonusData) {
+                const detailsBonus = bonusDetails();
+                
+                return new Map(
+                    Object.entries(bonusData)
+                        .filter(([key]) => detailsBonus.has(key))
+                        .map(([key, value]) => {
+                            const detail = detailsBonus.get(key);
+                            return [key, [detail[0], value, ...detail.slice(2)]];
+                        })
+                );
             }
 
             function formatBonusTitle(bonusTab) {
