@@ -450,13 +450,20 @@
                         ring = ringElement;
                     }
 
+                    let variation = "";
+                    if ([4, 5, 6].includes(position)) {
+                        variation = '<img src="https://assets.eurosport.io/web/inArenaIcons/table-down.svg" style="width: 15px;"/>'
+                    } else if ([3].includes(position)) {
+                        variation = '<img src="https://assets.eurosport.io/web/inArenaIcons/table-up.svg" style="width: 15px;"/>';
+                    }
+
                     // Gestion du classement
                     if (position === 1) {
                         positionClass = 'first';
                     } else if (position === 2) {
                         positionClass = 'second';
                     } else if (position === 3) {
-                        positionClass = 'third';
+                        positionClass = 'third';                        
                     }
 
                     const tr = document.createElement('tr');
@@ -518,7 +525,7 @@
                     });
 
                     tr.innerHTML = `
-                        <td class="position ${positionClass}">${position}</td>
+                        <td class="position ${positionClass}"><span>${position}${variation}</span></td>
                         <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name} ${ring}<br><span style="font-size: 80%;">${playerName}</span></td>
                         <td class="points">${mpgTeam.points} pts</td>
                         <td style="text-align: center">${this.data.leagueDayScan}</td>
