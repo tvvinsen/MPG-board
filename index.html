@@ -240,15 +240,26 @@
         }
 
         .legend-table {
-            width: 50%;
+            width: 60%;
         }
 
         .legend-table th,
         .legend-table td {
-            padding: 10px 10px;
+            padding: 10px 5px;
             text-align: center;
         }
 
+        /* Aligner les SVG avec le texte */
+        .legend-table td > div {
+            display: flex;
+            align-items: center; /* Alignement vertical centré */
+            justify-content: center; /* Centrage horizontal */
+            gap: 8px; /* Espacement entre SVG et texte */
+        }
+
+        .legend-table svg {
+            flex-shrink: 0; /* Empêche le SVG de rétrécir */
+        }
     </style>
 </head>
 
