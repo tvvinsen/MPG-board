@@ -886,7 +886,7 @@
                 const bonusDispos = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
                 let nbBonusDispos = bonusDispos.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
                 
-                return remainingBonuses.length > 0 ? "Bonus disponibles (${nbBonusDispos}/${nbBonusDefault}) : " + remainingBonuses : "Plus aucun bonus disponible !"
+                return remainingBonuses.length > 0 ? "Bonus disponibles (" + nbBonusDispos + "/" + nbBonusDefault + ") : " + remainingBonuses : "Plus aucun bonus disponible !"
             }
 
 
