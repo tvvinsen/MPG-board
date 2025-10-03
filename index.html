@@ -882,7 +882,11 @@
                     .map(([nom, compteur]) => `${nom} (${compteur})`)
                     .join(' - ');
 
-                return remainingBonuses.length > 0 ? "Bonus restants : " + remainingBonuses : "Plus aucun bonus disponible !"
+                const nbBonusDefault = Array.from(bonusDetails().entries()).map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);   
+                const bonusDispos = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
+                let nbBonusDispos = bonusDispos.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+                
+                return remainingBonuses.length > 0 ? "Bonus disponibles (${nbBonusDispos}/${nbBonusDefault}) : " + remainingBonuses : "Plus aucun bonus disponible !"
             }
 
 
