@@ -120,7 +120,7 @@
         .classement-table td {
             padding: 10px;
             text-align: left;
-            border-bottom: 1px solid #e0e0e0;
+            /* border-bottom: 1px solid #e0e0e0; */
         }
 
         .classement-table th {
@@ -268,15 +268,19 @@
         <div class="header"
             style="align-items: center;justify-content: center;gap: 20px;padding: 15px 30px;background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
             <table style="width: 100%;">
-                <td style="width: 10%;"><img
-                        src="https://ligue1.com/images/Logo_Ligue1.webp"
-                        style="width: 70%" /></td>
+                <td style="width: 10%;">
+                    <a href="https://ligue1.com/fr/competitions/ligue1mcdonalds?tab=standings" target="_blank" rel="noopener noreferrer">
+                        <img src="https://ligue1.com/images/Logo_Ligue1.webp" style="width: 70%" />
+                    </a>
+                </td>
                 <td>
                     <h1 id="leagueTitle"></h1>
                 </td>
-                <td style="width: 10%;"><img
-                        src="https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/110825_mpg_2_56f655b391.webp"
-                        style="width: 70%" /></td>
+                <td style="width: 10%;">
+                    <a href="https://www.monpetitgazon.com/" target="_blank" rel="noopener noreferrer">
+                        <img src="https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/110825_mpg_2_56f655b391.webp" style="width: 70%" />
+                    </a>
+                </td>
             </table>
         </div>
         <div id="loading" class="loading">
@@ -413,6 +417,8 @@
             // Variable pour suivre la ligne actuellement étendue
             let currentExpandedRowId = null;
 
+            let mapBonusTargeted = new Map();
+
             // Classe pour gérer le tableau extensible
             class ExpandableTable {
                 constructor(containerId, divisionTitleId, data) {
@@ -423,6 +429,7 @@
                 }
 
                 init() {
+                    hideLoading();
                     this.render();
                     this.attachEventListeners();
                 }
@@ -461,6 +468,15 @@
                         ring = ringElement;
                     }
 
+                    // TODO : En attente d'évolution de l'API MPGStats pour récupérer la variation de position
+                    // Gestion de la variation de position
+                    let variation = "";
+                    // if ([4, 5, 6].includes(position)) {
+                    //     variation = '<img src="https://assets.eurosport.io/web/inArenaIcons/table-down.svg" style="width: 15px;"/>'
+                    // } else if ([3].includes(position)) {
+                    //     variation = '<img src="https://assets.eurosport.io/web/inArenaIcons/table-up.svg" style="width: 15px;"/>';
+                    // }
+
                     // Gestion du classement
                     if (position === 1) {
                         positionClass = 'first';
@@ -486,7 +502,7 @@
                         tr.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
                     }
 
-                    // Résultats des 5 dernières journées
+                    // Résultats des dernières journées
                     const lastFiveMatches = document.createElement('div');
                     const lastFiveMatchesChild = document.createElement('div');
                     lastFiveMatchesChild.style.display = 'inline-flex';
@@ -526,8 +542,29 @@
                         lastFiveMatchesChild.appendChild(createNotPlayedIconElement());
                     });
 
+                    
+                    mpgTeam.timeline.forEach((day, index) => {
+                        const opponent = farmersPlayersId().get(day.o) || 'Inconnu';
+
+                        // Filtrer les bonus non pertinents (0 : Capitaine, 6 : Chapron, 8 : 4 défenseurs, 9 : 5 défenseurs)
+                        const idxBonus = day?.b?.filter(bonus => ![0, 6, 8, 9].includes(bonus)).flatMap(bonus => bonus);
+                        // console.log(`J${index + 1} - ${mpgTeam.name} vs ${opponent} : `, idxBonus);
+
+                        // Construire une map des bonus ciblés pour chaque opposant
+                        const keyOpponentId = day.o;
+
+                        // const opponentName = farmersPlayersId().get(day.o) || 'Inconnu';
+                        if (idxBonus && idxBonus.length > 0) {
+                            const existingData = mapBonusTargeted.get(keyOpponentId) || [];
+                            // console.log(`Bonus déjà ciblés pour l'opposant ${mpgTeam.name} (ID: ${keyOpponentId}) :`, existingData);
+                            mapBonusTargeted.set(keyOpponentId, [...existingData, {nom : mpgTeam.name, bonus: idxBonus}]);
+                        }
+
+                        // console.log('Map intermédiaire des bonus ciblés :', mapBonusTargeted);
+                    });
+
                     tr.innerHTML = `
-                        <td class="position ${positionClass}">${position}</td>
+                        <td class="position ${positionClass}"><span>${position}${variation}</span></td>
                         <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name} ${ring}<br><span style="font-size: 80%;">${playerName}</span></td>
                         <td class="points">${mpgTeam.points} pts</td>
                         <td style="text-align: center">${this.data.leagueDayScan}</td>
@@ -546,45 +583,90 @@
                     tr.setAttribute('data-expanded-id', mpgUser.id);
 
                     const td = document.createElement('td');
-                    td.colSpan = 9; // Nombre de colonnes dans le tableau principal
-
-                    const nbBonusDefault = Array.from(bonusDetails().entries()).map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);   
-
-                    const bonusCount = getBonusCountUpdated(mpgUser.bonusTab);
-                    const bonusDispos = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
-                    let nbBonusDispos = bonusDispos.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+                    td.colSpan = 9; // Nombre de colonnes dans le tableau principal																																							
 
                     td.innerHTML = `
-                        <div class="details-panel">
+                        <div class="details-panel" style="display: inline-flex">
                             <h4>Informations du joueur ${mpgUser.name} (${mpgUser.abbr})</h4>
-                            <div class="details-grid">
                     `;
-                            
-                    if (nbBonusDispos > 0) {
-                        td.innerHTML += `
-                                <div>Bonus disponibles (${nbBonusDispos}/${nbBonusDefault})</div>
-                                    ${bonusDispos.map(([nom, [description, compteur, linkImg]]) => `
-                                        <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-                                            ${Array.from({ length: compteur }, 
-                                                () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
-                                        </div>
-                                    `).join('')}
-                                </div>`;
+
+                    const nbBonusDefault = Array.from(bonusDetails().entries()).map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);   
+                    const bonusCount = getBonusCountUpdated(mpgUser.bonusTab);
+                    const availableBonuses = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
+                    const nbAvailableBonuses = availableBonuses.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+                    
+                    let tableHTML = '<table><tr>';
+
+                    if (nbAvailableBonuses > 0) {
+                        tableHTML += `
+                                <td style="vertical-align: top; padding-right: 16px;">
+                                    <div>Bonus disponible${nbAvailableBonuses > 1 ? "s" : ""} (${nbAvailableBonuses}/${nbBonusDefault})</div>
+                                    <div id="dispos" style="display: inline-flex; margin-right: 16px;">
+                                        ${availableBonuses.map(([nom, [description, compteur, linkImg]]) => `
+                                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                                ${Array.from({ length: compteur }, 
+                                                    () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </td>
+                                `;
                     }
 
                     const usedBonus = Array.from(getBonusUsed(mpgUser.bonusTab));
-                    let nbBonusUsed = usedBonus.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
-
+                    const nbBonusUsed = usedBonus.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+																															   
                     if (nbBonusUsed > 0) {
-                        td.innerHTML += `
-                                <div>Bonus utilisés (${nbBonusUsed}/${nbBonusDefault})</div>
-                                    ${usedBonus.map(([nom, [description, compteur, linkImg]]) => `
-                                        <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-                                            ${Array.from({ length: compteur }, 
-                                                () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
-                                        </div>
-                                    `).join('')}
-                                </div>`;
+                        tableHTML += `
+                                <td style="vertical-align: top; padding-right: 16px;">
+                                    <div>Bonus utilisé${nbBonusUsed > 1 ? "s" : ""} (${nbBonusUsed}/${nbBonusDefault})</div>
+                                    <div id="used" style="display: inline-flex; margin-right: 16px;">
+                                        ${usedBonus.map(([nom, [description, compteur, linkImg]]) => `
+                                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                                ${Array.from({ length: compteur }, 
+                                                    () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </td>
+                                `;
+                    }
+
+                    tableHTML += `</td></tr></table>`;
+                    td.innerHTML += tableHTML;
+
+                    // console.log('Timeline noeud b :', mpgUser.timeline[0].b);
+                    // const bTargeted = getBonusTargeted(mpgUser.timeline[0].b);
+
+                    // console.log('Bonus ciblés :', bTargeted);
+
+                    // console.log('Map des bonus ciblés :', mapBonusTargeted);
+
+                    const bonusTargeted = mapBonusTargeted.get(mpgUser.id);
+                    
+                    // console.log('Bonus encaissés par le joueur :', bonusTargeted);
+
+                    if (bonusTargeted.length > 0) {   
+                        let tableHTML = '<table><tr>';
+                        
+                        const targetBonus = Array.from(getBonusTargeted(bonusTargeted));
+                        let nbBonusTarget = bonusTargeted.length
+
+                        tableHTML += `
+                                <td style="vertical-align: top; padding-right: 16px;">
+                                    <div>Bonus encaissé${nbBonusTarget > 1 ? "s" : ""} (${nbBonusTarget})</div>
+                                    <div id="used" style="display: inline-flex; margin-right: 16px;">
+                                        ${targetBonus.map(([nom, [description, tmp, compteur, linkImg]]) => `
+                                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                                ${Array.from({ length: 1 }, 
+                                                    () => `<img title="Attaque de ${tmp.nom}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </td>`;
+
+                        tableHTML += `</tr></table>`;
+                        td.innerHTML += tableHTML
                     }
 
                     td.innerHTML += `
@@ -608,7 +690,7 @@
                 }
 
                 handleRowClick(rowId, rowElement) {
-                    const mpgUser = this.data.teams.find(item => item.id === rowId);
+                    const mpgTeam = this.data.teams.find(item => item.id === rowId);
 
                     // Fermer la ligne actuellement étendue si elle existe et est différente
                     if (currentExpandedRowId && currentExpandedRowId !== rowId) {
@@ -624,7 +706,7 @@
                         currentExpandedRowId = null;
                     } else {
                         // Ouvrir la nouvelle ligne étendue
-                        const expandedRow = this.createExpandedRow(mpgUser);
+                        const expandedRow = this.createExpandedRow(mpgTeam);
                         rowElement.after(expandedRow);
                         rowElement.classList.add('expanded');
                         currentExpandedRowId = rowId;
@@ -752,7 +834,7 @@
             }
 
             function displayLeague(data) {
-                hideLoading();
+                // hideLoading();
                 // Affichage de la ligue
                 const leagueTitle = document.getElementById('leagueTitle');
                 leagueTitle.innerHTML = '';
@@ -787,14 +869,34 @@
             function bonusDetails() {
                 const bonusMap = new Map();
                 bonusMap.set("valise", ["Valise à Nanard", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
+                bonusMap.set("uber", ["McDo+", 3, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
                 bonusMap.set("suarez", ["Suarez", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
                 bonusMap.set("zahia", ["Zahia", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
-                bonusMap.set("uber", ["McDo+", 3, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
+																																		
                 bonusMap.set("miroir", ["Miroir", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
-                bonusMap.set("cheat", ["Cheat Code 18-26", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
+																																						  
                 bonusMap.set("tonton", ["Tonton Pat'", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
                 bonusMap.set("decat", ["4 Decat", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
-                return bonusMap;
+                bonusMap.set("cheat", ["Cheat Code 18-26", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
+
+                return Object.freeze(bonusMap);
+            }
+
+            function bonusList() {
+                const bonus = [];
+                bonus.push(["captain", "Capitaine", 1, ""]);
+                bonus.push(["valise", "Valise à Nanard", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
+                bonus.push(["uber", "McDo+", 3, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
+                bonus.push(["suarez", "Suarez", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
+                bonus.push(["zahia", "Zahia", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
+                bonus.push(["miroir", "Miroir", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
+                bonus.push(["chapron", "Chapron", 1, ""]);
+                bonus.push(["tonton", "Tonton Pat'", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
+                bonus.push(["4def", "4 Défenseurs", 1, ""]);
+                bonus.push(["5def", "5 Défenseurs", 1, ""]);
+                bonus.push(["decat", "4 Decat", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
+                bonus.push(["cheat", "Cheat Code 18-26", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
+                return bonus;
             }
 
             function farmersPlayers() {
@@ -850,15 +952,44 @@
             }
 
             function getBonusCountUpdated(bonusTab) {
-                // Décrémenter le compteur de chacun des bonus joués
+
                 const detailsBonus = bonusDetails();
+
+                // Décrémenter le compteur de chacun des bonus joués																	   
                 Object.entries(bonusTab)
                     .forEach(([key, value]) => {
                         const detail = detailsBonus.get(key);
                         if (detail)
                             detail[1]--;
                     });
+
                 return detailsBonus;
+            }
+
+            function getBonusTargeted(bonusTab) {
+                const setBonus = bonusList();
+                
+                // console.log('bonusTab', bonusTab);
+                // console.log('setBonus', setBonus);
+
+                const map = new Map(
+                    Object.entries(bonusTab)
+                        // .filter(([key]) => detailsBonus.has(key))
+                        .map(([key, value]) => {
+                            
+                            // console.log('key', key, 'value', value);
+
+                            const detail = setBonus[value.bonus[0]];
+
+                            // console.log('detail', detail);
+                            
+                            return [key, [detail[0], value, ...detail.slice(2)]];
+                        })
+                );
+
+                // console.log('map', map);
+
+                return map;
             }
 
             function getBonusUsed(bonusData) {
