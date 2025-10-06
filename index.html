@@ -960,7 +960,7 @@
                     .forEach(([key, value]) => {
                         const detail = detailsBonus.get(key);
                         if (detail)
-                            detail[1]--;
+                            detail[1] -= value;
                     });
 
                 return detailsBonus;
