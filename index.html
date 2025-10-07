@@ -240,7 +240,7 @@
         }
 
         .legend-table {
-            width: 60%;
+            width: 48%;
         }
 
         .legend-table th,
@@ -418,6 +418,7 @@
             let currentExpandedRowId = null;
 
             let mapBonusTargeted = new Map();
+            let mapBonusPlayed = new Map();
 
             // Classe pour gérer le tableau extensible
             class ExpandableTable {
@@ -542,25 +543,25 @@
                         lastFiveMatchesChild.appendChild(createNotPlayedIconElement());
                     });
 
-                    
+                    const listeBonus = bonusList();
+
                     mpgTeam.timeline.forEach((day, index) => {
                         const opponent = farmersPlayersId().get(day.o) || 'Inconnu';
 
                         // Filtrer les bonus non pertinents (0 : Capitaine, 6 : Chapron, 8 : 4 défenseurs, 9 : 5 défenseurs)
                         const idxBonus = day?.b?.filter(bonus => ![0, 6, 8, 9].includes(bonus)).flatMap(bonus => bonus);
-                        // console.log(`J${index + 1} - ${mpgTeam.name} vs ${opponent} : `, idxBonus);
 
                         // Construire une map des bonus ciblés pour chaque opposant
                         const keyOpponentId = day.o;
 
-                        // const opponentName = farmersPlayersId().get(day.o) || 'Inconnu';
-                        if (idxBonus && idxBonus.length > 0) {
+                        if (idxBonus && idxBonus.length === 1) {
                             const existingData = mapBonusTargeted.get(keyOpponentId) || [];
-                            // console.log(`Bonus déjà ciblés pour l'opposant ${mpgTeam.name} (ID: ${keyOpponentId}) :`, existingData);
-                            mapBonusTargeted.set(keyOpponentId, [...existingData, {nom : mpgTeam.name, bonus: idxBonus}]);
-                        }
+                            mapBonusTargeted.set(keyOpponentId, [...existingData, {nom : mpgTeam.name, bonus: idxBonus, day: index + 1}]);
 
-                        // console.log('Map intermédiaire des bonus ciblés :', mapBonusTargeted);
+                            const existingDataPlayed = mapBonusPlayed.get(mpgTeam.id) || [];
+                            const detail = listeBonus[idxBonus[0]];
+                            mapBonusPlayed.set(mpgTeam.id, [...existingDataPlayed, {adversaire : opponent, bonus: idxBonus[0], day: index + 1, info: detail}]);
+                        }
                     });
 
                     tr.innerHTML = `
@@ -613,18 +614,37 @@
                                 `;
                     }
 
-                    const usedBonus = Array.from(getBonusUsed(mpgUser.bonusTab));
-                    const nbBonusUsed = usedBonus.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
-																															   
-                    if (nbBonusUsed > 0) {
+                    // const usedBonus = Array.from(getBonusUsed(mpgUser.bonusTab));
+                    // const nbBonusUsed = usedBonus.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+
+                    // if (nbBonusUsed > 0) {
+                    //     tableHTML += `
+                    //             <td style="vertical-align: top; padding-right: 16px;">
+                    //                 <div>Bonus utilisé${nbBonusUsed > 1 ? "s" : ""} (${nbBonusUsed}/${nbBonusDefault})</div>
+                    //                 <div id="used" style="display: inline-flex; margin-right: 16px;">
+                    //                     ${usedBonus.map(([nom, [description, compteur, linkImg]]) => `
+                    //                         <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                    //                             ${Array.from({ length: compteur }, 
+                    //                                 () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                    //                         </div>
+                    //                     `).join('')}
+                    //                 </div>
+                    //             </td>
+                    //             `;
+                    // }
+
+                    const bonusPlayed = Array.from(mapBonusPlayed.get(mpgUser.id));
+                    const nbBonusPlayed = bonusPlayed.length;
+
+                    if (nbBonusPlayed > 0) {
                         tableHTML += `
                                 <td style="vertical-align: top; padding-right: 16px;">
-                                    <div>Bonus utilisé${nbBonusUsed > 1 ? "s" : ""} (${nbBonusUsed}/${nbBonusDefault})</div>
+                                    <div>Bonus utilisé${nbBonusPlayed > 1 ? "s" : ""} (${nbBonusPlayed}/${nbBonusDefault})</div>
                                     <div id="used" style="display: inline-flex; margin-right: 16px;">
-                                        ${usedBonus.map(([nom, [description, compteur, linkImg]]) => `
+                                        ${bonusPlayed.map((element) => `
                                             <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-                                                ${Array.from({ length: compteur }, 
-                                                    () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                                ${Array.from({ length: 1 },
+                                                    () => `<img title="${element.info[1]} (contre ${element.adversaire} en J${element.day})" src="${element.info[3]}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
                                             </div>
                                         `).join('')}
                                     </div>
@@ -659,7 +679,7 @@
                                         ${targetBonus.map(([nom, [description, tmp, compteur, linkImg]]) => `
                                             <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                                 ${Array.from({ length: 1 }, 
-                                                    () => `<img title="Attaque de ${tmp.nom}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                                    () => `<img title="Attaque de ${tmp.nom} (J${tmp.day})" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
                                             </div>
                                         `).join('')}
                                     </div>
@@ -872,13 +892,10 @@
                 bonusMap.set("uber", ["McDo+", 3, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
                 bonusMap.set("suarez", ["Suarez", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
                 bonusMap.set("zahia", ["Zahia", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
-																																		
                 bonusMap.set("miroir", ["Miroir", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
-																																						  
                 bonusMap.set("tonton", ["Tonton Pat'", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
                 bonusMap.set("decat", ["4 Decat", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
                 bonusMap.set("cheat", ["Cheat Code 18-26", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
-
                 return Object.freeze(bonusMap);
             }
 
@@ -896,7 +913,7 @@
                 bonus.push(["5def", "5 Défenseurs", 1, ""]);
                 bonus.push(["decat", "4 Decat", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
                 bonus.push(["cheat", "Cheat Code 18-26", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
-                return bonus;
+                return Object.freeze(bonus);
             }
 
             function farmersPlayers() {
