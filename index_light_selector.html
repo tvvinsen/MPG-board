@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="favicon.ico" rel="icon">
+    <title>MPG-Recast</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .league-selector {
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .league-selector-content {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .league-selector label {
+            font-weight: 600;
+            color: #2c3e50;
+            white-space: nowrap;
+        }
+
+        .league-selector input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .league-selector input:focus {
+            outline: none;
+            border-color: #2980b9;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .league-selector button {
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .league-selector button:hover {
+            background: linear-gradient(135deg, #2980b9, #21618c);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .league-selector button:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .classement-table {
+            width: 99%;
+            border-collapse: collapse;
+            margin: 0;
+            background: white;
+        }
+
+        .classement-table th,
+        .classement-table td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .classement-table th {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            font-weight: 600;
+            color: #2c3e50;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .classement-table tr:hover {
+            background: #f0f8ff;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        .position {
+            font-weight: bold;
+            font-size: 1.2em;
+            width: 60px;
+            text-align: center;
+        }
+
+        .position.first {
+            color: #ffd700;
+        }
+
+        .position.second {
+            color: #c0c0c0;
+        }
+
+        .position.third {
+            color: #cd7f32;
+        }
+
+        .joueur-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .points {
+            font-weight: bold;
+            color: #27ae60;
+            font-size: 1.1em;
+        }
+
+        .badge {
+            display: inline-block;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        .divisions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .division h2 {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .division {
+            overflow-x: auto;
+        }
+
+        .expanded-row {
+            animation: slideDown 2s ease;
+            background: #bdc279;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .legend-table {
+            width: 48%;
+        }
+
+        .legend-table th,
+        .legend-table td {
+            padding: 10px 5px;
+            text-align: center;
+        }
+
+        .legend-table td > div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .legend-table svg {
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 900px) {
+            .divisions {
+                grid-template-columns: 1fr;
+            }
+
+            .classement-table th,
+            .classement-table td {
+                font-size: 0.85em;
+                padding: 10px 6px;
+            }
+
+            .position {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .classement-table th,
+            .classement-table td {
+                padding: 10px 8px;
+                font-size: 0.9em;
+            }
+
+            .league-selector-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .league-selector input,
+            .league-selector button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9LJB9V4E62"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9LJB9V4E62');
+</script>
+
+<script data-goatcounter="https://tvvinsen.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
+<script>
+
+    let codeLeague = "PNAL4RJN";
+    let seasonNum = "9";
+
+    let API_URL_LEAGUE = 'https://api.mlnstats.com/mpgleague/league/' + codeLeague;
+
+    let codeLeagueAndSeasonNum = codeLeague + '_' + seasonNum;
+    let API_URL_DIV_1 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_1";
+    let API_URL_DIV_2 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_2";
+
+    const ringElement = '<span class="badge"></span>';
+
+    let currentExpandedRowId = null;
+    let mapBonusTargeted = new Map();
+    let mapBonusPlayed = new Map();
+
+    class ExpandableTable {
+        constructor(containerId, divisionTitleId, data) {
+            this.container = document.getElementById(containerId);
+            this.divisionTitleId = divisionTitleId;
+            this.data = data;
+            this.init();
+        }
+
+        init() {
+            this.render();
+            this.attachEventListeners();
+        }
+
+        render() {
+            const divisionTitle = document.getElementById(this.divisionTitleId);
+            divisionTitle.innerHTML = '';
+            const divisionSpan = document.createElement('span');
+            divisionSpan.innerHTML = `<p>${this.data.name}</p>`;
+            divisionTitle.appendChild(divisionSpan);
+
+            this.container.innerHTML = '';
+
+            this.data.teams.forEach((mpgTeam, index) => {
+                this.container.appendChild(this.createDataRow(mpgTeam, index));
+            });
+        }
+
+        createDataRow(mpgTeam, index) {
+            const position = index + 1;
+            let positionClass = '';
+            let ring = '';
+
+            const wdl = mpgTeam.win + '/' + mpgTeam.draw + '/' + mpgTeam.loss;
+            const realGoals = formatGP(mpgTeam.realGP) + '/' + formatGC(mpgTeam.realGC)
+            const mpgGoals = formatGP(mpgTeam.MPGGP) + '/' + formatGC(mpgTeam.MPGGC);
+            const playerName = farmersPlayers().get(mpgTeam.MPGuserId) || 'Inconnu';
+            
+            const bonusFormates = formatBonusTitle(mpgTeam.bonusTab);
+
+            const lastTimeline = [...mpgTeam.timeline].pop();
+            if (lastTimeline && lastTimeline.P === 1) {
+                ring = ringElement;
+            }
+
+            let variation = "";
+
+            if (position === 1) {
+                positionClass = 'first';
+            } else if (position === 2) {
+                positionClass = 'second';
+            } else if (position === 3) {
+                positionClass = 'third';
+            }
+
+            const tr = document.createElement('tr');
+            tr.className = 'data-row';
+            tr.setAttribute('data-row-id', mpgTeam.id);
+
+            const numDivision = this.data.divisionNum;
+            const nbJoueurs = this.data.teams.length;
+
+            if ((numDivision !== 1 && position < 4) || position === 1) {
+                tr.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
+            }
+            else if (numDivision === 1 && (position > nbJoueurs - 3) || position === nbJoueurs) {
+                tr.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+            }
+
+            const lastFiveMatches = document.createElement('div');
+            const lastFiveMatchesChild = document.createElement('div');
+            lastFiveMatchesChild.style.display = 'inline-flex';
+            lastFiveMatches.appendChild(lastFiveMatchesChild);
+
+            mpgTeam.timeline
+                .slice(-5)
+                .forEach((day, index) => {
+                    let butsGP = day.G?.flatMap(obj => Object.values(obj))
+                        .reduce((a, b) => a + b, 0) || 0;
+                    butsGP += day.M?.length || 0;
+
+                    const butsGC = (day.g || 0) + (day.m || 0);
+
+                    let titleDay;
+                    if (day.S === 'H') {
+                        titleDay = `${farmersPlayersId().get(mpgTeam.id) || 'Inconnu'} ${butsGP} - ${butsGC} ${farmersPlayersId().get(day.o) || 'Inconnu'}`;
+                    } else {
+                        titleDay = `${farmersPlayersId().get(day.o) || 'Inconnu'} ${butsGC} - ${butsGP} ${farmersPlayersId().get(mpgTeam.id) || 'Inconnu'}`;
+                    }
+
+                    switch (day.r) {
+                        case 'W': lastFiveMatchesChild.appendChild(createSuccessIconElement(titleDay)); break;
+                        case 'D': lastFiveMatchesChild.appendChild(createNulIconElement(titleDay)); break;
+                        case 'L': lastFiveMatchesChild.appendChild(createDefeatIconElement(titleDay)); break;
+                    }
+                });
+
+            const nbMissingTimelines = 5 - mpgTeam.timeline.length;
+            Array.from({ length: nbMissingTimelines }, () => {
+                lastFiveMatchesChild.appendChild(createNotPlayedIconElement());
+            });
+
+            const listeBonus = bonusList();
+
+            mpgTeam.timeline.forEach((day, index) => {
+                const opponent = farmersPlayersId().get(day.o) || 'Inconnu';
+                const idxBonus = day?.b?.filter(bonus => ![0, 6, 8, 9].includes(bonus)).flatMap(bonus => bonus);
+                const keyOpponentId = day.o;
+
+                if (idxBonus && idxBonus.length === 1) {
+                    const existingData = mapBonusTargeted.get(keyOpponentId) || [];
+                    mapBonusTargeted.set(keyOpponentId, [...existingData, {nom : farmersPlayersId().get(mpgTeam.id), bonus: idxBonus, day: index + 1}]);
+
+                    const existingDataPlayed = mapBonusPlayed.get(mpgTeam.id) || [];
+                    const detail = listeBonus[idxBonus[0]];
+                    mapBonusPlayed.set(mpgTeam.id, [...existingDataPlayed, {adversaire : opponent, bonus: idxBonus[0], day: index + 1, info: detail}]);
+                }
+            });
+
+            tr.innerHTML = `
+                <td class="position ${positionClass}"><span>${position}${variation}</span></td>
+                <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name} ${ring}<br><span style="font-size: 80%;">${playerName}</span></td>
+                <td class="points">${mpgTeam.points} pts</td>
+                <td style="text-align: center">${this.data.leagueDayScan}</td>
+                <td style="text-align: center">${wdl}</td>
+                <td style="text-align: center">${mpgTeam.goalAvg}</td>
+                <td style="text-align: center">${realGoals}</td>
+                <td style="text-align: center">${mpgGoals}</td>
+                <td style="text-align: center">${lastFiveMatches.innerHTML}</td>
+            `;
+            return tr;
+        }
+
+        createExpandedRow(mpgUser) {
+            const tr = document.createElement('tr');
+            tr.className = 'expanded-row';
+            tr.setAttribute('data-expanded-id', mpgUser.id);
+
+            const td = document.createElement('td');
+            td.colSpan = 9;
+
+            td.innerHTML = `
+                <div class="details-panel" style="display: inline-flex">
+                    <h4>Informations du joueur ${mpgUser.name} (${mpgUser.abbr})</h4>
+            `;
+
+            const nbBonusDefault = Array.from(bonusDetails().entries()).map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);   
+            const bonusCount = getBonusCountUpdated(mpgUser.bonusTab);
+            const availableBonuses = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
+            const nbAvailableBonuses = availableBonuses.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+            
+            let tableHTML = '<table><tr>';
+
+            if (nbAvailableBonuses > 0) {
+                tableHTML += `
+                        <td style="vertical-align: top; padding-right: 16px;">
+                            <div>Bonus disponible${nbAvailableBonuses > 1 ? "s" : ""} (${nbAvailableBonuses}/${nbBonusDefault})</div>
+                            <div id="dispos" style="display: inline-flex; margin-right: 16px;">
+                                ${availableBonuses.map(([nom, [description, compteur, linkImg]]) => `
+                                    <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                        ${Array.from({ length: compteur }, 
+                                            () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </td>
+                        `;
+            }
+
+            const bonusPlayedData = mapBonusPlayed.get(mpgUser.id);
+            if (bonusPlayedData) {
+                const bonusPlayed = Array.from(bonusPlayedData);
+                const nbBonusPlayed = bonusPlayed.length;
+
+                if (nbBonusPlayed > 0) {
+                    tableHTML += `
+                            <td style="vertical-align: top; padding-right: 16px;">
+                                <div>Bonus utilisé${nbBonusPlayed > 1 ? "s" : ""} (${nbBonusPlayed}/${nbBonusDefault})</div>
+                                <div id="used" style="display: inline-flex; margin-right: 16px;">
+                                    ${bonusPlayed.map((element) => `
+                                        <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                            ${Array.from({ length: 1 },
+                                                () => `<img title="${element.info[1]} : contre ${element.adversaire} en J${element.day}" src="${element.info[3]}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </td>
+                            `;
+                }
+            }
+
+            tableHTML += `</td></tr></table>`;
+            td.innerHTML += tableHTML;
+
+            const bonusTargeted = mapBonusTargeted.get(mpgUser.id);
+
+            if (bonusTargeted && bonusTargeted.length > 0) {   
+                let tableHTML = '<table><tr>';
+                
+                const targetBonus = Array.from(getBonusTargeted(bonusTargeted));
+                targetBonus.sort((a, b) => a[1][4].day - b[1][4].day);
+                let nbBonusTarget = bonusTargeted.length
+
+                tableHTML += `
+                        <td style="vertical-align: top; padding-right: 16px;">
+                            <div>Bonus encaissé${nbBonusTarget > 1 ? "s" : ""} (${nbBonusTarget})</div>
+                            <div id="used" style="display: inline-flex; margin-right: 16px;">
+                                ${targetBonus.map(([nom, [bKey, libelle, compteur, linkImg, tmp]]) => `
+                                    <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                        ${Array.from({ length: 1 }, 
+                                            () => `<img title="${libelle} : attaque de ${tmp.nom} en J${tmp.day}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </td>`;
+
+                tableHTML += `</tr></table>`;
+                td.innerHTML += tableHTML
+            }
+
+            td.innerHTML += `
+                        <div>Classement général moyen : Points ${mpgUser.gScoreAvg} / Rang ${mpgUser.gRankAvg}</div>
+                    </div>
+                </div>
+            `;
+
+            tr.appendChild(td);
+            return tr;
+        }
+
+        attachEventListeners() {
+            this.container.addEventListener('click', (e) => {
+                const dataRow = e.target.closest('.data-row');
+                if (dataRow) {
+                    const rowId = parseInt(dataRow.getAttribute('data-row-id'));
+                    this.handleRowClick(rowId, dataRow);
+                }
+            });
+        }
+
+        handleRowClick(rowId, rowElement) {
+            const mpgTeam = this.data.teams.find(item => item.id === rowId);
+
+            if (currentExpandedRowId && currentExpandedRowId !== rowId) {
+                this.closeExpandedRow(currentExpandedRowId);
+            }
+
+            const existingExpandedRow = document.querySelector(`[data-expanded-id="${rowId}"]`);
+
+            if (existingExpandedRow) {
+                this.closeExpandedRow(rowId);
+                currentExpandedRowId = null;
+            } else {
+                const expandedRow = this.createExpandedRow(mpgTeam);
+                rowElement.after(expandedRow);
+                rowElement.classList.add('expanded');
+                currentExpandedRowId = rowId;
+            }
+        }
+
+        closeExpandedRow(rowId) {
+            const expandedRow = document.querySelector(`[data-expanded-id="${rowId}"]`);
+            const dataRow = document.querySelector(`[data-row-id="${rowId}"]`);
+
+            if (expandedRow) {
+                expandedRow.classList.add('fadeOut');
+                setTimeout(() => {
+                    expandedRow.remove();
+                    if (dataRow) {
+                        dataRow.classList.remove('expanded');
+                    }
+                }, 200);
+            }
+        }
+    }
+
+    const createNotPlayedIconElement = (labelId = 'validation-notplayed') => {
+        const div = document.createElement('div');
+        div.setAttribute('aria-labelledby', labelId);
+        div.innerHTML = `
+            <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
+                <path d="M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" fill="none" stroke="#9D9BA7" stroke-width="2"></path>
+            </svg>`;
+        return div;
+    };
+
+    const createSuccessIconElement = (title) => {
+        const div = document.createElement('div');
+        div.setAttribute('aria-labelledby', 'validation-success');
+        div.innerHTML = `
+        <span title="${title}">
+            <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
+                <path clip-rule="evenodd" d="M11 3a8 8 0 1 1 0 16 8 8 0 0 1 0-16" fill="#34A853"></path>
+                <path clip-rule="evenodd" d="M9.2 12.28 7.12 10.2 6 11.32l3.2 3.2 6.4-6.4L14.48 7z" fill="#fff"></path>
+            </svg>
+        </span>`;
+        return div;
+    };
+
+    const createNulIconElement = (title) => {
+        const div = document.createElement('div');
+        div.setAttribute('aria-labelledby', 'validation-nul');
+        div.innerHTML = `
+        <span title="${title}">
+            <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">  
+                <path clip-rule="evenodd" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16" fill="#9D9BA7" fill-rule="evenodd"></path> 
+                <path clip-rule="evenodd" d="M8 10h6v2H8z" fill="#fff" fill-rule="evenodd"></path>  
+            </svg>
+        </span>`;
+        return div;
+    };
+
+    const createDefeatIconElement = (title) => {
+        const div = document.createElement('div');
+        div.setAttribute('aria-labelledby', 'validation-defeat');
+        div.innerHTML = `
+        <span title="${title}">
+            <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">  
+                <path clip-rule="evenodd" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16" fill="#EA4335" fill-rule="evenodd"></path> 
+                <path clip-rule="evenodd" d="M13.263 14.394 11 12.131l-2.263 2.263-1.131-1.131L9.869 11 7.606 8.737l1.131-1.131L11 9.869l2.263-2.263 1.131 1.131L12.131 11l2.263 2.263z" fill="#fff" fill-rule="evenodd"></path>  
+            </svg>
+        </span>`;
+        return div;
+    };
+
+    async function fetchJson(url) {
+        const resp = await fetch(url);
+        if (!resp.ok) {
+            // throw new Error('Erreur HTTP ' + resp.status);
+            console.error(url, ' -> Erreur HTTP ' + resp.status);
+            return null;
+        } else {
+            return resp.json();
+        }
+    }
+
+    async function fetchLeague() {
+        try {
+            const response = await fetch(API_URL_LEAGUE);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            displayLeague(data);
+        } catch (error) {
+            console.error('Erreur:', error);
+            showError('Impossible de charger les données de la ligue. Vérifiez le code de la ligue.');
+        }
+    }
+
+    function displayLeague(data) {
+        const leagueTitle = document.getElementById('leagueTitle');
+        leagueTitle.innerHTML = '';
+        const spanELement = document.createElement('span');
+        spanELement.innerHTML = `<p>${data.name} / Saison ${data.seasonNum}</p>`;
+        leagueTitle.appendChild(spanELement);
+
+        seasonNum = data?.seasonNum?.toString() || "9";
+        updateApiUrls();
+    }
+
+    function updateApiUrls() {
+        API_URL_LEAGUE = 'https://api.mlnstats.com/mpgleague/league/' + codeLeague;
+        codeLeagueAndSeasonNum = codeLeague + '_' + seasonNum;
+        API_URL_DIV_1 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_1";
+        API_URL_DIV_2 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_2";
+    }
+
+    function loadLeague(newLeagueCode) {
+        if (!newLeagueCode || newLeagueCode.trim() === '') {
+            showError('Veuillez entrer un code de ligue valide.');
+            return;
+        }
+
+        mapBonusTargeted.clear();
+        mapBonusPlayed.clear();
+        currentExpandedRowId = null;
+
+        codeLeague = newLeagueCode.trim().toUpperCase();
+        updateApiUrls();
+
+        document.getElementById('content').style.display = 'none';
+        document.getElementById('error').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+
+        fetchLeague().then(() => {
+            fetchMatches();
+        });
+    }
+
+    async function fetchMatches() {
+        try {
+            const divisionConfigs = [
+                [API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1'],
+                [API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2']
+            ];
+
+            const allMatches = await Promise.all(
+                divisionConfigs.map(([url]) => fetchJson(url))
+            );
+
+            allMatches.forEach((matches, i) => {
+                if (!matches) {
+                    console.error(`Erreur lors du chargement des matchs pour l'URL: ${divisionConfigs[i][0]}`);
+
+                    let containerId = document.getElementById(divisionConfigs[i][1]);
+                    let divisionTitleId = document.getElementById(divisionConfigs[i][2]);
+                    divisionTitleId.innerHTML = '<p>Erreur lors du chargement des matchs / division indisponible.</p>';
+                    containerId.innerHTML = '<p>NA</p>';
+                    return;
+                }
+                new ExpandableTable(divisionConfigs[i][1], divisionConfigs[i][2], matches.division);
+            });
+
+            contentDisplay();
+
+        } catch (error) {
+            console.error('Erreur:', error);
+            showError('Erreur lors du chargement des matchs. Vérifiez le code de la ligue.');
+        }
+    }
+
+    function bonusDetails() {
+        const bonusMap = new Map();
+        bonusMap.set("valise", ["Valise à Nanard", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
+        bonusMap.set("uber", ["McDo+", 3, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
+        bonusMap.set("suarez", ["Suarez", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
+        bonusMap.set("zahia", ["Zahia", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
+        bonusMap.set("miroir", ["Miroir", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
+        bonusMap.set("tonton", ["Tonton Pat'", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
+        bonusMap.set("decat", ["4 Decat", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
+        bonusMap.set("cheat", ["Cheat Code 18-26", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
+        return Object.freeze(bonusMap);
+    }
+
+    function bonusList() {
+        const bonus = [];
+        bonus.push(["captain", "Capitaine", 1, ""]);
+        bonus.push(["valise", "Valise à Nanard", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
+        bonus.push(["uber", "McDo+", 3, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
+        bonus.push(["suarez", "Suarez", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
+        bonus.push(["zahia", "Zahia", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
+        bonus.push(["miroir", "Miroir", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
+        bonus.push(["chapron", "Chapron", 1, ""]);
+        bonus.push(["tonton", "Tonton Pat'", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
+        bonus.push(["4def", "4 Défenseurs", 1, ""]);
+        bonus.push(["5def", "5 Défenseurs", 1, ""]);
+        bonus.push(["decat", "4 Decat", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
+        bonus.push(["cheat", "Cheat Code 18-26", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
+        return Object.freeze(bonus);
+    }
+
+    function farmersPlayers() {
+        const mapPlayerNames = new Map();
+        mapPlayerNames.set(188049, "Yannick");
+        mapPlayerNames.set(3535140, "Jérôme");
+        mapPlayerNames.set(649848, "Vincent");
+        mapPlayerNames.set(5142264, "Richard");
+        mapPlayerNames.set(3536346, "David");
+        mapPlayerNames.set(521473, "Robin");
+        mapPlayerNames.set(6429552, "Benoît");
+        mapPlayerNames.set(6430884, "Julien");
+        mapPlayerNames.set(5892169, "Nicolas");
+        mapPlayerNames.set(1497344, "Antoine P.");
+        mapPlayerNames.set(1519479, "Jean-Philippe");
+        mapPlayerNames.set(6429841, "Stéphane");
+        mapPlayerNames.set(7143201, "Charlotte");
+        mapPlayerNames.set(7206496, "Leïla");
+        mapPlayerNames.set(6942448, "Thomas");
+        mapPlayerNames.set(6742055, "Antoine C.");
+        return mapPlayerNames;
+    }
+
+    function farmersPlayersId() {
+        const mapPlayerNames = new Map();
+        mapPlayerNames.set(2919624, "Yannick");
+        mapPlayerNames.set(2919625, "Jérôme");
+        mapPlayerNames.set(2919631, "Vincent");
+        mapPlayerNames.set(2919627, "Richard");
+        mapPlayerNames.set(2919626, "David");
+        mapPlayerNames.set(2919628, "Robin");
+        mapPlayerNames.set(2919629, "Benoît");
+        mapPlayerNames.set(2919630, "Julien");
+        mapPlayerNames.set(2919634, "Nicolas");
+        mapPlayerNames.set(2919632, "Antoine P.");
+        mapPlayerNames.set(2919633, "Jean-Philippe");
+        mapPlayerNames.set(2919635, "Stéphane");
+        mapPlayerNames.set(2919638, "Charlotte");
+        mapPlayerNames.set(2919639, "Leïla");
+        mapPlayerNames.set(2919637, "Thomas");
+        mapPlayerNames.set(2919636, "Antoine C.");
+        return mapPlayerNames;
+    }
+
+    function formatGP(goalGP) {
+        return (goalGP > 0 ? '+' : '') + goalGP;
+    }
+
+    function formatGC(goalGC) {
+        return (goalGC > 0 ? '-' : '') + goalGC;
+    }
+
+    function getBonusCountUpdated(bonusTab) {
+        const detailsBonus = bonusDetails();
+        Object.entries(bonusTab)
+            .forEach(([key, value]) => {
+                const detail = detailsBonus.get(key);
+                if (detail)
+                    detail[1] -= value;
+            });
+        return detailsBonus;
+    }
+
+    function getBonusTargeted(bonusTab) {
+        const setBonus = bonusList();
+        const map = new Map(
+            Object.entries(bonusTab)
+                .map(([key, value]) => {                    
+                    const detail = setBonus[value.bonus[0]];                    
+                    return [key, [...detail, value]];
+                })
+        );
+        return map;
+    }
+
+    function getBonusUsed(bonusData) {
+        const detailsBonus = bonusDetails();
+        return new Map(
+            Object.entries(bonusData)
+                .filter(([key]) => detailsBonus.has(key))
+                .map(([key, value]) => {
+                    const detail = detailsBonus.get(key);
+                    return [key, [detail[0], value, ...detail.slice(2)]];
+                })
+        );
+    }
+
+    function formatBonusTitle(bonusTab) {
+        const bonusCount = getBonusCountUpdated(bonusTab);
+        const remainingBonuses = [...bonusCount.values()]
+            .filter(([nom, compteur]) => compteur > 0)
+            .map(([nom, compteur]) => `${nom} (${compteur})`)
+            .join(' - ');
+
+        const nbBonusDefault = Array.from(bonusDetails().entries()).map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);   
+        const bonusDispos = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
+        let nbBonusDispos = bonusDispos.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+        
+        return remainingBonuses.length > 0 ? "Bonus disponibles (" + nbBonusDispos + "/" + nbBonusDefault + ") : " + remainingBonuses : "Plus aucun bonus disponible !"
+    }
+
+    function contentDisplay() {
+        hideLoading();
+        document.getElementById('content').style.display = 'block';
+    }
+
+    function hideLoading() {
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    function showError(message = 'Erreur lors du chargement des données. Veuillez réessayer.') {
+        hideLoading();
+        const errorDiv = document.getElementById('error');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+
+    // Chargement initial
+    fetchLeague();
+    fetchMatches();
+
+    // Gestion du formulaire de sélection de ligue
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('leagueForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('leagueCodeInput');
+            loadLeague(input.value);
+        });
+    });
+
+    // Actualisation automatique toutes les heures
+    setInterval(() => {
+        fetchMatches();
+    }, 60 * 60 * 1000);
+</script>
+
+<body>
+    <div class="container">
+        <div class="header" style="align-items: center;justify-content: center;gap: 20px;padding: 15px 30px;background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+            <table style="width: 100%;">
+                <td style="width: 10%;">
+                    <a href="https://ligue1.com/fr/competitions/ligue1mcdonalds?tab=standings" target="_blank" rel="noopener noreferrer">
+                        <img src="https://ligue1.com/images/Logo_Ligue1.webp" style="width: 70%" />
+                    </a>
+                </td>
+                <td>
+                    <h1 id="leagueTitle"></h1>
+                </td>
+                <td style="width: 10%;">
+                    <a href="https://www.monpetitgazon.com/" target="_blank" rel="noopener noreferrer">
+                        <img src="https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/110825_mpg_2_56f655b391.webp" style="width: 70%" />
+                    </a>
+                </td>
+            </table>
+        </div>
+        
+        <div class="league-selector">
+            <form id="leagueForm" class="league-selector-content">
+                <label for="leagueCodeInput">Code de ligue :</label>
+                <input 
+                    type="text" 
+                    id="leagueCodeInput" 
+                    placeholder="Ex: PNAL4RJN" 
+                    defaultValue="PNAL4RJN"
+                    maxlength="8"
+                    pattern="[A-Za-z0-9]{8}"
+                    title="Le code de ligue doit contenir 8 caractères alphanumériques"
+                />
+                <button type="submit">Charger</button>
+            </form>
+        </div>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            Chargement des données...
+        </div>
+        <div id="error" class="error" style="display: none;">
+            Erreur lors du chargement des données. Veuillez réessayer.
+        </div>
+        <div id="content" style="display: none;">
+            <div class="divisions">
+                <div class="division">
+                    <h2 id="divisionTitle1"></h2>
+                    <table id="division1" class="classement-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Equipe</th>
+                                <th>Points</th>
+                                <th style="text-align: center">J</th>
+                                <th style="text-align: center">V/N/D</th>
+                                <th style="text-align: center">Diff.</th>
+                                <th style="text-align: center">Buts<br>réels</th>
+                                <th style="text-align: center">Buts<br>MPG</th>
+                                <th style="text-align: center">Derniers<br>matchs</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classementBodyDiv1"></tbody>
+                    </table>
+                </div>
+                <div class="division">
+                    <h2 id="divisionTitle2"></h2>
+                    <table id="division2" class="classement-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Equipe</th>
+                                <th>Points</th>
+                                <th style="text-align: center">J</th>
+                                <th style="text-align: center">V/N/D</th>
+                                <th style="text-align: center">Diff.</th>
+                                <th style="text-align: center">Buts<br>réels</th>
+                                <th style="text-align: center">Buts<br>MPG</th>
+                                <th style="text-align: center">Derniers<br>matchs</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classementBodyDiv2"></tbody>
+                    </table>
+                </div>
+                <div>
+                    <div class="imso-hide-overflow">Derniers matchs</div>
+                    <div>
+                        <table class="legend-table">
+                            <tr>
+                                <td>
+                                    <div style="display: flex;">
+                                        <div aria-labelledby="l5l-w">
+                                            <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
+                                                <path d="M11 3a8 8 0 1 1 0 16 8 8 0 0 1 0-16" fill="#34A853"></path>
+                                                <path d="M9.2 12.28 7.12 10.2 6 11.32l3.2 3.2 6.4-6.4L14.48 7z" fill="#fff"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="imso-hide-overflow TiMwHe" id="l5l-w">Victoire</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex;">
+                                        <div aria-labelledby="l5l-t">
+                                            <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
+                                                <path clip-rule="evenodd" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16" fill="#9D9BA7" fill-rule="evenodd"></path>
+                                                <path clip-rule="evenodd" d="M8 10h6v2H8z" fill="#fff" fill-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="imso-hide-overflow TiMwHe" id="l5l-t">Match nul</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex;">
+                                        <div aria-labelledby="l5l-l">
+                                            <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
+                                                <path clip-rule="evenodd" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16" fill="#EA4335" fill-rule="evenodd"></path>
+                                                <path clip-rule="evenodd" d="M13.263 14.394 11 12.131l-2.263 2.263-1.131-1.131L9.869 11 7.606 8.737l1.131-1.131L11 9.869l2.263-2.263 1.131 1.131L12.131 11l2.263 2.263z" fill="#fff" fill-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="imso-hide-overflow TiMwHe" id="l5l-l">Défaite</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex;">
+                                        <div aria-labelledby="l5l-np">
+                                            <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
+                                                <path d="M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" fill="none" stroke="#9D9BA7" stroke-width="2"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="imso-hide-overflow TiMwHe" id="l5l-np">Non disputé</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
