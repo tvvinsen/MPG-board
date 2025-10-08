@@ -517,7 +517,7 @@
                                 ${bonusPlayed.map((element) => `
                                     <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                         ${Array.from({ length: 1 },
-                                            () => `<img title="${element.info[1]} : contre ${element.adversaire} en J${element.day}" src="${element.info[3]}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                            () => `<img title="${element.info[1]} : contre ${element.adversaire} (J${element.day})" src="${element.info[3]}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
                                     </div>
                                 `).join('')}
                             </div>
@@ -546,7 +546,7 @@
                                 ${targetBonus.map(([nom, [bKey, libelle, compteur, linkImg, tmp]]) => `
                                     <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                         ${Array.from({ length: 1 }, 
-                                            () => `<img title="${libelle} : attaque de ${tmp.nom} en J${tmp.day}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                            () => `<img title="${libelle} : attaque de ${tmp.nom} (J${tmp.day})" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
                                     </div>
                                 `).join('')}
                             </div>
@@ -910,8 +910,9 @@
     }
 
     // Chargement initial
-    fetchLeague();
-    fetchMatches();
+    fetchLeague().then(() => {
+        fetchMatches();
+    });
 
     // Actualisation automatique toutes les heures
     setInterval(fetchMatches, 60 * 60 * 1000);
