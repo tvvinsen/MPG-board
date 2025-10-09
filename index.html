@@ -177,7 +177,7 @@
             margin-left: 10px;
         }
 
-        @media (max-width: 768px) {
+        /* @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
             }
@@ -188,7 +188,7 @@
                 font-size: 0.9em;
             }
         }
-
+ */
         .divisions {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -734,8 +734,7 @@
     async function fetchMatches() {
         try {
             const divisionConfigs = [
-                [API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1']
-                ,
+                [API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1'],
                 [API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2']
             ];
 
