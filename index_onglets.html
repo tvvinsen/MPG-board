@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="favicon.ico" rel="icon">
+    <title>MPG-Recast</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            animation: float 20s infinite linear;
+        }
+
+        /* Styles pour les onglets */
+        .tabs-container {
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tabs {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-x: auto;
+        }
+
+        .tab-button {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+
+        .tab-button.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+        }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .league-selector {
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .league-selector-content {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .league-selector label {
+            font-weight: 600;
+            color: #2c3e50;
+            white-space: nowrap;
+        }
+
+        .league-selector input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .league-selector input:focus {
+            outline: none;
+            border-color: #2980b9;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .league-selector button {
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .league-selector button:hover {
+            background: linear-gradient(135deg, #2980b9, #21618c);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .league-selector button:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .classement-table {
+            width: 99%;
+            border-collapse: collapse;
+            margin: 0;
+            background: white;
+        }
+
+        .classement-table th,
+        .classement-table td {
+            padding: 10px;
+            text-align: left;
+            /* border-bottom: 1px solid #e0e0e0; */
+        }
+
+        .classement-table th {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            font-weight: 600;
+            color: #2c3e50;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .classement-table tr:hover {
+            background: #f0f8ff;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        .position {
+            font-weight: bold;
+            font-size: 1.2em;
+            width: 60px;
+            text-align: center;
+        }
+
+        .position.first {
+            color: #ffd700;
+        }
+
+        .position.second {
+            color: #c0c0c0;
+        }
+
+        .position.third {
+            color: #cd7f32;
+        }
+
+        .joueur-name {
+            font-weight: 600;
+            color: #2c3e50;
+            /* text-align: left; */
+        }
+
+        .points {
+            font-weight: bold;
+            color: #27ae60;
+            font-size: 1.1em;
+        }
+
+        .badge {
+            display: inline-block;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .classement-table th,
+            .classement-table td {
+                padding: 10px 8px;
+                font-size: 0.9em;
+            }
+        }
+
+        .divisions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .division h2 {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        @media (max-width: 900px) {
+            .divisions {
+                grid-template-columns: 1fr;
+            }
+
+            .classement-table th,
+            .classement-table td {
+                font-size: 0.85em;
+                padding: 10px 6px;
+            }
+
+            .position {
+                font-size: 1em;
+            }
+
+            .league-selector-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .league-selector input,
+            .league-selector button {
+                width: 100%;
+            }
+
+        }
+
+        .division {
+            overflow-x: auto;
+        }
+
+        .expanded-row {
+            animation: slideDown 2s ease;
+            background: #bdc279;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .legend-table {
+            width: 48%;
+        }
+
+        .legend-table th,
+        .legend-table td {
+            padding: 10px 5px;
+            text-align: center;
+        }
+
+        /* Aligner les SVG avec le texte */
+        .legend-table td > div {
+            display: flex;
+            align-items: center; /* Alignement vertical centré */
+            justify-content: center; /* Centrage horizontal */
+            gap: 8px; /* Espacement entre SVG et texte */
+        }
+
+        .legend-table svg {
+            flex-shrink: 0; /* Empêche le SVG de rétrécir */
+        }
+
+        @media (max-width: 900px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .divisions {
+                grid-template-columns: 1fr;
+            }
+
+            .classement-table th,
+            .classement-table td {
+                font-size: 0.85em;
+                padding: 10px 6px;
+            }
+
+            .position {
+                font-size: 1em;
+            }
+
+            .tab-button {
+                min-width: 120px;
+                padding: 12px 15px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9LJB9V4E62"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9LJB9V4E62');
+</script>
+
+<script data-goatcounter="https://tvvinsen.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
+<body>
+    <div class="container">
+        <div class="header"
+            style="align-items: center;justify-content: center;gap: 20px;padding: 15px 30px;background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+            <table style="width: 100%;">
+                <td style="width: 10%;">
+                    <a href="https://ligue1.com/fr/competitions/ligue1mcdonalds?tab=standings" target="_blank" rel="noopener noreferrer">
+                        <img src="https://ligue1.com/images/Logo_Ligue1.webp" style="width: 70%" />
+                    </a>
+                </td>
+                <td>
+                    <h1 id="leagueTitle"></h1>
+                </td>
+                <td style="width: 10%;">
+                    <a href="https://www.monpetitgazon.com/" target="_blank" rel="noopener noreferrer">
+                        <img src="https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/110825_mpg_2_56f655b391.webp" style="width: 70%" />
+                    </a>
+                </td>
+            </table>
+        </div>
+
+        <!-- Navigation par onglets -->
+        <div class="tabs-container">
+            <ul class="tabs">
+                <li><button class="tab-button active" data-tab="classement">📊 Classement</button></li>
+                <li><button class="tab-button" data-tab="calendrier">📅 Calendrier</button></li>
+                <li><button class="tab-button" data-tab="stats">📈 Statistiques</button></li>
+                <li><button class="tab-button" data-tab="teams">👥 Équipes</button></li>
+                <li><button class="tab-button" data-tab="cfg">⚙️ Configuration</button></li>
+            </ul>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            Chargement des données...
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+            Erreur lors du chargement des données. Veuillez réessayer.
+        </div>
+
+        <div id="content" style="display: none;">
+            <!-- Onglet Classement -->
+            <div id="classement-tab" class="tab-content active">
+                <div class="divisions">
+                    <div class="division">
+                        <h2 id="divisionTitle1"></h2>
+                        <table id="division1" class="classement-table">
+                            <!-- Table headers + body -->
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Equipe</th>
+                                    <th>Points</th>
+                                    <th style="text-align: center">J</th>
+                                    <th style="text-align: center">V/N/D</th>
+                                    <th style="text-align: center">Diff.</th>
+                                    <th style="text-align: center">Buts<br>réels</th>
+                                    <th style="text-align: center">Buts<br>MPG</th>
+                                    <th style="text-align: center">Derniers<br>matchs</th>
+                                </tr>
+                            </thead>
+                            <tbody id="classementBodyDiv1"></tbody>
+                        </table>
+                    </div>
+                    <div class="division">
+                        <h2 id="divisionTitle2"></h2>
+                        <table id="division2" class="classement-table">
+                            <!-- Table headers + body -->
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Equipe</th>
+                                    <th>Points</th>
+                                    <th style="text-align: center">J</th>
+                                    <th style="text-align: center">V/N/D</th>
+                                    <th style="text-align: center">Diff.</th>
+                                    <th style="text-align: center">Buts<br>réels</th>
+                                    <th style="text-align: center">Buts<br>MPG</th>
+                                    <th style="text-align: center">Derniers<br>matchs</th>
+                                </tr>
+                            </thead>
+                            <tbody id="classementBodyDiv2"></tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <div class="imso-hide-overflow">Derniers matchs</div>
+                        <div>
+                            <table class="legend-table">
+                                <tr>
+                                    <td>
+                                        <div style="display: flex;">
+                                            <div aria-labelledby="l5l-w">
+                                                <svg aria-hidden="true" viewBox="0 0 22 22"
+                                                    style="height: 22px; width: 22px">
+                                                    <path d="M11 3a8 8 0 1 1 0 16 8 8 0 0 1 0-16"
+                                                        fill="#34A853"></path>
+                                                    <path
+                                                        d="M9.2 12.28 7.12 10.2 6 11.32l3.2 3.2 6.4-6.4L14.48 7z"
+                                                        fill="#fff"></path>
+                                                </svg>
+                                            </div>
+                                            <div class="imso-hide-overflow TiMwHe" id="l5l-w">Victoire</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex;">
+                                            <div aria-labelledby="l5l-t">
+                                                <svg aria-hidden="true" viewBox="0 0 22 22"
+                                                    style="height: 22px; width: 22px">
+                                                    <path clip-rule="evenodd"
+                                                        d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16"
+                                                        fill="#9D9BA7" fill-rule="evenodd"></path>
+                                                    <path clip-rule="evenodd" d="M8 10h6v2H8z" fill="#fff" fill-rule="evenodd"></path>
+                                                </svg>
+                                            </div>
+                                            <div class="imso-hide-overflow TiMwHe" id="l5l-t">Match
+                                                nul</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex;">
+                                            <div aria-labelledby="l5l-l">
+                                                <svg aria-hidden="true" viewBox="0 0 22 22"
+                                                    style="height: 22px; width: 22px">
+                                                    <path clip-rule="evenodd"
+                                                        d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16"
+                                                        fill="#EA4335" fill-rule="evenodd"></path>
+                                                    <path clip-rule="evenodd"
+                                                        d="M13.263 14.394 11 12.131l-2.263 2.263-1.131-1.131L9.869 11 7.606 8.737l1.131-1.131L11 9.869l2.263-2.263 1.131 1.131L12.131 11l2.263 2.263z"
+                                                        fill="#fff" fill-rule="evenodd"></path>
+                                                </svg>
+                                            </div>
+                                            <div class="imso-hide-overflow TiMwHe" id="l5l-l">
+                                                Défaite</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex;">
+                                            <div aria-labelledby="l5l-np">
+                                                <svg aria-hidden="true" viewBox="0 0 22 22"
+                                                    style="height: 22px; width: 22px">
+                                                    <path d="M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" fill="none" stroke="#9D9BA7" stroke-width="2"></path>
+                                                </svg>
+                                            </div>
+                                            <div class="imso-hide-overflow TiMwHe" id="l5l-np">Non disputé</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Onglet Équipes -->
+            <div id="equipes-tab" class="tab-content">
+                <div style="padding: 40px; text-align: center;">
+                    <h2>Équipes</h2>
+                    <p style="margin-top: 20px; color: #666;">Contenu à venir...</p>
+                </div>
+            </div>
+
+            <!-- Onglet Calendrier -->
+            <div id="calendrier-tab" class="tab-content">
+                <div style="padding: 40px; text-align: center;">
+                    <h2>Calendrier</h2>
+                    <p style="margin-top: 20px; color: #666;">Contenu à venir...</p>
+                </div>
+            </div>
+
+            <!-- Onglet Statistiques -->
+            <div id="stats-tab" class="tab-content">
+                <div style="padding: 40px; text-align: center;">
+                    <h2>Statistiques</h2>
+                    <p style="margin-top: 20px; color: #666;">Contenu à venir...</p>
+                </div>
+            </div>
+
+            <!-- Onglet Configuration -->
+            <div id="cfg-tab" class="tab-content">
+                <div style="padding: 40px; text-align: center;">
+                    <h2>Configuration</h2>
+                    <div class="league-selector">
+                        <form id="leagueForm" class="league-selector-content">
+                            <label for="leagueCodeInput">Code de la ligue :</label>
+                            <input 
+                                type="text" 
+                                id="leagueCodeInput" 
+                                placeholder="Ex: PNAL4RJN" 
+                                defaultValue="PNAL4RJN"
+                                maxlength="8"
+                                pattern="[A-Za-z0-9]{8}"
+                                title="Le code de ligue doit contenir 8 caractères alphanumériques"
+                            />
+                            <button type="submit">Charger</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+<script>
+    let codeLeague = "PNAL4RJN";
+    let seasonNum = "9";
+
+    let API_URL_LEAGUE = 'https://api.mlnstats.com/mpgleague/league/' + codeLeague;
+
+    let codeLeagueAndSeasonNum = codeLeague + '_' + seasonNum;
+    let API_URL_DIV_1 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_1";
+    let API_URL_DIV_2 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_2";
+
+    const ringElement = '<span class="badge"><img src="data:image/png;base64,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" style="vertical-align: bottom; width: 20px"/></span>';
+
+    // Gestion des onglets
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+            
+            console.log('Onglet sélectionné :', tabId); // Log de débogage
+            
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            button.classList.add('active');
+            document.getElementById(tabId + '-tab').classList.add('active');
+        });
+    });
+
+    // Variable pour suivre la ligne actuellement étendue
+    let currentExpandedRowId = null;
+
+    let mapBonusTargeted = new Map();
+    let mapBonusPlayed = new Map();
+
+    // Classe pour gérer le tableau extensible
+    class ExpandableTable {
+        constructor(containerId, divisionTitleId, data) {
+            this.container = document.getElementById(containerId);
+            this.divisionTitleId = divisionTitleId;
+            this.data = data;
+            this.init();
+        }
+
+        init() {
+            this.render();
+            this.attachEventListeners();
+        }
+
+        render() {
+            // Personnalisation du nom de la division
+            const divisionTitle = document.getElementById(this.divisionTitleId);
+            divisionTitle.innerHTML = '';
+            const divisionSpan = document.createElement('span');
+            divisionSpan.innerHTML = `<p>${this.data.name}</p>`;
+            divisionTitle.appendChild(divisionSpan);
+
+            this.container.innerHTML = '';
+
+            this.data.teams.forEach((mpgTeam, index) => {
+                this.container.appendChild(this.createDataRow(mpgTeam, index));
+            });
+        }
+
+        createDataRow(mpgTeam, index) {
+            const position = index + 1;
+            let positionClass = '';
+            let ring = '';
+
+            const wdl = mpgTeam.win + '/' + mpgTeam.draw + '/' + mpgTeam.loss;
+            const realGoals = formatGP(mpgTeam.realGP) + '/' + formatGC(mpgTeam.realGC)
+            const mpgGoals = formatGP(mpgTeam.MPGGP) + '/' + formatGC(mpgTeam.MPGGC);
+            const playerName = farmersPlayers().get(mpgTeam.MPGuserId) || 'Inconnu';
+        
+            // Construire une liste des bonus utilisés par le joueur
+            const bonusFormates = formatBonusTitle(mpgTeam.bonusTab);
+
+            // Gestion de l'anneau, extraction de la dernière journée de championnat sans modifier l'original
+            const lastTimeline = [...mpgTeam.timeline].pop();
+            if (lastTimeline.P === 1) {
+                ring = ringElement;
+            }
+
+            // TODO : En attente d'évolution de l'API MPGStats pour récupérer la variation de position
+            // Gestion de la variation de position
+            let variation = "";
+            // if ([4, 5, 6].includes(position)) {
+            //     variation = '<img src="https://assets.eurosport.io/web/inArenaIcons/table-down.svg" style="width: 15px;"/>'
+            // } else if ([3].includes(position)) {
+            //     variation = '<img src="https://assets.eurosport.io/web/inArenaIcons/table-up.svg" style="width: 15px;"/>';
+            // }
+
+            // Gestion du classement
+            if (position === 1) {
+                positionClass = 'first';
+            } else if (position === 2) {
+                positionClass = 'second';
+            } else if (position === 3) {
+                positionClass = 'third';
+            }
+
+            const tr = document.createElement('tr');
+            tr.className = 'data-row';
+            tr.setAttribute('data-row-id', mpgTeam.id);
+
+            const numDivision = this.data.divisionNum;
+            const nbJoueurs = this.data.teams.length;
+
+            // Mise en évidence des leaders de la division (permier de la première division ou top 3 des autres divisions)
+            if ((numDivision !== 1 && position < 4) || position === 1) {
+                tr.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
+            }
+            // Mise en évidence des derniers de la division (dernier de la dernière division ou bottom 3 des autres divisions)
+            else if (numDivision === 1 && (position > nbJoueurs - 3) || position === nbJoueurs) {
+                tr.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+            }
+
+            // Résultats des dernières journées
+            const lastFiveMatches = document.createElement('div');
+            const lastFiveMatchesChild = document.createElement('div');
+            lastFiveMatchesChild.style.display = 'inline-flex';
+            lastFiveMatches.appendChild(lastFiveMatchesChild);
+
+            mpgTeam.timeline
+                .slice(-5)  // Garder uniquement les 5 derniers éléments
+                .forEach((day, index) => {
+                    // Sommer les buts réels marqués
+                    let butsGP = day.G?.flatMap(obj => Object.values(obj))
+                        .reduce((a, b) => a + b, 0) || 0;
+                    // Ajouter les buts MPG
+                    butsGP += day.M?.length || 0;
+
+                    // Somme des buts encaissés
+                    const butsGC = (day.g || 0) + (day.m || 0);
+
+                    // Construction du titre de l'icône
+                    let titleDay;
+                    if (day.S === 'H') {
+                        // Match à domicile 'Home'
+                        titleDay = `${farmersPlayersId().get(mpgTeam.id) || 'Inconnu'} ${butsGP} - ${butsGC} ${farmersPlayersId().get(day.o) || 'Inconnu'}`;
+                    } else {
+                        // Match à l'extérieur 'Away'
+                        titleDay = `${farmersPlayersId().get(day.o) || 'Inconnu'} ${butsGC} - ${butsGP} ${farmersPlayersId().get(mpgTeam.id) || 'Inconnu'}`;
+                    }
+
+                    switch (day.r) {
+                        case 'W': lastFiveMatchesChild.appendChild(createSuccessIconElement(titleDay)); break;
+                        case 'D': lastFiveMatchesChild.appendChild(createNulIconElement(titleDay)); break;
+                        case 'L': lastFiveMatchesChild.appendChild(createDefeatIconElement(titleDay)); break;
+                    }
+                });
+
+            const nbMissingTimelines = 5 - mpgTeam.timeline.length;
+            Array.from({ length: nbMissingTimelines }, () => {
+                lastFiveMatchesChild.appendChild(createNotPlayedIconElement());
+            });
+
+            const listeBonus = bonusList();
+
+            mpgTeam.timeline.forEach((day, index) => {
+                const opponent = farmersPlayersId().get(day.o) || 'Inconnu';
+
+                // Filtrer les bonus non pertinents (0 : Capitaine, 6 : Chapron, 8 : 4 défenseurs, 9 : 5 défenseurs)
+                const idxBonus = day?.b?.filter(bonus => ![0, 6, 8, 9].includes(bonus)).flatMap(bonus => bonus);
+
+                // Construire une map des bonus ciblés pour chaque opposant
+                const keyOpponentId = day.o;
+
+                if (idxBonus && idxBonus.length === 1) {
+                    const existingData = mapBonusTargeted.get(keyOpponentId) || [];
+                    mapBonusTargeted.set(keyOpponentId, [...existingData, {nom : farmersPlayersId().get(mpgTeam.id), bonus: idxBonus, day: index + 1}]);
+
+                    const existingDataPlayed = mapBonusPlayed.get(mpgTeam.id) || [];
+                    const detail = listeBonus[idxBonus[0]];
+                    mapBonusPlayed.set(mpgTeam.id, [...existingDataPlayed, {adversaire : opponent, bonus: idxBonus[0], day: index + 1, info: detail}]);
+                }
+            });
+
+            tr.innerHTML = `
+                <td class="position ${positionClass}"><span>${position}${variation}</span></td>
+                <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name} ${ring}<br><span style="font-size: 80%;">${playerName}</span></td>
+                <td class="points">${mpgTeam.points} pts</td>
+                <td style="text-align: center">${this.data.leagueDayScan}</td>
+                <td style="text-align: center">${wdl}</td>
+                <td style="text-align: center">${mpgTeam.goalAvg}</td>
+                <td style="text-align: center">${realGoals}</td>
+                <td style="text-align: center">${mpgGoals}</td>
+                <td style="text-align: center">${lastFiveMatches.innerHTML}</td>
+            `;
+            return tr;
+        }
+
+        createExpandedRow(mpgUser) {
+            const tr = document.createElement('tr');
+            tr.className = 'expanded-row';
+            tr.setAttribute('data-expanded-id', mpgUser.id);
+
+            const td = document.createElement('td');
+            td.colSpan = 9; // Nombre de colonnes dans le tableau principal																																							
+
+            td.innerHTML = `
+                <div class="details-panel" style="display: inline-flex">
+                    <h4>Informations du joueur ${mpgUser.name} (${mpgUser.abbr})</h4>
+            `;
+
+            const nbBonusDefault = Array.from(bonusDetails().entries()).map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);   
+            const bonusCount = getBonusCountUpdated(mpgUser.bonusTab);
+            const availableBonuses = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
+            const nbAvailableBonuses = availableBonuses.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+            
+            let tableHTML = '<table><tr>';
+
+            if (nbAvailableBonuses > 0) {
+            tableHTML += `
+                    <td style="vertical-align: top; padding-right: 16px;">
+                        <div>Bonus disponible${nbAvailableBonuses > 1 ? "s" : ""} (${nbAvailableBonuses}/${nbBonusDefault})</div>
+                        <div id="dispos" style="display: inline-flex; margin-right: 16px;">
+                            ${availableBonuses.map(([nom, [description, compteur, linkImg]]) => `
+                                <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                    ${Array.from({ length: compteur }, 
+                                        () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </td>
+                    `;
+            }
+
+            // const usedBonus = Array.from(getBonusUsed(mpgUser.bonusTab));
+            // const nbBonusUsed = usedBonus.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+                
+            // if (nbBonusUsed > 0) {
+            //     tableHTML += `
+            //             <td style="vertical-align: top; padding-right: 16px;">
+            //                 <div>Bonus utilisé${nbBonusUsed > 1 ? "s" : ""} (${nbBonusUsed}/${nbBonusDefault})</div>
+            //                 <div id="used" style="display: inline-flex; margin-right: 16px;">
+            //                     ${usedBonus.map(([nom, [description, compteur, linkImg]]) => `
+            //                         <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+            //                             ${Array.from({ length: compteur }, 
+            //                                 () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+            //                         </div>
+            //                     `).join('')}
+            //                 </div>
+            //             </td>
+            //             `;
+            // }
+
+            const bonusPlayed = Array.from(mapBonusPlayed.get(mpgUser.id));
+            const nbBonusPlayed = bonusPlayed.length;
+
+            if (nbBonusPlayed > 0) {
+                tableHTML += `
+                        <td style="vertical-align: top; padding-right: 16px;">
+                            <div>Bonus utilisé${nbBonusPlayed > 1 ? "s" : ""} (${nbBonusPlayed}/${nbBonusDefault})</div>
+                            <div id="used" style="display: inline-flex; margin-right: 16px;">
+                                ${bonusPlayed.map((element) => `
+                                    <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                        ${Array.from({ length: 1 },
+                                            () => `<img title="${element.info[1]} : contre ${element.adversaire} (J${element.day})" src="${element.info[3]}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </td>
+                        `;
+                }
+
+                tableHTML += `</td></tr></table>`;
+                td.innerHTML += tableHTML;
+
+                const bonusTargeted = mapBonusTargeted.get(mpgUser.id);
+                
+            if (bonusTargeted.length > 0) {   
+                    let tableHTML = '<table><tr>';
+                
+                    const targetBonus = Array.from(getBonusTargeted(bonusTargeted));
+
+                // Trier les bonus par journée de championnat
+                targetBonus .sort((a, b) => a[1][4].day - b[1][4].day);
+                let nbBonusTarget = bonusTargeted.length
+
+                tableHTML += `
+                        <td style="vertical-align: top; padding-right: 16px;">
+                            <div>Bonus encaissé${nbBonusTarget > 1 ? "s" : ""} (${nbBonusTarget})</div>
+                            <div id="used" style="display: inline-flex; margin-right: 16px;">
+                                ${targetBonus.map(([nom, [bKey, libelle, compteur, linkImg, tmp]]) => `
+                                    <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                        ${Array.from({ length: 1 }, 
+                                            () => `<img title="${libelle} : attaque de ${tmp.nom} (J${tmp.day})" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </td>`;
+
+                    tableHTML += `</tr></table>`;
+                td.innerHTML += tableHTML
+                }
+
+            td.innerHTML += `
+                        <div>Classement général moyen : Points ${mpgUser.gScoreAvg} / Rang ${mpgUser.gRankAvg}</div>
+                    </div>
+                </div>
+            `;
+
+            tr.appendChild(td);
+            return tr;
+        }
+
+        attachEventListeners() {
+            this.container.addEventListener('click', (e) => {
+                e.preventDefault();
+                const dataRow = e.target.closest('.data-row');
+                if (dataRow) {
+                    const rowId = parseInt(dataRow.getAttribute('data-row-id'));
+                    this.handleRowClick(rowId, dataRow);
+                }
+            });
+        }
+
+        handleRowClick(rowId, rowElement) {
+            const mpgTeam = this.data.teams.find(item => item.id === rowId);
+
+            // Fermer la ligne actuellement étendue si elle existe et est différente
+            if (currentExpandedRowId && currentExpandedRowId !== rowId) {
+                this.closeExpandedRow(currentExpandedRowId);
+            }
+
+            // Vérifier si la ligne cliquée est déjà étendue
+            const existingExpandedRow = document.querySelector(`[data-expanded-id="${rowId}"]`);
+
+            if (existingExpandedRow) {
+                // Fermer la ligne étendue
+                this.closeExpandedRow(rowId);
+                currentExpandedRowId = null;
+            } else {
+                // Ouvrir la nouvelle ligne étendue
+                const expandedRow = this.createExpandedRow(mpgTeam);
+                rowElement.after(expandedRow);
+                rowElement.classList.add('expanded');
+                currentExpandedRowId = rowId;
+            }
+        }
+
+        closeExpandedRow(rowId) {
+            const expandedRow = document.querySelector(`[data-expanded-id="${rowId}"]`);
+            const dataRow = document.querySelector(`[data-row-id="${rowId}"]`);
+
+            if (expandedRow) {
+                expandedRow.classList.add('fadeOut');
+                setTimeout(() => {
+                    expandedRow.remove();
+                    if (dataRow) {
+                        dataRow.classList.remove('expanded');
+                    }
+                }, 200);
+            }
+        }
+
+        // Méthodes utilitaires pour ajouter/supprimer des lignes
+        addRow(newRowData) {
+            this.data.push(newRowData);
+            this.render();
+            this.attachEventListeners();
+        }
+
+        removeRow(rowId) {
+            this.data = this.data.filter(item => item.id !== rowId);
+            this.closeExpandedRow(rowId);
+            this.render();
+            this.attachEventListeners();
+        }
+
+        updateRow(rowId, newData) {
+            const index = this.data.findIndex(item => item.id === rowId);
+            if (index !== -1) {
+                this.data[index] = { ...this.data[index], ...newData };
+                this.render();
+                this.attachEventListeners();
+            }
+        }
+    }
+
+    const createNotPlayedIconElement = (labelId = 'validation-notplayed') => {
+        const div = document.createElement('div');
+        div.setAttribute('aria-labelledby', labelId);
+
+        div.innerHTML = `
+            <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
+                <path d="M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" fill="none" stroke="#9D9BA7" stroke-width="2"></path>
+            </svg>`;
+
+        return div;
+    };
+
+    const createSuccessIconElement = (title) => {
+        const labelId = 'validation-success'
+        const div = document.createElement('div');
+        div.setAttribute('aria-labelledby', labelId);
+
+        div.innerHTML = `
+        <span title="${title}">
+            <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
+                <path clip-rule="evenodd" d="M11 3a8 8 0 1 1 0 16 8 8 0 0 1 0-16" fill="#34A853"></path>
+                <path clip-rule="evenodd" d="M9.2 12.28 7.12 10.2 6 11.32l3.2 3.2 6.4-6.4L14.48 7z" fill="#fff"></path>
+            </svg>
+        </span>`;
+
+        return div;
+    };
+
+    const createNulIconElement = (title) => {
+        const labelId = 'validation-nul';
+        const div = document.createElement('div');
+        div.setAttribute('aria-labelledby', labelId);
+
+        div.innerHTML = `
+        <span title="${title}">
+            <svg class="nB9CIe" aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">  
+                <path clip-rule="evenodd" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16" fill="#9D9BA7" fill-rule="evenodd"></path> 
+                <path clip-rule="evenodd" d="M8 10h6v2H8z" fill="#fff" fill-rule="evenodd"></path>  
+            </svg>
+        </span>`;
+
+        return div;
+    };
+
+    const createDefeatIconElement = (title) => {
+        const labelId = 'validation-defeat';
+        const div = document.createElement('div');
+        div.setAttribute('aria-labelledby', labelId);
+
+        div.innerHTML = `
+        <span title="${title}">
+            <svg class="nB9CIe" aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">  
+                <path clip-rule="evenodd" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16" fill="#EA4335" fill-rule="evenodd"></path> 
+                <path clip-rule="evenodd" d="M13.263 14.394 11 12.131l-2.263 2.263-1.131-1.131L9.869 11 7.606 8.737l1.131-1.131L11 9.869l2.263-2.263 1.131 1.131L12.131 11l2.263 2.263z" fill="#fff" fill-rule="evenodd"></path>  
+            </svg>
+        </span>`;
+
+        return div;
+    };
+
+    async function fetchJsonOLD(url) {
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error('Erreur HTTP ' + resp.status);
+        return resp.json();
+    }
+
+    async function fetchJson(url) {
+        const resp = await fetch(url);
+        if (!resp.ok) {
+            // throw new Error('Erreur HTTP ' + resp.status);
+            console.error(url, ' -> Erreur HTTP ' + resp.status);
+            return null;
+        } else {
+            return resp.json();
+        }
+    }    
+    async function fetchLeague() {
+        try {
+            const response = await fetch(API_URL_LEAGUE);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            displayLeague(data);
+        } catch (error) {
+            console.error('Erreur:', error);
+            showError();
+        }
+    }
+
+    function displayLeague(data) {
+        // Affichage de la ligue
+        const leagueTitle = document.getElementById('leagueTitle');
+        leagueTitle.innerHTML = '';
+        const spanELement = document.createElement('span');
+        spanELement.innerHTML = `<p>${data.name} / Saison ${data.seasonNum}</p>`;
+        leagueTitle.appendChild(spanELement);
+
+        seasonNum = data?.seasonNum?.toString() || "1";
+        updateApiUrls();        
+        // contentDisplay();
+    }
+
+    function loadLeague(newLeagueCode) {
+        if (!newLeagueCode || newLeagueCode.trim() === '') {
+            showError('Veuillez entrer un code de ligue valide.');
+            return;
+        }
+
+        mapBonusTargeted.clear();
+        mapBonusPlayed.clear();
+        currentExpandedRowId = null;
+
+        codeLeague = newLeagueCode.trim().toUpperCase();
+        updateApiUrls();
+
+        document.getElementById('content').style.display = 'none';
+        document.getElementById('error').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+
+        fetchLeague().then(() => {
+            fetchMatches();
+        });
+    }
+
+    function updateApiUrls() {
+        API_URL_LEAGUE = 'https://api.mlnstats.com/mpgleague/league/' + codeLeague;
+        codeLeagueAndSeasonNum = codeLeague + '_' + seasonNum;
+        API_URL_DIV_1 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_1";
+        API_URL_DIV_2 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_2";
+    }
+
+    async function fetchMatches() {
+        try {
+            const divisionConfigs = [
+                [API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1'],
+                [API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2']
+            ];
+
+            const allMatches = await Promise.all(
+                divisionConfigs.map(([url]) => fetchJson(url))
+            );
+
+            allMatches.forEach((matches, i) => {
+                if (!matches) {
+                    console.error(`Erreur lors du chargement des matchs pour l'URL: ${divisionConfigs[i][0]}`);
+
+                    let containerId = document.getElementById(divisionConfigs[i][1]);
+                    let divisionTitleId = document.getElementById(divisionConfigs[i][2]);
+                    divisionTitleId.innerHTML = '<p>Erreur lors du chargement des matchs / division indisponible.</p>';
+                    containerId.innerHTML = '<p>NA</p>';
+                    return;
+                }                
+                new ExpandableTable(divisionConfigs[i][1], divisionConfigs[i][2] , matches.division);
+            });
+
+            contentDisplay();
+
+        } catch (error) {
+            console.error('Erreur:', error);
+            showError();
+        }
+    }
+
+    function bonusDetails() {
+        const bonusMap = new Map();
+        bonusMap.set("valise", ["Valise à Nanard", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
+        bonusMap.set("uber", ["McDo+", 3, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
+        bonusMap.set("suarez", ["Suarez", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
+        bonusMap.set("zahia", ["Zahia", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
+        bonusMap.set("miroir", ["Miroir", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
+        bonusMap.set("tonton", ["Tonton Pat'", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
+        bonusMap.set("decat", ["4 Decat", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
+        bonusMap.set("cheat", ["Cheat Code 18-26", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
+        return Object.freeze(bonusMap);
+    }
+
+    function bonusList() {
+        const bonus = [];
+        bonus.push(["captain", "Capitaine", 1, ""]);
+        bonus.push(["valise", "Valise à Nanard", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
+        bonus.push(["uber", "McDo+", 3, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
+        bonus.push(["suarez", "Suarez", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
+        bonus.push(["zahia", "Zahia", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
+        bonus.push(["miroir", "Miroir", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
+        bonus.push(["chapron", "Chapron", 1, ""]);
+        bonus.push(["tonton", "Tonton Pat'", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
+        bonus.push(["4def", "4 Défenseurs", 1, ""]);
+        bonus.push(["5def", "5 Défenseurs", 1, ""]);
+        bonus.push(["decat", "4 Decat", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
+        bonus.push(["cheat", "Cheat Code 18-26", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
+        return Object.freeze(bonus);
+    }
+
+    function farmersPlayers() {
+        const mapPlayerNames = new Map();
+        mapPlayerNames.set(188049, "Yannick");
+        mapPlayerNames.set(3535140, "Jérôme");
+        mapPlayerNames.set(649848, "Vincent");
+        mapPlayerNames.set(5142264, "Richard");
+        mapPlayerNames.set(3536346, "David");
+        mapPlayerNames.set(521473, "Robin");
+        mapPlayerNames.set(6429552, "Benoît");
+        mapPlayerNames.set(6430884, "Julien");
+
+        mapPlayerNames.set(5892169, "Nicolas");
+        mapPlayerNames.set(1497344, "Antoine P.");
+        mapPlayerNames.set(1519479, "Jean-Philippe");
+        mapPlayerNames.set(6429841, "Stéphane");
+        mapPlayerNames.set(7143201, "Charlotte");
+        mapPlayerNames.set(7206496, "Leïla");
+        mapPlayerNames.set(6942448, "Thomas");
+        mapPlayerNames.set(6742055, "Antoine C.");
+        return mapPlayerNames;
+    }
+
+    function farmersPlayersId() {
+        const mapPlayerNames = new Map();
+        mapPlayerNames.set(2919624, "Yannick");
+        mapPlayerNames.set(2919625, "Jérôme");
+        mapPlayerNames.set(2919631, "Vincent");
+        mapPlayerNames.set(2919627, "Richard");
+        mapPlayerNames.set(2919626, "David");
+        mapPlayerNames.set(2919628, "Robin");
+        mapPlayerNames.set(2919629, "Benoît");
+        mapPlayerNames.set(2919630, "Julien");
+
+        mapPlayerNames.set(2919634, "Nicolas");
+        mapPlayerNames.set(2919632, "Antoine P.");
+        mapPlayerNames.set(2919633, "Jean-Philippe");
+        mapPlayerNames.set(2919635, "Stéphane");
+        mapPlayerNames.set(2919638, "Charlotte");
+        mapPlayerNames.set(2919639, "Leïla");
+        mapPlayerNames.set(2919637, "Thomas");
+        mapPlayerNames.set(2919636, "Antoine C.");
+        return mapPlayerNames;
+    }
+
+    function formatGP(goalGP) {
+        return (goalGP > 0 ? '+' : '') + goalGP;
+    }
+
+    function formatGC(goalGC) {
+        return (goalGC > 0 ? '-' : '') + goalGC;
+    }
+
+    function getBonusCountUpdated(bonusTab) {
+
+        const detailsBonus = bonusDetails();
+
+        // Décrémenter le compteur de chacun des bonus joués																	   
+        Object.entries(bonusTab)
+            .forEach(([key, value]) => {
+                const detail = detailsBonus.get(key);
+                if (detail)
+                    detail[1] -= value;
+            });
+
+        return detailsBonus;
+    }
+
+    function getBonusTargeted(bonusTab) {
+        const setBonus = bonusList();
+    
+        const map = new Map(
+        Object.entries(bonusTab)
+            .map(([key, value]) => {                    
+                const detail = setBonus[value.bonus[0]];
+                return [key, [...detail, value]];
+            })
+        );
+
+        return map;
+    }
+
+    function getBonusUsed(bonusData) {
+        const detailsBonus = bonusDetails();
+    
+        return new Map(
+            Object.entries(bonusData)
+                .filter(([key]) => detailsBonus.has(key))
+                .map(([key, value]) => {
+                    const detail = detailsBonus.get(key);
+                    return [key, [detail[0], value, ...detail.slice(2)]];
+                })
+        );
+    }
+
+    function formatBonusTitle(bonusTab) {
+        const bonusCount = getBonusCountUpdated(bonusTab);
+
+        const remainingBonuses = [...bonusCount.values()]
+            .filter(([nom, compteur]) => compteur > 0)
+            .map(([nom, compteur]) => `${nom} (${compteur})`)
+            .join(' - ');
+
+        const nbBonusDefault = Array.from(bonusDetails().entries()).map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);   
+        const bonusDispos = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
+        let nbBonusDispos = bonusDispos.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+    
+        return remainingBonuses.length > 0 ? "Bonus disponibles (" + nbBonusDispos + "/" + nbBonusDefault + ") : " + remainingBonuses : "Plus aucun bonus disponible !"
+    }
+
+
+    function contentDisplay() {
+        hideLoading();
+        document.getElementById('content').style.display = 'block';
+    }
+
+    function hideLoading() {
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    function showError() {
+        hideLoading();
+        document.getElementById('error').style.display = 'block';
+    }
+
+    // Chargement initial
+    fetchLeague().then(() => {
+        fetchMatches();
+    });
+
+    // Gestion du formulaire de sélection de ligue
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('leagueForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('leagueCodeInput');
+            loadLeague(input.value);
+
+            // Basculer vers l'onglet Classement
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            const classementTabButton = document.querySelector('.tab-button[data-tab="classement"]');
+            classementTabButton.classList.add('active');
+            document.getElementById('classement-tab').classList.add('active');
+        });
+    });
+
+    // Actualisation automatique toutes les heures
+    setInterval(fetchMatches, 60 * 60 * 1000);
+</script>
+
+</html>
