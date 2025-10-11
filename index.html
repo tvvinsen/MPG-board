@@ -177,7 +177,7 @@
             margin-left: 10px;
         }
 
-        /* @media (max-width: 768px) {
+        @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
             }
@@ -188,7 +188,7 @@
                 font-size: 0.9em;
             }
         }
- */
+
         .divisions {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -241,18 +241,19 @@
 
         .legend-table {
             width: 48%;
+            overflow-x: auto; /* Au cas où le contenu déborde quand même */
         }
 
         .legend-table th,
         .legend-table td {
             padding: 10px 5px;
             text-align: center;
+            vertical-align: middle;
         }
 
         /* Aligner les SVG avec le texte */
         .legend-table td > div {
             display: flex;
-            align-items: center; /* Alignement vertical centré */
             justify-content: center; /* Centrage horizontal */
             gap: 8px; /* Espacement entre SVG et texte */
         }
@@ -987,7 +988,7 @@
                     </table>
                 </div>
                 <div>
-                    <div class="imso-hide-overflow">Derniers matchs</div>
+                    <div>Derniers matchs</div>
                     <div>
                         <table class="legend-table">
                             <tr>
@@ -1003,7 +1004,7 @@
                                                     fill="#fff"></path>
                                             </svg>
                                         </div>
-                                        <div class="imso-hide-overflow TiMwHe" id="l5l-w">Victoire</div>
+                                        <div id="l5l-w">Victoire</div>
                                     </div>
                                 </td>
                                 <td>
@@ -1017,8 +1018,7 @@
                                                 <path clip-rule="evenodd" d="M8 10h6v2H8z" fill="#fff" fill-rule="evenodd"></path>
                                             </svg>
                                         </div>
-                                        <div class="imso-hide-overflow TiMwHe" id="l5l-t">Match
-                                            nul</div>
+                                        <div id="l5l-t">Nul</div>
                                     </div>
                                 </td>
                                 <td>
@@ -1034,19 +1034,7 @@
                                                     fill="#fff" fill-rule="evenodd"></path>
                                             </svg>
                                         </div>
-                                        <div class="imso-hide-overflow TiMwHe" id="l5l-l">
-                                            Défaite</div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="display: flex;">
-                                        <div aria-labelledby="l5l-np">
-                                            <svg aria-hidden="true" viewBox="0 0 22 22"
-                                                style="height: 22px; width: 22px">
-                                                <path d="M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" fill="none" stroke="#9D9BA7" stroke-width="2"></path>
-                                            </svg>
-                                        </div>
-                                        <div class="imso-hide-overflow TiMwHe" id="l5l-np">Non disputé</div>
+                                        <div id="l5l-l">Défaite</div>
                                     </div>
                                 </td>
                             </tr>
