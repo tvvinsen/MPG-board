@@ -416,11 +416,187 @@
                 font-size: 0.9em;
             }
         }
+
+
+        /* Navigation par journée */
+        .journee-navigation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .journee-navigation button {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .journee-navigation button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #2980b9, #21618c);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .journee-navigation button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .journee-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .journee-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .journee-dates {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* Conteneur des matchs */
+        .matches-container {
+            padding: 20px;
+        }
+
+        .match-date-group {
+            margin-bottom: 30px;
+        }
+
+        .match-date-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            padding: 10px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .match-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .match-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .match-time {
+            font-weight: bold;
+            color: #3498db;
+            min-width: 60px;
+        }
+
+        .match-teams {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .team-name {
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .match-score {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #27ae60;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .match-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-avenir {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-termine {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .loadingCal {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .match-card {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .team-name {
+                min-width: auto;
+            }
+
+            .journee-navigation {
+                flex-wrap: wrap;
+            }
+        }        
     </style>
 </head>
 
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9LJB9V4E62"></script>
+<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-9LJB9V4E62"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -429,7 +605,7 @@
   gtag('config', 'G-9LJB9V4E62');
 </script>
 
-<script data-goatcounter="https://tvvinsen.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script data-goatcounter="https://tvvinsen.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script> -->
 
 <body>
     <div class="container">
@@ -458,7 +634,7 @@
                 <li><button class="tab-button active" data-tab="classement">📊 Classement</button></li>
                 <li><button class="tab-button" data-tab="calendrier">📅 Calendrier</button></li>
                 <li><button class="tab-button" data-tab="stats">📈 Statistiques</button></li>
-                <li><button class="tab-button" data-tab="teams">👥 Équipes</button></li>
+                <li><button class="tab-button" data-tab="equipes">👥 Équipes</button></li>
                 <li><button class="tab-button" data-tab="cfg">⚙️ Configuration</button></li>
             </ul>
         </div>
@@ -597,8 +773,33 @@
             <!-- Onglet Calendrier -->
             <div id="calendrier-tab" class="tab-content">
                 <div style="padding: 40px; text-align: center;">
-                    <h2>Calendrier</h2>
-                    <p style="margin-top: 20px; color: #666;">Contenu à venir...</p>
+                    <!-- <h2>Calendrier</h2> -->
+                    <!-- <p style="margin-top: 20px; color: #666;">Contenu à venir...</p> -->
+                    <div id="cal">
+                        <div class="journee-navigation">
+                            <button id="prevBtn" onclick="changeJournee(-1)">
+                                ← Précédente
+                            </button>
+                            
+                            <div class="journee-info">
+                                <div class="journee-number">Journée <span id="currentJournee">9</span></div>
+                                <div class="journee-dates" id="journeeDates"></div>
+                            </div>
+                            
+                            <button id="nextBtn" onclick="changeJournee(1)">
+                                Suivante →
+                            </button>
+                        </div>
+
+                        <div id="loadingCal" class="loadingCal">
+                            <div class="spinner"></div>
+                            Chargement des matchs...
+                        </div>
+
+                        <div id="matchesContainer" class="matches-container" style="display: none;">
+                            <!-- Les matchs seront affichés ici -->
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -631,7 +832,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </body>
@@ -654,6 +854,11 @@
             const tabId = button.getAttribute('data-tab');
             
             console.log('Onglet sélectionné :', tabId); // Log de débogage
+            if(tabId === 'calendrier') {
+                console.log('Chargement des données du calendrier...');
+                // const data = fetchData();
+                // console.log(`Total récupéré: ${data} matchs`);
+            }
             
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -662,6 +867,198 @@
             document.getElementById(tabId + '-tab').classList.add('active');
         });
     });
+
+    async function fetchData() {
+        fetch('https://proxy-football-api.onrender.com/api/matches', {
+            method: 'GET'
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Exemple : afficher les matchs dans la console
+            console.log('API Matches', data.matches);
+
+            // Vous pouvez ensuite parcourir data.matches et générer du HTML dynamiquement
+            // Exemple : afficher les matchs dans un tableau
+            const table = document.createElement('table');
+            table.classList.add('classement-table');
+            table.innerHTML = `
+            <tr>
+                <th>Journée</th>
+                <th>Date</th>
+                <th>Domicile</th>
+                <th>Score</th>
+                <th>Visiteur</th>
+            </tr>
+            `;
+            data.matches.forEach(match => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${match.matchday}</td>
+                    <td>${new Date(match.utcDate).toLocaleString('fr-FR')}</td>
+                    <td>${match.homeTeam.name}</td>
+                    <td>${match.score.fullTime.home ?? ''} - ${match.score.fullTime.away ?? ''}</td>
+                    <td>${match.awayTeam.name}</td>
+                `;
+                table.appendChild(row);
+            });
+            document.body.appendChild(table);
+
+            const cal = document.getElementById('cal');
+            cal.appendChild(table);
+            cal.classList.add('active');
+        })
+        .catch(error => {
+            console.error('Erreur lors de la récupération des données :', error);
+        });
+    }
+
+    let currentJournee = 9;
+    const totalJournees = 34; // Nombre total de journées en Ligue 1
+    let allMatches = [];
+
+    // Charger les données au démarrage
+    async function loadMatches() {
+        try {
+            const response = await fetch('https://proxy-football-api.onrender.com/api/matches');
+            const data = await response.json();
+            allMatches = data?.matches || [];
+
+            // Chercher la première journée avec des matchs non joués
+            const firstUnplayed = allMatches.find(match => match.status !== 'FINISHED');
+            currentJournee = firstUnplayed ? firstUnplayed.matchday : 1;
+            displayJournee(currentJournee);
+        } catch (error) {
+            console.error('Erreur de chargement:', error);
+            document.getElementById('loadingCal').innerHTML = 
+                '<p style="color: #e74c3c;">Erreur lors du chargement des données</p>';
+        }
+    }
+
+    // Fonction pour changer de journée
+    function changeJournee(direction, event) {
+        const newJournee = currentJournee + direction;
+        
+        if (newJournee < 1 || newJournee > totalJournees) {
+            return;
+        }
+        
+        currentJournee = newJournee;
+        displayJournee(currentJournee);
+        updateNavigationButtons();
+    }
+
+    // Afficher une journée spécifique
+    function displayJournee(journeeNum) {
+        document.getElementById('loadingCal').style.display = 'block';
+        document.getElementById('matchesContainer').style.display = 'none';
+        
+        // Simuler un délai de chargement
+        setTimeout(() => {
+            const journees = allMatches.filter(j => j.matchday === journeeNum);
+            if (!journees || journees.length === 0) {
+                document.getElementById('matchesContainer').innerHTML = 
+                    '<p style="text-align: center; padding: 40px;">Aucun match disponible pour cette journée</p>';
+            } else {
+                renderMatches(journees);
+            }
+            
+            document.getElementById('currentJournee').textContent = journeeNum;
+            updateJourneeDates(journees);
+            document.getElementById('loadingCal').style.display = 'none';
+            document.getElementById('matchesContainer').style.display = 'block';
+            
+            updateNavigationButtons();
+        }, 300);
+    }
+
+    // Mettre à jour les dates de la journée
+    function updateJourneeDates(journeeData) {
+        const datesDiv = document.getElementById('journeeDates');
+        if (journeeData && journeeData.dates) {
+            const startDate = new Date(journeeData.dates.start).toLocaleDateString('fr-FR', { 
+                day: 'numeric', 
+                month: 'short' 
+            });
+            const endDate = new Date(journeeData.dates.end).toLocaleDateString('fr-FR', { 
+                day: 'numeric', 
+                month: 'short',
+                year: 'numeric'
+            });
+            datesDiv.textContent = `${startDate} - ${endDate}`;
+        }
+    }
+
+    // Afficher les matchs
+    function renderMatches(journees) {
+        const container = document.getElementById('matchesContainer');
+        container.innerHTML = '';
+        
+        // Grouper les matchs par date
+        const matchesByDate = {};
+        journees.forEach(match => {
+            const dateKey = match.utcDate;
+            if (!matchesByDate[dateKey]) {
+                matchesByDate[dateKey] = [];
+            }
+            matchesByDate[dateKey].push(match);
+        });
+        
+        // Afficher chaque groupe de date
+        Object.entries(matchesByDate).forEach(([date, matches]) => {
+            const dateGroup = document.createElement('div');
+            dateGroup.className = 'match-date-group';
+            
+            const dateHeader = document.createElement('div');
+            dateHeader.className = 'match-date-header';
+            
+            dateHeader.textContent = new Date(date).toLocaleDateString('fr-FR', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            dateGroup.appendChild(dateHeader);
+            
+            matches.forEach(match => {
+                const matchCard = createMatchCard(match);
+                dateGroup.appendChild(matchCard);
+            });
+            
+            container.appendChild(dateGroup);
+        });
+    }
+
+    // Créer une carte de match
+    function createMatchCard(match) {
+        const card = document.createElement('div');
+        card.className = 'match-card';
+        
+        const time = new Date(match.utcDate).toLocaleTimeString('fr-FR', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        const statusClass = match.status === 'FINISHED' ? 'status-termine' : 'status-avenir';
+        const statusText = match.status === 'FINISHED' ? 'Terminé' : 'À venir';
+        
+        card.innerHTML = `
+            <div class="match-time">${time}</div>
+            <div class="match-teams">
+                <div class="team-name">${match.homeTeam.name}</div>
+                <div class="match-score">${match.score.fullTime.home ?? ''} - ${match.score.fullTime.away ?? ''}</div>
+                <div class="team-name">${match.awayTeam.name}</div>
+            </div>
+            <span class="match-status ${statusClass}">${statusText}</span>
+        `;
+        
+        return card;
+    }
+
+    // Mettre à jour l'état des boutons de navigation
+    function updateNavigationButtons() {
+        document.getElementById('prevBtn').disabled = currentJournee <= 1;
+        document.getElementById('nextBtn').disabled = currentJournee >= totalJournees;
+    }
 
     // Variable pour suivre la ligne actuellement étendue
     let currentExpandedRowId = null;
@@ -953,7 +1350,9 @@
         }
 
         handleRowClick(rowId, rowElement) {
+            console.log('Ligne cliquée ID:', rowId);
             const mpgTeam = this.data.teams.find(item => item.id === rowId);
+            console.log('Données de l\'équipe:', mpgTeam, mpgTeam.id);
 
             // Fermer la ligne actuellement étendue si elle existe et est différente
             if (currentExpandedRowId && currentExpandedRowId !== rowId) {
@@ -1018,12 +1417,10 @@
     const createNotPlayedIconElement = (labelId = 'validation-notplayed') => {
         const div = document.createElement('div');
         div.setAttribute('aria-labelledby', labelId);
-
         div.innerHTML = `
             <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
                 <path d="M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" fill="none" stroke="#9D9BA7" stroke-width="2"></path>
             </svg>`;
-
         return div;
     };
 
@@ -1031,7 +1428,6 @@
         const labelId = 'validation-success'
         const div = document.createElement('div');
         div.setAttribute('aria-labelledby', labelId);
-
         div.innerHTML = `
         <span title="${title}">
             <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
@@ -1039,7 +1435,6 @@
                 <path clip-rule="evenodd" d="M9.2 12.28 7.12 10.2 6 11.32l3.2 3.2 6.4-6.4L14.48 7z" fill="#fff"></path>
             </svg>
         </span>`;
-
         return div;
     };
 
@@ -1047,15 +1442,13 @@
         const labelId = 'validation-nul';
         const div = document.createElement('div');
         div.setAttribute('aria-labelledby', labelId);
-
         div.innerHTML = `
         <span title="${title}">
-            <svg class="nB9CIe" aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">  
+            <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">  
                 <path clip-rule="evenodd" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16" fill="#9D9BA7" fill-rule="evenodd"></path> 
                 <path clip-rule="evenodd" d="M8 10h6v2H8z" fill="#fff" fill-rule="evenodd"></path>  
             </svg>
         </span>`;
-
         return div;
     };
 
@@ -1063,15 +1456,13 @@
         const labelId = 'validation-defeat';
         const div = document.createElement('div');
         div.setAttribute('aria-labelledby', labelId);
-
         div.innerHTML = `
         <span title="${title}">
-            <svg class="nB9CIe" aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">  
+            <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">  
                 <path clip-rule="evenodd" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16" fill="#EA4335" fill-rule="evenodd"></path> 
                 <path clip-rule="evenodd" d="M13.263 14.394 11 12.131l-2.263 2.263-1.131-1.131L9.869 11 7.606 8.737l1.131-1.131L11 9.869l2.263-2.263 1.131 1.131L12.131 11l2.263 2.263z" fill="#fff" fill-rule="evenodd"></path>  
             </svg>
         </span>`;
-
         return div;
     };
 
@@ -1090,7 +1481,8 @@
         } else {
             return resp.json();
         }
-    }    
+    }
+
     async function fetchLeague() {
         try {
             const response = await fetch(API_URL_LEAGUE);
@@ -1101,7 +1493,7 @@
             displayLeague(data);
         } catch (error) {
             console.error('Erreur:', error);
-            showError();
+            showError('Impossible de charger les données de la ligue. Vérifiez le code de la ligue.');
         }
     }
 
@@ -1168,14 +1560,14 @@
                     containerId.innerHTML = '<p>NA</p>';
                     return;
                 }                
-                new ExpandableTable(divisionConfigs[i][1], divisionConfigs[i][2] , matches.division);
+                new ExpandableTable(divisionConfigs[i][1], divisionConfigs[i][2], matches.division);
             });
 
             contentDisplay();
 
         } catch (error) {
             console.error('Erreur:', error);
-            showError();
+            showError('Erreur lors du chargement des matchs. Vérifiez le code de la ligue.');
         }
     }
 
@@ -1219,7 +1611,6 @@
         mapPlayerNames.set(521473, "Robin");
         mapPlayerNames.set(6429552, "Benoît");
         mapPlayerNames.set(6430884, "Julien");
-
         mapPlayerNames.set(5892169, "Nicolas");
         mapPlayerNames.set(1497344, "Antoine P.");
         mapPlayerNames.set(1519479, "Jean-Philippe");
@@ -1241,7 +1632,6 @@
         mapPlayerNames.set(2919628, "Robin");
         mapPlayerNames.set(2919629, "Benoît");
         mapPlayerNames.set(2919630, "Julien");
-
         mapPlayerNames.set(2919634, "Nicolas");
         mapPlayerNames.set(2919632, "Antoine P.");
         mapPlayerNames.set(2919633, "Jean-Philippe");
@@ -1318,7 +1708,6 @@
         return remainingBonuses.length > 0 ? "Bonus disponibles (" + nbBonusDispos + "/" + nbBonusDefault + ") : " + remainingBonuses : "Plus aucun bonus disponible !"
     }
 
-
     function contentDisplay() {
         hideLoading();
         document.getElementById('content').style.display = 'block';
@@ -1328,15 +1717,19 @@
         document.getElementById('loading').style.display = 'none';
     }
 
-    function showError() {
+    function showError(message = 'Erreur lors du chargement des données. Veuillez réessayer.') {
         hideLoading();
-        document.getElementById('error').style.display = 'block';
+        const errorDiv = document.getElementById('error');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
     }
 
     // Chargement initial
     fetchLeague().then(() => {
         fetchMatches();
     });
+
+    loadMatches();
 
     // Gestion du formulaire de sélection de ligue
     document.addEventListener('DOMContentLoaded', () => {
