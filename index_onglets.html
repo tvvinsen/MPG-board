@@ -371,18 +371,19 @@
 
         .legend-table {
             width: 48%;
+            overflow-x: auto; /* Au cas où le contenu déborde quand même */
         }
 
         .legend-table th,
         .legend-table td {
             padding: 10px 5px;
             text-align: center;
+            vertical-align: middle;
         }
 
         /* Aligner les SVG avec le texte */
         .legend-table td > div {
             display: flex;
-            align-items: center; /* Alignement vertical centré */
             justify-content: center; /* Centrage horizontal */
             gap: 8px; /* Espacement entre SVG et texte */
         }
@@ -596,7 +597,7 @@
 </head>
 
 <!-- Google tag (gtag.js) -->
-<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-9LJB9V4E62"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9LJB9V4E62"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -604,8 +605,6 @@
 
   gtag('config', 'G-9LJB9V4E62');
 </script>
-
-<script data-goatcounter="https://tvvinsen.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script> -->
 
 <body>
     <div class="container">
@@ -633,8 +632,8 @@
             <ul class="tabs">
                 <li><button class="tab-button active" data-tab="classement">📊 Classement</button></li>
                 <li><button class="tab-button" data-tab="calendrier">📅 Calendrier</button></li>
-                <li><button class="tab-button" data-tab="stats">📈 Statistiques</button></li>
-                <li><button class="tab-button" data-tab="equipes">👥 Équipes</button></li>
+                <!-- <li><button class="tab-button" data-tab="stats">📈 Statistiques</button></li> -->
+                <!-- <li><button class="tab-button" data-tab="equipes">👥 Équipes</button></li> -->
                 <li><button class="tab-button" data-tab="cfg">⚙️ Configuration</button></li>
             </ul>
         </div>
@@ -652,7 +651,7 @@
             <!-- Onglet Classement -->
             <div id="classement-tab" class="tab-content active">
                 <div class="divisions">
-                    <div class="division">
+                    <div id="div1" class="division">
                         <h2 id="divisionTitle1"></h2>
                         <table id="division1" class="classement-table">
                             <!-- Table headers + body -->
@@ -672,7 +671,7 @@
                             <tbody id="classementBodyDiv1"></tbody>
                         </table>
                     </div>
-                    <div class="division">
+                    <div id="div2" class="division">
                         <h2 id="divisionTitle2"></h2>
                         <table id="division2" class="classement-table">
                             <!-- Table headers + body -->
@@ -692,8 +691,8 @@
                             <tbody id="classementBodyDiv2"></tbody>
                         </table>
                     </div>
-                    <div>
-                        <div class="imso-hide-overflow">Derniers matchs</div>
+                    <div id="legende">
+                        <div>Derniers matchs</div>
                         <div>
                             <table class="legend-table">
                                 <tr>
@@ -709,7 +708,7 @@
                                                         fill="#fff"></path>
                                                 </svg>
                                             </div>
-                                            <div class="imso-hide-overflow TiMwHe" id="l5l-w">Victoire</div>
+                                            <div id="l5l-w">Victoire</div>
                                         </div>
                                     </td>
                                     <td>
@@ -723,8 +722,7 @@
                                                     <path clip-rule="evenodd" d="M8 10h6v2H8z" fill="#fff" fill-rule="evenodd"></path>
                                                 </svg>
                                             </div>
-                                            <div class="imso-hide-overflow TiMwHe" id="l5l-t">Match
-                                                nul</div>
+                                            <div id="l5l-t">Nul</div>
                                         </div>
                                     </td>
                                     <td>
@@ -740,19 +738,7 @@
                                                         fill="#fff" fill-rule="evenodd"></path>
                                                 </svg>
                                             </div>
-                                            <div class="imso-hide-overflow TiMwHe" id="l5l-l">
-                                                Défaite</div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="display: flex;">
-                                            <div aria-labelledby="l5l-np">
-                                                <svg aria-hidden="true" viewBox="0 0 22 22"
-                                                    style="height: 22px; width: 22px">
-                                                    <path d="M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" fill="none" stroke="#9D9BA7" stroke-width="2"></path>
-                                                </svg>
-                                            </div>
-                                            <div class="imso-hide-overflow TiMwHe" id="l5l-np">Non disputé</div>
+                                            <div id="l5l-l">Défaite</div>
                                         </div>
                                     </td>
                                 </tr>
@@ -778,7 +764,7 @@
                     <div id="cal">
                         <div class="journee-navigation">
                             <button id="prevBtn" onclick="changeJournee(-1)">
-                                ← Précédente
+                                <
                             </button>
                             
                             <div class="journee-info">
@@ -787,7 +773,7 @@
                             </div>
                             
                             <button id="nextBtn" onclick="changeJournee(1)">
-                                Suivante →
+                                >
                             </button>
                         </div>
 
@@ -814,10 +800,10 @@
             <!-- Onglet Configuration -->
             <div id="cfg-tab" class="tab-content">
                 <div style="padding: 40px; text-align: center;">
-                    <h2>Configuration</h2>
+                    <h3>Saisir le code d'une ligue pour afficher le classement de ses 2 premières divisions dans l'onglet dédié.</h3>
                     <div class="league-selector">
                         <form id="leagueForm" class="league-selector-content">
-                            <label for="leagueCodeInput">Code de la ligue :</label>
+                            <label for="leagueCodeInput">Code de la ligue</label>
                             <input 
                                 type="text" 
                                 id="leagueCodeInput" 
@@ -839,6 +825,11 @@
 <script>
     let codeLeague = "PNAL4RJN";
     let seasonNum = "9";
+    let nbPlayers = 8;
+
+    let currentJournee = 1;
+    const totalJournees = 34; // Nombre total de journées en Ligue 1
+    let allMatches = [];
 
     let API_URL_LEAGUE = 'https://api.mlnstats.com/mpgleague/league/' + codeLeague;
 
@@ -846,19 +837,12 @@
     let API_URL_DIV_1 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_1";
     let API_URL_DIV_2 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_2";
 
-    const ringElement = '<span class="badge"><img src="data:image/png;base64,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" style="vertical-align: bottom; width: 20px"/></span>';
+    const ringElement = '<span class="badge"><img src="./img/ring.png" style="vertical-align: bottom; width: 20px"/></span>';
 
     // Gestion des onglets
     document.querySelectorAll('.tab-button').forEach(button => {
         button.addEventListener('click', () => {
             const tabId = button.getAttribute('data-tab');
-            
-            console.log('Onglet sélectionné :', tabId); // Log de débogage
-            if(tabId === 'calendrier') {
-                console.log('Chargement des données du calendrier...');
-                // const data = fetchData();
-                // console.log(`Total récupéré: ${data} matchs`);
-            }
             
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -868,53 +852,6 @@
         });
     });
 
-    async function fetchData() {
-        fetch('https://proxy-football-api.onrender.com/api/matches', {
-            method: 'GET'
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Exemple : afficher les matchs dans la console
-            console.log('API Matches', data.matches);
-
-            // Vous pouvez ensuite parcourir data.matches et générer du HTML dynamiquement
-            // Exemple : afficher les matchs dans un tableau
-            const table = document.createElement('table');
-            table.classList.add('classement-table');
-            table.innerHTML = `
-            <tr>
-                <th>Journée</th>
-                <th>Date</th>
-                <th>Domicile</th>
-                <th>Score</th>
-                <th>Visiteur</th>
-            </tr>
-            `;
-            data.matches.forEach(match => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${match.matchday}</td>
-                    <td>${new Date(match.utcDate).toLocaleString('fr-FR')}</td>
-                    <td>${match.homeTeam.name}</td>
-                    <td>${match.score.fullTime.home ?? ''} - ${match.score.fullTime.away ?? ''}</td>
-                    <td>${match.awayTeam.name}</td>
-                `;
-                table.appendChild(row);
-            });
-            document.body.appendChild(table);
-
-            const cal = document.getElementById('cal');
-            cal.appendChild(table);
-            cal.classList.add('active');
-        })
-        .catch(error => {
-            console.error('Erreur lors de la récupération des données :', error);
-        });
-    }
-
-    let currentJournee = 9;
-    const totalJournees = 34; // Nombre total de journées en Ligue 1
-    let allMatches = [];
 
     // Charger les données au démarrage
     async function loadMatches() {
@@ -1065,6 +1002,7 @@
 
     let mapBonusTargeted = new Map();
     let mapBonusPlayed = new Map();
+    let expandableTables = [];
 
     // Classe pour gérer le tableau extensible
     class ExpandableTable {
@@ -1072,12 +1010,42 @@
             this.container = document.getElementById(containerId);
             this.divisionTitleId = divisionTitleId;
             this.data = data;
+            this.clickHandler = null; // Référence à l'écouteur de clic
             this.init();
         }
 
         init() {
             this.render();
             this.attachEventListeners();
+        }
+
+        // Méthode pour nettoyer le composant
+        destroy() {
+            // Fermer la ligne étendue si elle existe
+            if (currentExpandedRowId) {
+                this.closeExpandedRow(currentExpandedRowId);
+            }
+            
+            // Supprimer les écouteurs d'événements
+            if (this.clickHandler) {
+                this.container.removeEventListener('click', this.clickHandler);
+                this.clickHandler = null;
+            }
+            
+            // Vider le contenu
+            if (this.container) {
+                this.container.innerHTML = '';
+            }
+            
+            const divisionTitle = document.getElementById(this.divisionTitleId);
+            if (divisionTitle) {
+                divisionTitle.innerHTML = '';
+            }
+            
+            // Libérer les références
+            this.container = null;
+            this.divisionTitleId = null;
+            this.data = null;
         }
 
         render() {
@@ -1098,7 +1066,6 @@
         createDataRow(mpgTeam, index) {
             const position = index + 1;
             let positionClass = '';
-            let ring = '';
 
             const wdl = mpgTeam.win + '/' + mpgTeam.draw + '/' + mpgTeam.loss;
             const realGoals = formatGP(mpgTeam.realGP) + '/' + formatGC(mpgTeam.realGC)
@@ -1109,6 +1076,7 @@
             const bonusFormates = formatBonusTitle(mpgTeam.bonusTab);
 
             // Gestion de l'anneau, extraction de la dernière journée de championnat sans modifier l'original
+            let ring = '';
             const lastTimeline = [...mpgTeam.timeline].pop();
             if (lastTimeline.P === 1) {
                 ring = ringElement;
@@ -1201,11 +1169,14 @@
 
                 if (idxBonus && idxBonus.length === 1) {
                     const existingData = mapBonusTargeted.get(keyOpponentId) || [];
-                    mapBonusTargeted.set(keyOpponentId, [...existingData, {nom : farmersPlayersId().get(mpgTeam.id), bonus: idxBonus, day: index + 1}]);
+                    mapBonusTargeted.set(keyOpponentId, [...existingData, {nom : farmersPlayersId().get(mpgTeam.id) ?? 'Inconnu', bonus: idxBonus, day: index + 1}]);
 
                     const existingDataPlayed = mapBonusPlayed.get(mpgTeam.id) || [];
                     const detail = listeBonus[idxBonus[0]];
                     mapBonusPlayed.set(mpgTeam.id, [...existingDataPlayed, {adversaire : opponent, bonus: idxBonus[0], day: index + 1, info: detail}]);
+                } else {
+                    mapBonusTargeted.set(keyOpponentId, mapBonusTargeted.get(keyOpponentId) || []);
+                    mapBonusPlayed.set(mpgTeam.id, mapBonusPlayed.get(mpgTeam.id) || []);
                 }
             });
 
@@ -1259,25 +1230,6 @@
                     `;
             }
 
-            // const usedBonus = Array.from(getBonusUsed(mpgUser.bonusTab));
-            // const nbBonusUsed = usedBonus.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
-                
-            // if (nbBonusUsed > 0) {
-            //     tableHTML += `
-            //             <td style="vertical-align: top; padding-right: 16px;">
-            //                 <div>Bonus utilisé${nbBonusUsed > 1 ? "s" : ""} (${nbBonusUsed}/${nbBonusDefault})</div>
-            //                 <div id="used" style="display: inline-flex; margin-right: 16px;">
-            //                     ${usedBonus.map(([nom, [description, compteur, linkImg]]) => `
-            //                         <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-            //                             ${Array.from({ length: compteur }, 
-            //                                 () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
-            //                         </div>
-            //                     `).join('')}
-            //                 </div>
-            //             </td>
-            //             `;
-            // }
-
             const bonusPlayed = Array.from(mapBonusPlayed.get(mpgUser.id));
             const nbBonusPlayed = bonusPlayed.length;
 
@@ -1289,33 +1241,33 @@
                                 ${bonusPlayed.map((element) => `
                                     <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                         ${Array.from({ length: 1 },
-                                            () => `<img title="${element.info[1]} : contre ${element.adversaire} (J${element.day})" src="${element.info[3]}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                                            () => `<img title="${element.info[1]} : contre ${element.adversaire} (J${element.day})" src="${element.info[2]}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
                                     </div>
                                 `).join('')}
                             </div>
                         </td>
                         `;
-                }
+            }
 
-                tableHTML += `</td></tr></table>`;
-                td.innerHTML += tableHTML;
+            tableHTML += `</td></tr></table>`;
+            td.innerHTML += tableHTML;
 
-                const bonusTargeted = mapBonusTargeted.get(mpgUser.id);
+            const bonusTargeted = mapBonusTargeted.get(mpgUser.id);
                 
-            if (bonusTargeted.length > 0) {   
-                    let tableHTML = '<table><tr>';
+            if (bonusTargeted?.length > 0) {   
+                let tableHTML = '<table><tr>';
                 
-                    const targetBonus = Array.from(getBonusTargeted(bonusTargeted));
+                const targetBonus = Array.from(getBonusTargeted(bonusTargeted));
 
                 // Trier les bonus par journée de championnat
-                targetBonus .sort((a, b) => a[1][4].day - b[1][4].day);
+                targetBonus.sort((a, b) => a[1][3].day - b[1][3].day);
                 let nbBonusTarget = bonusTargeted.length
 
                 tableHTML += `
                         <td style="vertical-align: top; padding-right: 16px;">
                             <div>Bonus encaissé${nbBonusTarget > 1 ? "s" : ""} (${nbBonusTarget})</div>
                             <div id="used" style="display: inline-flex; margin-right: 16px;">
-                                ${targetBonus.map(([nom, [bKey, libelle, compteur, linkImg, tmp]]) => `
+                                ${targetBonus.map(([nom, [bKey, libelle, linkImg, tmp]]) => `
                                     <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                         ${Array.from({ length: 1 }, 
                                             () => `<img title="${libelle} : attaque de ${tmp.nom} (J${tmp.day})" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
@@ -1324,9 +1276,9 @@
                             </div>
                         </td>`;
 
-                    tableHTML += `</tr></table>`;
+                tableHTML += `</tr></table>`;
                 td.innerHTML += tableHTML
-                }
+            }
 
             td.innerHTML += `
                         <div>Classement général moyen : Points ${mpgUser.gScoreAvg} / Rang ${mpgUser.gRankAvg}</div>
@@ -1339,21 +1291,19 @@
         }
 
         attachEventListeners() {
-            this.container.addEventListener('click', (e) => {
+            // Créer une référence à la fonction handler pour pouvoir la supprimer plus tard
+            this.clickHandler = (e) => {
                 e.preventDefault();
                 const dataRow = e.target.closest('.data-row');
                 if (dataRow) {
                     const rowId = parseInt(dataRow.getAttribute('data-row-id'));
                     this.handleRowClick(rowId, dataRow);
                 }
-            });
-        }
+            };
+            // Attacher l'événement avec la référence stockée
+            this.container.addEventListener('click', this.clickHandler);}
 
         handleRowClick(rowId, rowElement) {
-            console.log('Ligne cliquée ID:', rowId);
-            const mpgTeam = this.data.teams.find(item => item.id === rowId);
-            console.log('Données de l\'équipe:', mpgTeam, mpgTeam.id);
-
             // Fermer la ligne actuellement étendue si elle existe et est différente
             if (currentExpandedRowId && currentExpandedRowId !== rowId) {
                 this.closeExpandedRow(currentExpandedRowId);
@@ -1367,6 +1317,11 @@
                 this.closeExpandedRow(rowId);
                 currentExpandedRowId = null;
             } else {
+                const mpgTeam = this.data.teams.find(item => item.id === rowId);
+                if (!mpgTeam) {
+                    console.error('Équipe non trouvée pour l\'ID:', rowId);
+                    return;
+                }
                 // Ouvrir la nouvelle ligne étendue
                 const expandedRow = this.createExpandedRow(mpgTeam);
                 rowElement.after(expandedRow);
@@ -1466,16 +1421,9 @@
         return div;
     };
 
-    async function fetchJsonOLD(url) {
-        const resp = await fetch(url);
-        if (!resp.ok) throw new Error('Erreur HTTP ' + resp.status);
-        return resp.json();
-    }
-
     async function fetchJson(url) {
         const resp = await fetch(url);
         if (!resp.ok) {
-            // throw new Error('Erreur HTTP ' + resp.status);
             console.error(url, ' -> Erreur HTTP ' + resp.status);
             return null;
         } else {
@@ -1490,10 +1438,19 @@
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            displayLeague(data);
+
+            if(data?.error === 'championshipNotManaged') {
+                throw new Error('Championnat non géré par la source de données.');
+            }
+            else if(data?.error === 'notFetchable') {
+                throw new Error('Ligue non trouvée. Vérifiez le code de la ligue.');
+            } else {
+                displayLeague(data);
+            }
         } catch (error) {
-            console.error('Erreur:', error);
-            showError('Impossible de charger les données de la ligue. Vérifiez le code de la ligue.');
+            contentDisplay(); // Afficher le contenu même en cas d'erreur
+            showError(`Impossible de charger les données de la ligue : ${error.message}`);
+            throw error; // Rejeter la promesse pour indiquer l'échec
         }
     }
 
@@ -1507,7 +1464,6 @@
 
         seasonNum = data?.seasonNum?.toString() || "1";
         updateApiUrls();        
-        // contentDisplay();
     }
 
     function loadLeague(newLeagueCode) {
@@ -1516,9 +1472,18 @@
             return;
         }
 
+        nbPlayers = 0;
         mapBonusTargeted.clear();
         mapBonusPlayed.clear();
         currentExpandedRowId = null;
+
+        // Nettoyer les anciens composants ExpandableTable
+        expandableTables.forEach(table => {
+            if (table && typeof table.destroy === 'function') {
+                table.destroy();
+            }
+        });
+        expandableTables = [];
 
         codeLeague = newLeagueCode.trim().toUpperCase();
         updateApiUrls();
@@ -1527,9 +1492,21 @@
         document.getElementById('error').style.display = 'none';
         document.getElementById('loading').style.display = 'block';
 
-        fetchLeague().then(() => {
-            fetchMatches();
-        });
+        fetchLeague()
+            .then(() => {
+                // Basculer vers l'onglet Classement
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                const classementTabButton = document.querySelector('.tab-button[data-tab="classement"]');
+                classementTabButton.classList.add('active');
+                document.getElementById('classement-tab').classList.add('active');
+
+                fetchMatches();
+            })
+            .catch((error) => {
+                console.error('Erreur lors du fetch de la league:', error);
+                throw error; // Propager l'erreur pour arrêter le processus
+            });
     }
 
     function updateApiUrls() {
@@ -1542,8 +1519,8 @@
     async function fetchMatches() {
         try {
             const divisionConfigs = [
-                [API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1'],
-                [API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2']
+                [API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1', 'division1'],
+                [API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2', 'division2']
             ];
 
             const allMatches = await Promise.all(
@@ -1556,11 +1533,19 @@
 
                     let containerId = document.getElementById(divisionConfigs[i][1]);
                     let divisionTitleId = document.getElementById(divisionConfigs[i][2]);
-                    divisionTitleId.innerHTML = '<p>Erreur lors du chargement des matchs / division indisponible.</p>';
-                    containerId.innerHTML = '<p>NA</p>';
+                    divisionTitleId.innerHTML = '<p>Division indisponible</p>';
+                    let divisionTable = document.getElementById(divisionConfigs[i][3]);
+                    divisionTable.style.display = 'none';
                     return;
-                }                
-                new ExpandableTable(divisionConfigs[i][1], divisionConfigs[i][2], matches.division);
+                }
+                // Il faut supprimer les anciens tableaux avant d'en créer de nouveaux
+                let oldContainer = document.getElementById(divisionConfigs[i][1]);
+                oldContainer.innerHTML = '';
+                oldContainer = document.getElementById(divisionConfigs[i][2]);
+                oldContainer.innerHTML = '';
+
+                nbPlayers = matches.division.teams.length;
+                expandableTables.push(new ExpandableTable(divisionConfigs[i][1], divisionConfigs[i][2], matches.division));
             });
 
             contentDisplay();
@@ -1573,31 +1558,48 @@
 
     function bonusDetails() {
         const bonusMap = new Map();
+
+        let nbUber = 3;
+        let nbSuarez = 1;
+        let nbTonton = 1;
+        let nbCheat = 1;
+
+        switch(nbPlayers) {
+            case 6:
+                nbUber = 2;
+                nbCheat = 0;
+                nbTonton = 0;
+                break;
+            case 10:
+                nbSuarez = 2;
+                break;
+        }
+
         bonusMap.set("valise", ["Valise à Nanard", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
-        bonusMap.set("uber", ["McDo+", 3, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
-        bonusMap.set("suarez", ["Suarez", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
+        bonusMap.set("uber", ["McDo+", nbUber, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
+        bonusMap.set("suarez", ["Suarez", nbSuarez, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
         bonusMap.set("zahia", ["Zahia", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
         bonusMap.set("miroir", ["Miroir", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
-        bonusMap.set("tonton", ["Tonton Pat'", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
+        bonusMap.set("tonton", ["Tonton Pat'", nbTonton, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
         bonusMap.set("decat", ["4 Decat", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
-        bonusMap.set("cheat", ["Cheat Code 18-26", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
+        bonusMap.set("cheat", ["Cheat Code 18-26", nbCheat, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
         return Object.freeze(bonusMap);
     }
 
     function bonusList() {
         const bonus = [];
-        bonus.push(["captain", "Capitaine", 1, ""]);
-        bonus.push(["valise", "Valise à Nanard", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
-        bonus.push(["uber", "McDo+", 3, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
-        bonus.push(["suarez", "Suarez", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
-        bonus.push(["zahia", "Zahia", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
-        bonus.push(["miroir", "Miroir", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
-        bonus.push(["chapron", "Chapron", 1, ""]);
-        bonus.push(["tonton", "Tonton Pat'", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
-        bonus.push(["4def", "4 Défenseurs", 1, ""]);
-        bonus.push(["5def", "5 Défenseurs", 1, ""]);
-        bonus.push(["decat", "4 Decat", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
-        bonus.push(["cheat", "Cheat Code 18-26", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
+        bonus.push(["captain", "Capitaine", ""]);
+        bonus.push(["valise", "Valise à Nanard", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
+        bonus.push(["uber", "McDo+", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
+        bonus.push(["suarez", "Suarez", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
+        bonus.push(["zahia", "Zahia", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
+        bonus.push(["miroir", "Miroir", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
+        bonus.push(["chapron", "Chapron", ""]);
+        bonus.push(["tonton", "Tonton Pat'", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
+        bonus.push(["4def", "4 Défenseurs", ""]);
+        bonus.push(["5def", "5 Défenseurs", ""]);
+        bonus.push(["decat", "4 Decat", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
+        bonus.push(["cheat", "Cheat Code 18-26", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
         return Object.freeze(bonus);
     }
 
@@ -1611,6 +1613,7 @@
         mapPlayerNames.set(521473, "Robin");
         mapPlayerNames.set(6429552, "Benoît");
         mapPlayerNames.set(6430884, "Julien");
+
         mapPlayerNames.set(5892169, "Nicolas");
         mapPlayerNames.set(1497344, "Antoine P.");
         mapPlayerNames.set(1519479, "Jean-Philippe");
@@ -1632,6 +1635,7 @@
         mapPlayerNames.set(2919628, "Robin");
         mapPlayerNames.set(2919629, "Benoît");
         mapPlayerNames.set(2919630, "Julien");
+
         mapPlayerNames.set(2919634, "Nicolas");
         mapPlayerNames.set(2919632, "Antoine P.");
         mapPlayerNames.set(2919633, "Jean-Philippe");
@@ -1680,19 +1684,6 @@
         return map;
     }
 
-    function getBonusUsed(bonusData) {
-        const detailsBonus = bonusDetails();
-    
-        return new Map(
-            Object.entries(bonusData)
-                .filter(([key]) => detailsBonus.has(key))
-                .map(([key, value]) => {
-                    const detail = detailsBonus.get(key);
-                    return [key, [detail[0], value, ...detail.slice(2)]];
-                })
-        );
-    }
-
     function formatBonusTitle(bonusTab) {
         const bonusCount = getBonusCountUpdated(bonusTab);
 
@@ -1735,15 +1726,21 @@
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('leagueForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const input = document.getElementById('leagueCodeInput');
-            loadLeague(input.value);
+            const input = document.getElementById('leagueCodeInput'); 
+            try {
+                loadLeague(input.value)
+            }          
+            catch(error) {
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                const cfgTabButton = document.querySelector('.tab-button[data-tab="cfg"]');
+                cfgTabButton.classList.add('active');
+                document.getElementById('cfg-tab').classList.add('active');
 
-            // Basculer vers l'onglet Classement
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            const classementTabButton = document.querySelector('.tab-button[data-tab="classement"]');
-            classementTabButton.classList.add('active');
-            document.getElementById('classement-tab').classList.add('active');
+                console.error('Erreur lors du chargement de la ligue:', error);
+                return; // Sortir de la fonction en cas d'erreur
+            }
+
         });
     });
 
