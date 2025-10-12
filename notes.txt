@@ -1,0 +1,43 @@
+Et si tu veux t'amuser avec les timeline voici les autres attributs
+
+	a : undefined, //Average tactical substitution rating
+	b : , //bonus played
+	c : , //composition
+	d : , //decoration received (badge)
+	g : , //real goals against
+	G : , //real goals
+	i : , //Score of team
+	k : , //Leaderboard rank of team at this match
+	l : , //Final line up
+	m : , //MPG goal against
+	M : , //MPG goal
+	n : , //Number of tactical substitution
+	o : , //opponent id
+	p : , //Leaderboard points of team at this match
+	P : , //precious owner,
+	r : , //Result W/L/D,	
+	R : , //number of rotaldos
+	s : , //Substituted players
+	S : , //side H(ome)/A(way)
+	t : , //Score of opponent
+	Y : //is a playoff day
+	
+
+
+division.teams[*].timeline[*].l
+
+https://jsonformatter.org/#
+
+
+Badges
+
+onFire			https://s3.eu-west-1.amazonaws.com/image.mpg/badges/on_fire_v2.png
+goodCoaching	https://s3.eu-west-1.amazonaws.com/image.mpg/badges/good_coaching_v2.png
+seum			https://s3.eu-west-1.amazonaws.com/image.mpg/badges/late_loser_v2.png
+lateLoser
+badSuitcase		https://s3.eu-west-1.amazonaws.com/image.mpg/badges/bad_suitcase_v2.png
+badCoaching		https://s3.eu-west-1.amazonaws.com/image.mpg/badges/bad_coaching_v2.png
+goldenVicky		https://s3.eu-west-1.amazonaws.com/image.mpg/badges/golden_vicky_v2.png
+
+
+
