@@ -427,20 +427,25 @@
                 tr.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
             }
 
+            // Résultats des dernières journées
             const lastFiveMatches = document.createElement('div');
             const lastFiveMatchesChild = document.createElement('div');
             lastFiveMatchesChild.style.display = 'inline-flex';
             lastFiveMatches.appendChild(lastFiveMatchesChild);
 
             mpgTeam.timeline
-                .slice(-5)
+                .slice(-5)  // Garder uniquement les 5 derniers éléments
                 .forEach((day, index) => {
+                    // Sommer les buts réels marqués
                     let butsGP = day.G?.flatMap(obj => Object.values(obj))
                         .reduce((a, b) => a + b, 0) || 0;
+                    // Ajouter les buts MPG
                     butsGP += day.M?.length || 0;
 
+                    // Somme des buts encaissés
                     const butsGC = (day.g || 0) + (day.m || 0);
 
+                    // Construction du titre de l'icône
                     let titleDay;
                     if (day.S === 'H') {
                         titleDay = `${farmersPlayersId().get(mpgTeam.id) || 'Inconnu'} ${butsGP} - ${butsGC} ${farmersPlayersId().get(day.o) || 'Inconnu'}`;
