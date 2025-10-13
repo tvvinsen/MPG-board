@@ -842,6 +842,9 @@
     // Gestion des onglets
     document.querySelectorAll('.tab-button').forEach(button => {
         button.addEventListener('click', () => {
+            // Masquer le message d'erreur lors du changement d'onglet au cas où il était visible
+            document.getElementById('error').style.display = 'none';
+
             const tabId = button.getAttribute('data-tab');
             
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -1472,25 +1475,8 @@
             return;
         }
 
-        nbPlayers = 0;
-        mapBonusTargeted.clear();
-        mapBonusPlayed.clear();
-        currentExpandedRowId = null;
-
-        // Nettoyer les anciens composants ExpandableTable
-        expandableTables.forEach(table => {
-            if (table && typeof table.destroy === 'function') {
-                table.destroy();
-            }
-        });
-        expandableTables = [];
-
         codeLeague = newLeagueCode.trim().toUpperCase();
         updateApiUrls();
-
-        document.getElementById('content').style.display = 'none';
-        document.getElementById('error').style.display = 'none';
-        document.getElementById('loading').style.display = 'block';
 
         fetchLeague()
             .then(() => {
@@ -1500,6 +1486,23 @@
                 const classementTabButton = document.querySelector('.tab-button[data-tab="classement"]');
                 classementTabButton.classList.add('active');
                 document.getElementById('classement-tab').classList.add('active');
+
+                nbPlayers = 0;
+                mapBonusTargeted.clear();
+                mapBonusPlayed.clear();
+                currentExpandedRowId = null;
+
+                // Nettoyer les anciens composants ExpandableTable
+                expandableTables.forEach(table => {
+                    if (table && typeof table.destroy === 'function') {
+                        table.destroy();
+                    }
+                });
+                expandableTables = [];
+
+                document.getElementById('content').style.display = 'none';
+                document.getElementById('error').style.display = 'none';
+                document.getElementById('loading').style.display = 'block';
 
                 fetchMatches();
             })
@@ -1726,6 +1729,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('leagueForm').addEventListener('submit', (e) => {
             e.preventDefault();
+            document.getElementById('error').style.display = 'none';  // Cacher les erreurs précédentes
             const input = document.getElementById('leagueCodeInput'); 
             try {
                 loadLeague(input.value)
