@@ -826,6 +826,7 @@
     let codeLeague = "PNAL4RJN";
     let seasonNum = "9";
     let nbPlayers = 8;
+    let nbDivisions = 2;
 
     let currentJournee = 1;
     const totalJournees = 34; // Nombre total de journées en Ligue 1
@@ -1056,7 +1057,8 @@
             const divisionTitle = document.getElementById(this.divisionTitleId);
             divisionTitle.innerHTML = '';
             const divisionSpan = document.createElement('span');
-            divisionSpan.innerHTML = `<p>${this.data.name}</p>`;
+            let divisionName = this.data.name === "undefined" ? `Division ${this.data.divisionNum}` : this.data.name;
+            divisionSpan.innerHTML = `<p>${divisionName}</p>`;
             divisionTitle.appendChild(divisionSpan);
 
             this.container.innerHTML = '';
@@ -1466,6 +1468,7 @@
         leagueTitle.appendChild(spanELement);
 
         seasonNum = data?.seasonNum?.toString() || "1";
+        nbDivisions = data?.divisions?.length || 1;
         updateApiUrls();        
     }
 
@@ -1521,26 +1524,31 @@
 
     async function fetchMatches() {
         try {
-            const divisionConfigs = [
-                [API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1', 'division1'],
-                [API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2', 'division2']
-            ];
+            const divisionConfigs = [];
+            divisionConfigs.push([API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1', 'division1']);
+            // Inclure la deuxième division uniquement si elle est présente
+            if (nbDivisions > 1) {
+                divisionConfigs.push([API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2', 'division2']);
+            } else {
+                // Si une deuxième division n'est pas présente, masquer son conteneur
+                document.getElementById('div2').style.display = 'none';
+            }
 
             const allMatches = await Promise.all(
                 divisionConfigs.map(([url]) => fetchJson(url))
             );
 
             allMatches.forEach((matches, i) => {
-                if (!matches) {
-                    console.error(`Erreur lors du chargement des matchs pour l'URL: ${divisionConfigs[i][0]}`);
+                // if (!matches) {
+                //     console.error(`Erreur lors du chargement des matchs pour l'URL: ${divisionConfigs[i][0]}`);
 
-                    let containerId = document.getElementById(divisionConfigs[i][1]);
-                    let divisionTitleId = document.getElementById(divisionConfigs[i][2]);
-                    divisionTitleId.innerHTML = '<p>Division indisponible</p>';
-                    let divisionTable = document.getElementById(divisionConfigs[i][3]);
-                    divisionTable.style.display = 'none';
-                    return;
-                }
+                //     let containerId = document.getElementById(divisionConfigs[i][1]);
+                //     let divisionTitleId = document.getElementById(divisionConfigs[i][2]);
+                //     divisionTitleId.innerHTML = '<p>Division indisponible</p>';
+                //     let divisionTable = document.getElementById(divisionConfigs[i][3]);
+                //     divisionTable.style.display = 'none';
+                //     return;
+                // }
                 // Il faut supprimer les anciens tableaux avant d'en créer de nouveaux
                 let oldContainer = document.getElementById(divisionConfigs[i][1]);
                 oldContainer.innerHTML = '';
