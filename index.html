@@ -1539,16 +1539,6 @@
             );
 
             allMatches.forEach((matches, i) => {
-                // if (!matches) {
-                //     console.error(`Erreur lors du chargement des matchs pour l'URL: ${divisionConfigs[i][0]}`);
-
-                //     let containerId = document.getElementById(divisionConfigs[i][1]);
-                //     let divisionTitleId = document.getElementById(divisionConfigs[i][2]);
-                //     divisionTitleId.innerHTML = '<p>Division indisponible</p>';
-                //     let divisionTable = document.getElementById(divisionConfigs[i][3]);
-                //     divisionTable.style.display = 'none';
-                //     return;
-                // }
                 // Il faut supprimer les anciens tableaux avant d'en créer de nouveaux
                 let oldContainer = document.getElementById(divisionConfigs[i][1]);
                 oldContainer.innerHTML = '';
