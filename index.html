@@ -826,7 +826,7 @@
     let codeLeague = "PNAL4RJN";
     let seasonNum = "9";
     let nbPlayers = 8;
-    let nbDivisions = 2;
+    let nbDivisionsForSeason = 2;
 
     let currentJournee = 1;
     const totalJournees = 34; // Nombre total de journées en Ligue 1
@@ -1468,7 +1468,9 @@
         leagueTitle.appendChild(spanELement);
 
         seasonNum = data?.seasonNum?.toString() || "1";
-        nbDivisions = data?.divisions?.length || 1;
+        // Déterminer la quantité de divisions de la saison courante
+        const divisionsForSeason = (data.divisions || []).filter(div => div.seasonNum.toString() === seasonNum);
+        nbDivisionsForSeason = divisionsForSeason.length;
         updateApiUrls();        
     }
 
@@ -1527,7 +1529,7 @@
             const divisionConfigs = [];
             divisionConfigs.push([API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1', 'division1']);
             // Inclure la deuxième division uniquement si elle est présente
-            if (nbDivisions > 1) {
+            if (nbDivisionsForSeason > 1) {
                 divisionConfigs.push([API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2', 'division2']);
             } else {
                 // Si une deuxième division n'est pas présente, masquer son conteneur
