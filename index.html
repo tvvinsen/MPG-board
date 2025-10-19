@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
-
+    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,14 +30,18 @@
             </table>
         </div>
 
-        <!-- Navigation par onglets -->
+        <!-- Navigation par onglets avec sous-menu -->
         <div class="tabs-container">
             <ul class="tabs">
-                <li><button class="tab-button active" data-tab="classement">📊 Classement</button></li>
-                <li><button class="tab-button" data-tab="calendrier">📅 Calendrier L1</button></li>
+                <li class="tab-item">
+                    <button class="tab-button active" data-tab="classement">📊 Classement</button>
+                    <div class="submenu">
+                        <button class="tab-button" data-tab="cfg">⚙️ Configuration</button>
+                    </div>
+                </li>
+                <li class="tab-item"><button class="tab-button" data-tab="calendrier">📅 Calendrier L1</button></li>
                 <!-- <li><button class="tab-button" data-tab="stats">📈 Statistiques</button></li> -->
                 <!-- <li><button class="tab-button" data-tab="equipes">👥 Équipes</button></li> -->
-                <li><button class="tab-button" data-tab="cfg">⚙️ Configuration</button></li>
             </ul>
         </div>
 
@@ -57,7 +61,6 @@
                     <div id="div1" class="division">
                         <h2 id="divisionTitle1"></h2>
                         <table id="division1" class="classement-table">
-                            <!-- Table headers + body -->
                             <thead>
                                 <tr>
                                     <th></th>
@@ -77,7 +80,6 @@
                     <div id="div2" class="division">
                         <h2 id="divisionTitle2"></h2>
                         <table id="division2" class="classement-table">
-                            <!-- Table headers + body -->
                             <thead>
                                 <tr>
                                     <th></th>
@@ -162,8 +164,6 @@
             <!-- Onglet Calendrier -->
             <div id="calendrier-tab" class="tab-content">
                 <div style="padding: 40px; text-align: center;">
-                    <!-- <h2>Calendrier</h2> -->
-                    <!-- <p style="margin-top: 20px; color: #666;">Contenu à venir...</p> -->
                     <div id="cal">
                         <div class="journee-navigation">
                             <button id="prevBtn" onclick="changeJournee(-1)">
@@ -186,7 +186,6 @@
                         </div>
 
                         <div id="matchesContainer" class="matches-container" style="display: none;">
-                            <!-- Les matchs seront affichés ici -->
                         </div>
                     </div>
                 </div>

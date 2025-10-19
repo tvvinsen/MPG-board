@@ -928,5 +928,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Gestion du sous-menu avec click si nécessaire
+document.querySelectorAll('.submenu button').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const tab = btn.dataset.tab;
+        showTab(tab);
+    });
+});
+
+function showTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabName + '-tab').classList.add('active');
+}
+
 // Actualisation automatique toutes les heures
 setInterval(fetchMatches, 60 * 60 * 1000);

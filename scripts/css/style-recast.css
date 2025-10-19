@@ -44,6 +44,7 @@ body {
 .tabs-container {
     background: #f8f9fa;
     border-bottom: 2px solid #e0e0e0;
+    position: relative;
 }
 
 .tabs {
@@ -51,7 +52,6 @@ body {
     list-style: none;
     padding: 0;
     margin: 0;
-    overflow-x: auto;
 }
 
 .tab-button {
@@ -641,4 +641,49 @@ body {
     .journee-navigation {
         flex-wrap: wrap;
     }
+}
+
+.tab-item {
+    position: relative;
+}
+
+.submenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 0 0 4px 4px;
+    min-width: 160px;
+    display: none;
+    z-index: 100;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tab-item:hover .submenu {
+    display: block;
+}
+
+.submenu button {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    border: none;
+    background: white;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.submenu button:hover {
+    background-color: #f5f5f5;
+}
+
+.submenu button:first-child {
+    border-radius: 0;
+}
+
+.submenu button:last-child {
+    border-radius: 0 0 4px 4px;
 }
