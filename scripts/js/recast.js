@@ -710,6 +710,7 @@ async function fetchMatches() {
         // Inclure la deuxième division uniquement si elle est présente
         if (nbDivisionsForSeason > 1) {
             divisionConfigs.push([API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2', 'division2']);
+            document.getElementById('div2').style.display = 'block';
         } else {
             // Si une deuxième division n'est pas présente, masquer son conteneur
             document.getElementById('div2').style.display = 'none';
