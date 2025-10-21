@@ -4,6 +4,12 @@
     box-sizing: border-box;
 }
 
+.scroller {
+  overflow-y: scroll;
+  /* scrollbar-color: rebeccapurple green; */
+  /* scrollbar-width: auto; */
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -303,7 +309,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
-    padding: 20px;
+    padding: 10px;
 }
 
 .division h2 {
@@ -346,7 +352,7 @@ body {
 
 .expanded-row {
     animation: slideDown 2s ease;
-    background: #bdc279;
+    background: #79a1c2;
 }
 
 @keyframes slideDown {

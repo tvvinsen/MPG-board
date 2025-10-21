@@ -189,9 +189,11 @@ let expandableTables = [];
 
 // Classe pour gérer le tableau extensible
 class ExpandableTable {
-    constructor(containerId, divisionTitleId, data) {
+    constructor(containerId, divisionTitleId, data, bonusContainerId, bonusDivisionTitleId) {
         this.container = document.getElementById(containerId);
+        this.bonusContainer = document.getElementById(bonusContainerId);
         this.divisionTitleId = divisionTitleId;
+        this.bonusDivisionTitleId = bonusDivisionTitleId;
         this.data = data;
         this.clickHandler = null; // Référence à l'écouteur de clic
         this.init();
@@ -219,31 +221,50 @@ class ExpandableTable {
         if (this.container) {
             this.container.innerHTML = '';
         }
+        if (this.bonusContainer) {
+            this.bonusContainer.innerHTML = '';
+        }
         
         const divisionTitle = document.getElementById(this.divisionTitleId);
         if (divisionTitle) {
             divisionTitle.innerHTML = '';
         }
+
+        const bonusDivisionTitle = document.getElementById(this.bonusDivisionTitleId);
+        if (bonusDivisionTitle) {
+            bonusDivisionTitle.innerHTML = '';
+        }
         
         // Libérer les références
         this.container = null;
+        this.bonusContainer = null;
         this.divisionTitleId = null;
+        this.bonusDivisionTitleId = null;
         this.data = null;
     }
 
     render() {
         // Personnalisation du nom de la division
+        let divisionName = this.data.name === "undefined" ? `Division ${this.data.divisionNum}` : this.data.name;
+
         const divisionTitle = document.getElementById(this.divisionTitleId);
         divisionTitle.innerHTML = '';
         const divisionSpan = document.createElement('span');
-        let divisionName = this.data.name === "undefined" ? `Division ${this.data.divisionNum}` : this.data.name;
         divisionSpan.innerHTML = `<p>${divisionName}</p>`;
         divisionTitle.appendChild(divisionSpan);
 
+        const bonusDivisionTitle = document.getElementById(this.bonusDivisionTitleId);
+        bonusDivisionTitle.innerHTML = '';
+        const bonusDivisionSpan = document.createElement('span');
+        bonusDivisionSpan.innerHTML = `<p>${divisionName}</p>`;
+        bonusDivisionTitle.appendChild(bonusDivisionSpan);
+
         this.container.innerHTML = '';
+        this.bonusContainer.innerHTML = '';
 
         this.data.teams.forEach((mpgTeam, index) => {
             this.container.appendChild(this.createDataRow(mpgTeam, index));
+            this.bonusContainer.appendChild(this.createBonusRow(mpgTeam));
         });
     }
 
@@ -340,30 +361,6 @@ class ExpandableTable {
             lastFiveMatchesChild.appendChild(createNotPlayedIconElement());
         });
 
-        const listeBonus = bonusList();
-
-        mpgTeam.timeline.forEach((day, index) => {
-            const opponent = farmersPlayersId().get(day.o) || 'Inconnu';
-
-            // Filtrer les bonus non pertinents (0 : Capitaine, 6 : Chapron, 8 : 4 défenseurs, 9 : 5 défenseurs)
-            const idxBonus = day?.b?.filter(bonus => ![0, 6, 8, 9].includes(bonus)).flatMap(bonus => bonus);
-
-            // Construire une map des bonus ciblés pour chaque opposant
-            const keyOpponentId = day.o;
-
-            if (idxBonus && idxBonus.length === 1) {
-                const existingData = mapBonusTargeted.get(keyOpponentId) || [];
-                mapBonusTargeted.set(keyOpponentId, [...existingData, {nom : farmersPlayersId().get(mpgTeam.id) ?? 'Inconnu', bonus: idxBonus, day: index + 1}]);
-
-                const existingDataPlayed = mapBonusPlayed.get(mpgTeam.id) || [];
-                const detail = listeBonus[idxBonus[0]];
-                mapBonusPlayed.set(mpgTeam.id, [...existingDataPlayed, {adversaire : opponent, bonus: idxBonus[0], day: index + 1, info: detail}]);
-            } else {
-                mapBonusTargeted.set(keyOpponentId, mapBonusTargeted.get(keyOpponentId) || []);
-                mapBonusPlayed.set(mpgTeam.id, mapBonusPlayed.get(mpgTeam.id) || []);
-            }
-        });
-
         tr.innerHTML = `
             <td class="position ${positionClass}"><span>${position}${variation}</span></td>
             <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name} ${ring}<br><span style="font-size: 80%;">${playerName}</span></td>
@@ -399,7 +396,7 @@ class ExpandableTable {
         let tableHTML = '<table><tr>';
 
         if (nbAvailableBonuses > 0) {
-        tableHTML += `
+            tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
                     <div>Bonus disponible${nbAvailableBonuses > 1 ? "s" : ""} (${nbAvailableBonuses}/${nbBonusDefault})</div>
                     <div id="dispos" style="display: inline-flex; margin-right: 16px;">
@@ -471,6 +468,80 @@ class ExpandableTable {
         `;
 
         tr.appendChild(td);
+        return tr;
+    }
+
+    createBonusRow(mpgUser) {
+        const tr = document.createElement('tr');
+        // tr.className = 'expanded-row';
+        tr.setAttribute('bonus-id', mpgUser.id);
+
+        const td = document.createElement('td');
+
+        const nbBonusDefault = Array.from(bonusDetails().entries()).map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);   
+        const bonusCount = getBonusCountUpdated(mpgUser.bonusTab);
+        const availableBonuses = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
+        const nbAvailableBonuses = availableBonuses.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+        
+        let tableHTML = `<td style="padding-right: 16px;"><strong>${mpgUser.name}</strong></td>`;
+
+        if (nbAvailableBonuses > 0) {
+            tableHTML += `
+                <td style="vertical-align: top; padding-right: 16px;">
+                    <div id="dispos" style="display: inline-flex; margin-right: 16px;">
+                        ${availableBonuses.map(([nom, [description, compteur, linkImg]]) => `
+                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                ${Array.from({ length: compteur }, 
+                                    () => `<img title="${description}" src="${linkImg}" width="30" height="42" style="vertical-align: middle;">`).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </td>
+                `;
+        }
+
+        const bonusPlayed = Array.from(mapBonusPlayed.get(mpgUser.id));
+        const nbBonusPlayed = bonusPlayed.length;
+
+        if (nbBonusPlayed > 0) {
+            tableHTML += `
+                <td style="vertical-align: top; padding-right: 16px;">
+                    <div id="used" style="display: inline-flex; margin-right: 16px;">
+                        ${bonusPlayed.map((element) => `
+                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                ${Array.from({ length: 1 },
+                                    () => `<img title="${element.info[1]} : contre ${element.adversaire} (J${element.day})" src="${element.info[2]}" width="30" height="42" style="vertical-align: middle;">`).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </td>
+                `;
+        }
+
+        const bonusTargeted = mapBonusTargeted.get(mpgUser.id);
+
+        if (bonusTargeted?.length > 0) {   
+            const targetBonus = Array.from(getBonusTargeted(bonusTargeted));
+
+            // Trier les bonus par journée de championnat
+            targetBonus.sort((a, b) => a[1][3].day - b[1][3].day);
+            let nbBonusTarget = bonusTargeted.length
+
+            tableHTML += `
+                <td style="vertical-align: top; padding-right: 16px;">
+                    <div id="used" style="display: inline-flex; margin-right: 16px;">
+                        ${targetBonus.map(([nom, [bKey, libelle, linkImg, tmp]]) => `
+                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                ${Array.from({ length: 1 }, 
+                                    () => `<img title="${libelle} : attaque de ${tmp.nom} (J${tmp.day})" src="${linkImg}" width="30" height="42" style="vertical-align: middle;">`).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </td>`;
+        }
+
+        tableHTML += `</tr>`;
+        tr.innerHTML += tableHTML;
         return tr;
     }
 
@@ -706,10 +777,10 @@ function updateApiUrls() {
 async function fetchMatches() {
     try {
         const divisionConfigs = [];
-        divisionConfigs.push([API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1', 'division1']);
+        divisionConfigs.push([API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1', 'division1', 'bonusBodyDiv1', 'bonusDivisionTitle1']);
         // Inclure la deuxième division uniquement si elle est présente
         if (nbDivisionsForSeason > 1) {
-            divisionConfigs.push([API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2', 'division2']);
+            divisionConfigs.push([API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2', 'division2', 'bonusBodyDiv2', 'bonusDivisionTitle2']);
             document.getElementById('div2').style.display = 'block';
         } else {
             // Si une deuxième division n'est pas présente, masquer son conteneur
@@ -728,7 +799,33 @@ async function fetchMatches() {
             oldContainer.innerHTML = '';
 
             nbPlayers = matches.division.teams.length;
-            expandableTables.push(new ExpandableTable(divisionConfigs[i][1], divisionConfigs[i][2], matches.division));
+
+            matches.division.teams.forEach((mpgTeam) => {
+                const listeBonus = bonusList();
+                mpgTeam.timeline.forEach((day, index) => {
+                    const opponent = farmersPlayersId().get(day.o) || 'Inconnu';
+
+                    // Filtrer les bonus non pertinents (0 : Capitaine, 6 : Chapron, 8 : 4 défenseurs, 9 : 5 défenseurs)
+                    const idxBonus = day?.b?.filter(bonus => ![0, 6, 8, 9].includes(bonus)).flatMap(bonus => bonus);
+
+                    // Construire une map des bonus ciblés pour chaque opposant
+                    const keyOpponentId = day.o;
+
+                    if (idxBonus && idxBonus.length === 1) {
+                        const existingData = mapBonusTargeted.get(keyOpponentId) || [];
+                        mapBonusTargeted.set(keyOpponentId, [...existingData, {nom : farmersPlayersId().get(mpgTeam.id) ?? 'Inconnu', bonus: idxBonus, day: index + 1}]);
+
+                        const existingDataPlayed = mapBonusPlayed.get(mpgTeam.id) || [];
+                        const detail = listeBonus[idxBonus[0]];
+                        mapBonusPlayed.set(mpgTeam.id, [...existingDataPlayed, {adversaire : opponent, bonus: idxBonus[0], day: index + 1, info: detail}]);
+                    } else {
+                        mapBonusTargeted.set(keyOpponentId, mapBonusTargeted.get(keyOpponentId) || []);
+                        mapBonusPlayed.set(mpgTeam.id, mapBonusPlayed.get(mpgTeam.id) || []);
+                    }
+                });
+            });
+
+            expandableTables.push(new ExpandableTable(divisionConfigs[i][1], divisionConfigs[i][2], matches.division, divisionConfigs[i][4], divisionConfigs[i][5]));
         });
 
         contentDisplay();

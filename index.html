@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="scripts/css/style-recast.css">
 </head>
 
-<body>
+<body class="scroller">
     <div class="container">
         <div class="header"
             style="align-items: center;justify-content: center;gap: 20px;padding: 15px 30px;background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
@@ -40,6 +40,7 @@
                     </div>
                 </li>
                 <li class="tab-item"><button class="tab-button" data-tab="calendrier">📅 Calendrier L1</button></li>
+                <li class="tab-item"><button class="tab-button" data-tab="bonus">📅 Bonus</button></li>
                 <!-- <li><button class="tab-button" data-tab="stats">📈 Statistiques</button></li> -->
                 <!-- <li><button class="tab-button" data-tab="equipes">👥 Équipes</button></li> -->
             </ul>
@@ -57,6 +58,49 @@
         <div id="content" style="display: none;">
             <!-- Onglet Classement -->
             <div id="classement-tab" class="tab-content active">
+                <div id="legende" style="display: flex;justify-content: right;">
+                    <div style="display: flex; padding-left: 10px; padding-right: 10px; gap: 15px;">
+                        <div style="display: flex;">
+                            <div aria-labelledby="l5l-w">
+                                <svg aria-hidden="true" viewBox="0 0 22 22"
+                                    style="height: 22px; width: 22px">
+                                    <path d="M11 3a8 8 0 1 1 0 16 8 8 0 0 1 0-16"
+                                        fill="#34A853"></path>
+                                    <path
+                                        d="M9.2 12.28 7.12 10.2 6 11.32l3.2 3.2 6.4-6.4L14.48 7z"
+                                        fill="#fff"></path>
+                                </svg>
+                            </div>
+                            <div id="l5l-w">Victoire</div>
+                        </div>
+                        <div style="display: flex;">
+                            <div aria-labelledby="l5l-t">
+                                <svg aria-hidden="true" viewBox="0 0 22 22"
+                                    style="height: 22px; width: 22px">
+                                    <path clip-rule="evenodd"
+                                        d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16"
+                                        fill="#9D9BA7" fill-rule="evenodd"></path>
+                                    <path clip-rule="evenodd" d="M8 10h6v2H8z" fill="#fff" fill-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div id="l5l-t">Nul</div>
+                        </div>
+                        <div style="display: flex;">
+                            <div aria-labelledby="l5l-l">
+                                <svg aria-hidden="true" viewBox="0 0 22 22"
+                                    style="height: 22px; width: 22px">
+                                    <path clip-rule="evenodd"
+                                        d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16"
+                                        fill="#EA4335" fill-rule="evenodd"></path>
+                                    <path clip-rule="evenodd"
+                                        d="M13.263 14.394 11 12.131l-2.263 2.263-1.131-1.131L9.869 11 7.606 8.737l1.131-1.131L11 9.869l2.263-2.263 1.131 1.131L12.131 11l2.263 2.263z"
+                                        fill="#fff" fill-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div id="l5l-l">Défaite</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="divisions">
                     <div id="div1" class="division">
                         <h2 id="divisionTitle1"></h2>
@@ -96,59 +140,38 @@
                             <tbody id="classementBodyDiv2"></tbody>
                         </table>
                     </div>
-                    <div id="legende">
-                        <div>Derniers matchs</div>
-                        <div>
-                            <table class="legend-table">
+                </div>
+            </div>
+
+            <div id="bonus-tab" class="tab-content">
+                <div class="divisions">
+                    <div id="bonusdiv1" class="division">
+                        <h2 id="bonusDivisionTitle1"></h2>
+                        <table id="bonusDivision1" class="classement-table">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        <div style="display: flex;">
-                                            <div aria-labelledby="l5l-w">
-                                                <svg aria-hidden="true" viewBox="0 0 22 22"
-                                                    style="height: 22px; width: 22px">
-                                                    <path d="M11 3a8 8 0 1 1 0 16 8 8 0 0 1 0-16"
-                                                        fill="#34A853"></path>
-                                                    <path
-                                                        d="M9.2 12.28 7.12 10.2 6 11.32l3.2 3.2 6.4-6.4L14.48 7z"
-                                                        fill="#fff"></path>
-                                                </svg>
-                                            </div>
-                                            <div id="l5l-w">Victoire</div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="display: flex;">
-                                            <div aria-labelledby="l5l-t">
-                                                <svg aria-hidden="true" viewBox="0 0 22 22"
-                                                    style="height: 22px; width: 22px">
-                                                    <path clip-rule="evenodd"
-                                                        d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16"
-                                                        fill="#9D9BA7" fill-rule="evenodd"></path>
-                                                    <path clip-rule="evenodd" d="M8 10h6v2H8z" fill="#fff" fill-rule="evenodd"></path>
-                                                </svg>
-                                            </div>
-                                            <div id="l5l-t">Nul</div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="display: flex;">
-                                            <div aria-labelledby="l5l-l">
-                                                <svg aria-hidden="true" viewBox="0 0 22 22"
-                                                    style="height: 22px; width: 22px">
-                                                    <path clip-rule="evenodd"
-                                                        d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16"
-                                                        fill="#EA4335" fill-rule="evenodd"></path>
-                                                    <path clip-rule="evenodd"
-                                                        d="M13.263 14.394 11 12.131l-2.263 2.263-1.131-1.131L9.869 11 7.606 8.737l1.131-1.131L11 9.869l2.263-2.263 1.131 1.131L12.131 11l2.263 2.263z"
-                                                        fill="#fff" fill-rule="evenodd"></path>
-                                                </svg>
-                                            </div>
-                                            <div id="l5l-l">Défaite</div>
-                                        </div>
-                                    </td>
+                                    <th style="text-align: center">Equipe</th>
+                                    <th style="text-align: center">Bonus disponibles</th>
+                                    <th style="text-align: center">Bonus joués</th>
+                                    <th style="text-align: center">Bonus encaissés</th>
                                 </tr>
-                            </table>
-                        </div>
+                            </thead>
+                            <tbody id="bonusBodyDiv1"></tbody>
+                        </table>
+                    </div>
+                    <div id="bonusdiv2" class="division">
+                        <h2 id="bonusDivisionTitle2"></h2>
+                        <table id="bonusDivision2" class="classement-table">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: center">Equipe</th>
+                                    <th style="text-align: center">Bonus disponibles</th>
+                                    <th style="text-align: center">Bonus joués</th>
+                                    <th style="text-align: center">Bonus encaissés</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bonusBodyDiv2"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
