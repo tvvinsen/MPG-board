@@ -3,6 +3,10 @@ let seasonNum = "9";
 let nbPlayers = 8;
 let nbDivisionsForSeason = 2;
 
+let teamsOfDivision = [[]];
+let liveStandings = [[]];
+let calendarDiv = [[]];
+
 let currentJournee = 1;
 const totalJournees = 34; // Nombre total de journées en Ligue 1
 let allMatches = [];
@@ -10,6 +14,10 @@ let allMatches = [];
 let API_URL_LEAGUE = 'https://api.mlnstats.com/mpgleague/league/' + codeLeague;
 
 let codeLeagueAndSeasonNum = codeLeague + '_' + seasonNum;
+
+let API_URL_TEAMS_DIV_1 = 'https://api.mlnstats.com/mpgleague/teams/' + codeLeagueAndSeasonNum + "_1";
+let API_URL_TEAMS_DIV_2 = 'https://api.mlnstats.com/mpgleague/teams/' + codeLeagueAndSeasonNum + "_2";
+
 let API_URL_DIV_1 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_1";
 let API_URL_DIV_2 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_2";
 
@@ -195,6 +203,7 @@ class ExpandableTable {
         this.divisionTitleId = divisionTitleId;
         this.bonusDivisionTitleId = bonusDivisionTitleId;
         this.data = data;
+        this.divNum = data.divisionNum;
         this.clickHandler = null; // Référence à l'écouteur de clic
         this.init();
     }
@@ -245,7 +254,7 @@ class ExpandableTable {
 
     render() {
         // Personnalisation du nom de la division
-        let divisionName = this.data.name === "undefined" ? `Division ${this.data.divisionNum}` : this.data.name;
+        let divisionName = this.data.name === "undefined" ? `Division ${this.divNum}` : this.data.name;
 
         const divisionTitle = document.getElementById(this.divisionTitleId);
         divisionTitle.innerHTML = '';
@@ -287,15 +296,16 @@ class ExpandableTable {
             ring = ringElement;
         }
 
-        // TODO : En attente d'évolution de l'API MPGStats pour récupérer la variation de position
         // Gestion de la variation de position
-        let variation = "";
-        // if ([4, 5, 6].includes(position)) {
-        //     variation = '<img src="https://assets.eurosport.io/web/inArenaIcons/table-down.svg" style="width: 15px;"/>'
-        // } else if ([3].includes(position)) {
-        //     variation = '<img src="https://assets.eurosport.io/web/inArenaIcons/table-up.svg" style="width: 15px;"/>';
-        // }
-
+        const lsTeam = liveStandings[this.divNum-1]?.filter(item => item.teamNum === mpgTeam.teamNum).pop();
+        let variation = lsTeam?.variation ?? 0;
+        let variationImg = '';
+        if (variation < 0) {
+            variationImg = '<img src="https://assets.eurosport.io/web/inArenaIcons/table-down.svg" style="width: 15px;"/>'
+        } else if (variation > 0) {
+            variationImg = '<img src="https://assets.eurosport.io/web/inArenaIcons/table-up.svg" style="width: 15px;"/>';
+        }
+        
         // Gestion du classement
         if (position === 1) {
             positionClass = 'first';
@@ -309,7 +319,7 @@ class ExpandableTable {
         tr.className = 'data-row';
         tr.setAttribute('data-row-id', mpgTeam.id);
 
-        const numDivision = this.data.divisionNum;
+        const numDivision = this.divNum;
         const nbJoueurs = this.data.teams.length;
 
         // Mise en évidence des leaders de la division (permier de la première division ou top 3 des autres divisions)
@@ -362,7 +372,7 @@ class ExpandableTable {
         });
 
         tr.innerHTML = `
-            <td class="position ${positionClass}"><span>${position}${variation}</span></td>
+            <td class="position ${positionClass}"><span>${position}${variationImg}</span></td>
             <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name} ${ring}<br><span style="font-size: 80%;">${playerName}</span></td>
             <td class="points">${mpgTeam.points} pts</td>
             <td style="text-align: center">${this.data.leagueDayScan}</td>
@@ -416,18 +426,18 @@ class ExpandableTable {
 
         if (nbBonusPlayed > 0) {
             tableHTML += `
-                    <td style="vertical-align: top; padding-right: 16px;">
-                        <div>Bonus utilisé${nbBonusPlayed > 1 ? "s" : ""} (${nbBonusPlayed}/${nbBonusDefault})</div>
-                        <div id="used" style="display: inline-flex; margin-right: 16px;">
-                            ${bonusPlayed.map((element) => `
-                                <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-                                    ${Array.from({ length: 1 },
-                                        () => `<img title="${element.info[1]} : contre ${element.adversaire} (J${element.day})" src="${element.info[2]}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </td>
-                    `;
+                <td style="vertical-align: top; padding-right: 16px;">
+                    <div>Bonus utilisé${nbBonusPlayed > 1 ? "s" : ""} (${nbBonusPlayed}/${nbBonusDefault})</div>
+                    <div id="used" style="display: inline-flex; margin-right: 16px;">
+                        ${bonusPlayed.map((element) => `
+                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                ${Array.from({ length: 1 },
+                                    () => `<img title="${element.info[1]} : contre ${element.adversaire} (J${element.day})" src="${element.info[2]}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </td>
+                `;
         }
 
         tableHTML += `</td></tr></table>`;
@@ -445,20 +455,31 @@ class ExpandableTable {
             let nbBonusTarget = bonusTargeted.length
 
             tableHTML += `
-                    <td style="vertical-align: top; padding-right: 16px;">
-                        <div>Bonus encaissé${nbBonusTarget > 1 ? "s" : ""} (${nbBonusTarget})</div>
-                        <div id="used" style="display: inline-flex; margin-right: 16px;">
-                            ${targetBonus.map(([nom, [bKey, libelle, linkImg, tmp]]) => `
-                                <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-                                    ${Array.from({ length: 1 }, 
-                                        () => `<img title="${libelle} : attaque de ${tmp.nom} (J${tmp.day})" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </td>`;
+                <td style="vertical-align: top; padding-right: 16px;">
+                    <div>Bonus encaissé${nbBonusTarget > 1 ? "s" : ""} (${nbBonusTarget})</div>
+                    <div id="used" style="display: inline-flex; margin-right: 16px;">
+                        ${targetBonus.map(([nom, [bKey, libelle, linkImg, tmp]]) => `
+                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                ${Array.from({ length: 1 }, 
+                                    () => `<img title="${libelle} : attaque de ${tmp.nom} (J${tmp.day})" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </td>`;
 
             tableHTML += `</tr></table>`;
             td.innerHTML += tableHTML
+        }
+
+        const nextMatchToPlay = calendarDiv[this.divNum-1]?.filter(item => item.isPlayed === false).slice().shift();
+        if (nextMatchToPlay) {
+            const teamNextMatch = nextMatchToPlay?.matches.filter(it => it[0] === mpgUser.teamNum || it[1] === mpgUser.teamNum).pop();
+            const homePlayer = teamsOfDivision[this.divNum-1]?.filter(it => it.teamNum === teamNextMatch[0]).slice().shift();
+            const awayPlayer = teamsOfDivision[this.divNum-1]?.filter(it => it.teamNum === teamNextMatch[1]).slice().shift();
+
+            td.innerHTML += `
+                    <div>Prochain match : ${homePlayer.name} reçoit ${awayPlayer.name}</div>
+            `;
         }
 
         td.innerHTML += `
@@ -772,20 +793,33 @@ function updateApiUrls() {
     codeLeagueAndSeasonNum = codeLeague + '_' + seasonNum;
     API_URL_DIV_1 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_1";
     API_URL_DIV_2 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_2";
+
+    API_URL_TEAMS_DIV_1 = 'https://api.mlnstats.com/mpgleague/teams/' + codeLeagueAndSeasonNum + "_1";
+    API_URL_TEAMS_DIV_2 = 'https://api.mlnstats.com/mpgleague/teams/' + codeLeagueAndSeasonNum + "_2";
 }
 
 async function fetchMatches() {
     try {
         const divisionConfigs = [];
-        divisionConfigs.push([API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1', 'division1', 'bonusBodyDiv1', 'bonusDivisionTitle1']);
+        divisionConfigs.push([API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1', 'division1', 'bonusBodyDiv1', 'bonusDivisionTitle1', API_URL_TEAMS_DIV_1]);
         // Inclure la deuxième division uniquement si elle est présente
         if (nbDivisionsForSeason > 1) {
-            divisionConfigs.push([API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2', 'division2', 'bonusBodyDiv2', 'bonusDivisionTitle2']);
+            divisionConfigs.push([API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2', 'division2', 'bonusBodyDiv2', 'bonusDivisionTitle2', API_URL_TEAMS_DIV_2]);
             document.getElementById('div2').style.display = 'block';
+            document.getElementById('bonusdiv2').style.display = 'block';
         } else {
             // Si une deuxième division n'est pas présente, masquer son conteneur
             document.getElementById('div2').style.display = 'none';
+            document.getElementById('bonusdiv2').style.display = 'none';
         }
+
+        const allTeams = await Promise.all(
+            divisionConfigs.map(([url, a, b, c, d, e, urlTeam]) => fetchJson(urlTeam))
+        );
+
+        allTeams.forEach((teams, i) => {
+            teamsOfDivision[i] = allTeams[i].teams;
+        });
 
         const allMatches = await Promise.all(
             divisionConfigs.map(([url]) => fetchJson(url))
@@ -799,6 +833,8 @@ async function fetchMatches() {
             oldContainer.innerHTML = '';
 
             nbPlayers = matches.division.teams.length;
+            liveStandings[i] = matches.liveStandings;
+            calendarDiv[i] = matches.calendar;
 
             matches.division.teams.forEach((mpgTeam) => {
                 const listeBonus = bonusList();
@@ -996,9 +1032,10 @@ function showError(message = 'Erreur lors du chargement des données. Veuillez r
 }
 
 // Chargement initial
-fetchLeague().then(() => {
-    fetchMatches();
-});
+fetchLeague()
+    .then(() => {
+        fetchMatches();
+    });
 
 loadMatches();
 
