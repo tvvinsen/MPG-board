@@ -322,12 +322,12 @@ class ExpandableTable {
         const numDivision = this.divNum;
         const nbJoueurs = this.data.teams.length;
 
-        // Mise en évidence des leaders de la division (permier de la première division ou top 3 des autres divisions)
-        if ((numDivision !== 1 && position < 4) || position === 1) {
+        // Mise en évidence des équipes en situation de promotion
+        if (mpgTeam.nextPromotion === 1) {
             tr.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
         }
-        // Mise en évidence des derniers de la division (dernier de la dernière division ou bottom 3 des autres divisions)
-        else if (numDivision === 1 && (position > nbJoueurs - 3) || position === nbJoueurs) {
+        // Mise en évidence des équipes en situation de relégation
+        else if (mpgTeam.nextPromotion === -1 && nbDivisionsForSeason !== numDivision) {
             tr.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
         }
 
@@ -731,17 +731,24 @@ async function fetchLeague() {
 }
 
 function displayLeague(data) {
+    seasonNum = data?.seasonNum?.toString() || "1";
+
+    // Déterminer la quantité de divisions de la saison courante
+    const divisionsForSeason = (data.divisions || []).filter(div => div.seasonNum.toString() === seasonNum);
+    nbDivisionsForSeason = divisionsForSeason.length;
+
     // Affichage de la ligue
     const leagueTitle = document.getElementById('leagueTitle');
     leagueTitle.innerHTML = '';
     const spanELement = document.createElement('span');
-    spanELement.innerHTML = `<p>${data.name} / Saison ${data.seasonNum}</p>`;
+    
+    let spanLibelle = `<p>${data.name} / Saison ${seasonNum}</p>`
+    if (nbDivisionsForSeason > 1)
+        spanLibelle += `<h6>(${nbDivisionsForSeason} divisions)</h6>`;
+    
+    spanELement.innerHTML = spanLibelle;
     leagueTitle.appendChild(spanELement);
 
-    seasonNum = data?.seasonNum?.toString() || "1";
-    // Déterminer la quantité de divisions de la saison courante
-    const divisionsForSeason = (data.divisions || []).filter(div => div.seasonNum.toString() === seasonNum);
-    nbDivisionsForSeason = divisionsForSeason.length;
     updateApiUrls();        
 }
 
