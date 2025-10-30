@@ -29,6 +29,24 @@ const ringElement = '<span class="badge"><img src="./img/ring.png" style="vertic
  */
 const _svgCache = new Map();
 
+// Récupère le texte SVG (lève en cas d'erreur)
+async function fetchSvgText(src) {
+    const res = await fetch(src, { cache: 'no-cache' });
+    if (!res.ok) throw new Error(`SVG load failed ${src} (${res.status})`);
+    return await res.text();
+}
+
+// Précharge un SVG et le met en cache (utilisez ceci au démarrage si vous voulez warm-up)
+async function prefetchSvg(src) {
+    if (!src || _svgCache.has(src)) return;
+    try {
+        const res = await fetchSvgText(src);
+        _svgCache.set(src, res);
+    } catch (err) {
+        console.warn('prefetchSvg failed', src, err);
+    }
+}
+
 async function loadSvgComponents(root = document) {
     const placeholders = Array.from(root.querySelectorAll('.svg-component[data-src]'));
     if (placeholders.length === 0) return;
@@ -514,12 +532,18 @@ class ExpandableTable {
         const nextMatchToPlay = calendarDiv[this.divNum-1]?.filter(item => item.isPlayed === false).slice().shift();
         if (nextMatchToPlay) {
             const teamNextMatch = nextMatchToPlay?.matches.filter(it => it[0] === mpgUser.teamNum || it[1] === mpgUser.teamNum).pop();
-            const homePlayer = teamsOfDivision[this.divNum-1]?.filter(it => it.teamNum === teamNextMatch[0]).slice().shift();
-            const awayPlayer = teamsOfDivision[this.divNum-1]?.filter(it => it.teamNum === teamNextMatch[1]).slice().shift();
 
-            td.innerHTML += `
-                    <div>Prochain match : ${homePlayer.name} reçoit ${awayPlayer.name}</div>
-            `;
+            const isHomeMatch = teamNextMatch[0] === mpgUser.teamNum;
+            let svgHA;
+            let versusPlayer;
+            if (isHomeMatch) {
+                svgHA = _svgCache.get('./img/svg/home.svg')
+                versusPlayer = teamsOfDivision[this.divNum-1]?.filter(it => it.teamNum === teamNextMatch[1]).slice().shift();
+            } else {
+                svgHA = _svgCache.get('./img/svg/away.svg')
+                versusPlayer = teamsOfDivision[this.divNum-1]?.filter(it => it.teamNum === teamNextMatch[0]).slice().shift();
+            }
+            td.innerHTML += `<div>Prochain match : ${svgHA} ${versusPlayer.name}</div>`;
         }
 
         td.innerHTML += `
@@ -1072,6 +1096,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Charger les composants SVG
     loadSvgComponents();
 
+    prefetchSvg('./img/svg/home.svg');
+    prefetchSvg('./img/svg/away.svg');
+    
     // Gestion du formulaire de sélection de ligue
     document.getElementById('leagueForm').addEventListener('submit', (e) => {
         e.preventDefault();
