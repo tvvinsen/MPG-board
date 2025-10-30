@@ -23,6 +23,46 @@ let API_URL_DIV_2 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAnd
 
 const ringElement = '<span class="badge"><img src="./img/ring.png" style="vertical-align: bottom; width: 20px"/></span>';
 
+/**
+ * Charger et injecter des fragments SVG référencés par [data-src].
+ * Utilise un cache pour éviter les fetchs répétés.
+ */
+const _svgCache = new Map();
+
+async function loadSvgComponents(root = document) {
+    const placeholders = Array.from(root.querySelectorAll('.svg-component[data-src]'));
+    if (placeholders.length === 0) return;
+
+    await Promise.all(placeholders.map(async el => {
+        const src = el.getAttribute('data-src');
+        if (!src) return;
+        try {
+            let svgText = _svgCache.get(src);
+            if (!svgText) {
+                const res = await fetch(src, {cache: 'no-cache'});
+                if (!res.ok) throw new Error('Failed to load ' + src);
+                svgText = await res.text();
+                _svgCache.set(src, svgText);
+            }
+            // Insérer le SVG inline (accessible) et conserver les attributs aria si présents.
+            el.innerHTML = svgText;
+            // Si aria-hidden ou aria-labelledby existe sur le placeholder, propage-les au SVG inséré
+            const svg = el.querySelector('svg');
+            if (svg) {
+                for (const attr of ['aria-hidden', 'aria-labelledby', 'role', 'title']) {
+                    if (el.hasAttribute(attr) && !svg.hasAttribute(attr)) {
+                        svg.setAttribute(attr, el.getAttribute(attr));
+                    }
+                }
+            }
+        } catch (err) {
+            // en cas d'erreur, laisser le placeholder vide ou insérer un fallback simple
+            console.error('loadSvgComponents:', err);
+            el.innerHTML = '';
+        }
+    }));
+}
+
 // Gestion des onglets
 document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
@@ -659,13 +699,7 @@ const createSuccessIconElement = (title) => {
     const labelId = 'validation-success'
     const div = document.createElement('div');
     div.setAttribute('aria-labelledby', labelId);
-    div.innerHTML = `
-    <span title="${title}">
-        <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
-            <path clip-rule="evenodd" d="M11 3a8 8 0 1 1 0 16 8 8 0 0 1 0-16" fill="#34A853"></path>
-            <path clip-rule="evenodd" d="M9.2 12.28 7.12 10.2 6 11.32l3.2 3.2 6.4-6.4L14.48 7z" fill="#fff"></path>
-        </svg>
-    </span>`;
+    div.innerHTML = `<span title="${title}">${_svgCache.get('./img/svg/victory-icon.svg') || ''}</span>`;
     return div;
 };
 
@@ -673,13 +707,7 @@ const createNulIconElement = (title) => {
     const labelId = 'validation-nul';
     const div = document.createElement('div');
     div.setAttribute('aria-labelledby', labelId);
-    div.innerHTML = `
-    <span title="${title}">
-        <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">  
-            <path clip-rule="evenodd" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16" fill="#9D9BA7" fill-rule="evenodd"></path> 
-            <path clip-rule="evenodd" d="M8 10h6v2H8z" fill="#fff" fill-rule="evenodd"></path>  
-        </svg>
-    </span>`;
+    div.innerHTML = `<span title="${title}">${_svgCache.get('./img/svg/draw-icon.svg') || ''}</span>`;
     return div;
 };
 
@@ -687,13 +715,7 @@ const createDefeatIconElement = (title) => {
     const labelId = 'validation-defeat';
     const div = document.createElement('div');
     div.setAttribute('aria-labelledby', labelId);
-    div.innerHTML = `
-    <span title="${title}">
-        <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">  
-            <path clip-rule="evenodd" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16" fill="#EA4335" fill-rule="evenodd"></path> 
-            <path clip-rule="evenodd" d="M13.263 14.394 11 12.131l-2.263 2.263-1.131-1.131L9.869 11 7.606 8.737l1.131-1.131L11 9.869l2.263-2.263 1.131 1.131L12.131 11l2.263 2.263z" fill="#fff" fill-rule="evenodd"></path>  
-        </svg>
-    </span>`;
+    div.innerHTML = `<span title="${title}">${_svgCache.get('./img/svg/loss-icon.svg') || ''}</span>`;
     return div;
 };
 
@@ -1046,8 +1068,11 @@ fetchLeague()
 
 loadMatches();
 
-// Gestion du formulaire de sélection de ligue
 document.addEventListener('DOMContentLoaded', () => {
+    // Charger les composants SVG
+    loadSvgComponents();
+
+    // Gestion du formulaire de sélection de ligue
     document.getElementById('leagueForm').addEventListener('submit', (e) => {
         e.preventDefault();
         document.getElementById('error').style.display = 'none';  // Cacher les erreurs précédentes
