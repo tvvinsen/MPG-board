@@ -1,4 +1,5 @@
 let codeLeague = "PNAL4RJN";
+// let codeLeague = "RDRE1KZA";
 let seasonNum = "9";
 let nbPlayers = 8;
 let nbDivisionsForSeason = 2;
@@ -6,20 +7,259 @@ let nbDivisionsForSeason = 2;
 let teamsOfDivision = [[]];
 let liveStandings = [[]];
 let calendarDiv = [[]];
+let divisions = [];
 
 let currentJournee = 1;
-const totalJournees = 34; // Nombre total de journées en Ligue 1
 let allMatches = [];
 
-let API_URL_LEAGUE = 'https://api.mlnstats.com/mpgleague/league/' + codeLeague;
+function createDivisionPairs() {
+    const numDivisions = nbDivisionsForSeason;
+    divisions = [];
+    for (let i = 1; i <= numDivisions; i++) divisions.push(i);
 
-let codeLeagueAndSeasonNum = codeLeague + '_' + seasonNum;
+    const tabSelect = document.querySelector('.division-tab-select');
+    const tabContent = document.querySelector('.divisions-content');
+    if (!tabSelect || !tabContent) return;
+    tabSelect.innerHTML = '';
+    tabContent.innerHTML = '';
 
-let API_URL_TEAMS_DIV_1 = 'https://api.mlnstats.com/mpgleague/teams/' + codeLeagueAndSeasonNum + "_1";
-let API_URL_TEAMS_DIV_2 = 'https://api.mlnstats.com/mpgleague/teams/' + codeLeagueAndSeasonNum + "_2";
+    // Créer une liste déroulante pour sélectionner la paire
+    const select = document.createElement('select');
+    select.id = 'divisionPairSelect';
+    select.setAttribute('aria-label', 'Sélection des paires de divisions');
+    select.className = 'division-pair-select';
+    tabSelect.appendChild(select);
 
-let API_URL_DIV_1 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_1";
-let API_URL_DIV_2 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_2";
+    const pairs = [];
+    for (let i = 0; i < divisions.length; i += 2) {
+        const pairNum = Math.floor(i / 2) + 1;
+        const div1 = divisions[i];
+        const div2 = divisions[i + 1];
+
+        const option = document.createElement('option');
+        option.value = String(pairNum);
+        option.textContent = div2 ? `Divisions ${div1}-${div2}` : `Division ${div1}`;
+        option.dataset.div1 = String(div1);
+        if (div2) option.dataset.div2 = String(div2);
+
+        option.className = 'division-pair-select';
+        select.appendChild(option);
+
+        const panelId = `panel-${pairNum}`;
+        const pairContent = document.createElement('div');
+        pairContent.className = 'division-pair';
+        pairContent.id = panelId;
+        pairContent.setAttribute('role', 'region');
+        pairContent.setAttribute('aria-labelledby', `divisionPairLabel-${pairNum}`);
+        pairContent.hidden = (i !== 0);
+
+        // Construire le HTML pour la paire
+        let html = `
+            <div class="divisions">
+                <div id="div${div1}" class="division">
+                    <h2 id="divisionTitle${div1}"></h2>
+                    <table id="division${div1}" class="classement-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Equipe</th>
+                                <th>Points</th>
+                                <th style="text-align: center">J</th>
+                                <th style="text-align: center">V/N/D</th>
+                                <th style="text-align: center">Diff.</th>
+                                <th style="text-align: center">Buts<br>réels</th>
+                                <th style="text-align: center">Buts<br>MPG</th>
+                                <th style="text-align: center">Derniers<br>matchs</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classementBodyDiv${div1}"></tbody>
+                    </table>
+                </div>
+        `;
+
+        if (div2) {
+            html += `
+                <div id="div${div2}" class="division">
+                    <h2 id="divisionTitle${div2}"></h2>
+                    <table id="division${div2}" class="classement-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Equipe</th>
+                                <th>Points</th>
+                                <th style="text-align: center">J</th>
+                                <th style="text-align: center">V/N/D</th>
+                                <th style="text-align: center">Diff.</th>
+                                <th style="text-align: center">Buts<br>réels</th>
+                                <th style="text-align: center">Buts<br>MPG</th>
+                                <th style="text-align: center">Derniers<br>matchs</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classementBodyDiv${div2}"></tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        html += '</div>';
+        pairContent.innerHTML = html;
+
+        tabContent.appendChild(pairContent);
+        pairs.push({ pairNum, option, panel: pairContent });
+    }
+
+    // Helper pour charger une paire par son numéro
+    async function loadPairByNum(pairNum) {
+        const item = pairs.find(p => p.pairNum === pairNum);
+        if (!item) return;
+        const opt = item.option;
+        if (opt.dataset.loaded === 'true' || opt.dataset.loading === 'true') return;
+        const div1 = parseInt(opt.dataset.div1, 10);
+        const div2 = opt.dataset.div2 ? parseInt(opt.dataset.div2, 10) : null;
+        opt.dataset.loading = 'true';
+        const promises = [];
+        try {
+            promises.push(loadDivisionData(div1, getApiUrls(div1)));
+            if (div2) promises.push(loadDivisionData(div2, getApiUrls(div2)));
+        } catch (err) {
+            console.error('Erreur lors de la préparation des URLs pour la paire', err);
+            opt.dataset.loading = 'false';
+            return;
+        }
+        try {
+            await Promise.all(promises);
+            opt.dataset.loaded = 'true';
+        } catch (err) {
+            console.error('Erreur de chargement de la paire de divisions :', err);
+        } finally {
+            delete opt.dataset.loading;
+        }
+    }
+
+    function activatePanel(pairNum) {
+        pairs.forEach(({pairNum: pn, panel, option}) => {
+            const selected = pn === pairNum;
+            panel.classList.toggle('active', selected);
+            panel.hidden = !selected;
+            option.selected = selected;
+        });
+    }
+
+    // Écouter le changement de sélection
+    select.addEventListener('change', () => {
+        const pairNum = parseInt(select.value, 10);
+
+        document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
+        showLoadingClassement();
+        loadPairByNum(pairNum).then(() => {
+            activatePanel(pairNum);
+            hideLoadingClassement();
+        });
+    });
+
+    // Charger immédiatement la première paire pour affichage à l'ouverture de la page
+    if (pairs.length > 0) {
+        select.selectedIndex = 0;
+        loadPairByNum(pairs[0].pairNum).then(() => {
+            activatePanel(pairs[0].pairNum);
+            hideLoading();
+            hideLoadingClassement();
+            contentDisplay();
+        });
+    }
+}
+
+function getApiUrls(divisionNumber) {
+    const codeLeagueAndSeasonNum = codeLeague + '_' + seasonNum;
+    return {
+        teams: `https://api.mlnstats.com/mpgleague/teams/${codeLeagueAndSeasonNum}_${divisionNumber}`,
+        matches: `https://api.mpgstats.fr/mpgleague/matches/${codeLeagueAndSeasonNum}_${divisionNumber}`
+    };
+}
+
+function initializeData() {
+    createDivisionPairs();
+    // Initialiser structures internes sans déclencher d'appels API (lazy load on tab activation)
+    divisions.forEach(divisionNumber => {
+        const idx = divisionNumber - 1;
+        teamsOfDivision[idx] = [];
+        liveStandings[idx] = [];
+        calendarDiv[idx] = [];
+    });
+}
+
+async function loadDivisionData(divisionNumber, urls) {
+    try {
+        const [teamsResponse, matchesResponse] = await Promise.all([
+            fetch(urls.teams),
+            fetch(urls.matches)
+        ]);
+
+        const teamsData = await teamsResponse.json();
+        const matchesData = await matchesResponse.json();
+
+        // Normaliser l'indexation : nos tableaux internes sont 0-based, les divisions sont 1-based
+        const divIndex = divisionNumber - 1;
+
+        // Stocker les équipes (provenant de l'API teams)
+        teamsOfDivision[divIndex] = teamsData?.teams || [];
+
+        // Nettoyer les anciens containers DOM
+        const classementBody = document.getElementById(`classementBodyDiv${divisionNumber}`);
+        if (classementBody) classementBody.innerHTML = '';
+        const divisionTitle = document.getElementById(`divisionTitle${divisionNumber}`);
+        if (divisionTitle) divisionTitle.innerHTML = '';
+        const bonusBody = document.getElementById(`bonusBodyDiv${divisionNumber}`);
+        if (bonusBody) bonusBody.innerHTML = '';
+        const bonusDivisionTitle = document.getElementById(`bonusDivisionTitle${divisionNumber}`);
+        if (bonusDivisionTitle) bonusDivisionTitle.innerHTML = '';
+
+        // Récupérer et stocker les données de classement et calendrier
+        nbPlayers = matchesData?.division?.teams?.length || nbPlayers;
+        liveStandings[divIndex] = matchesData?.liveStandings || [];
+        calendarDiv[divIndex] = matchesData?.calendar || [];
+
+        // Construire les maps de bonus
+        matchesData?.division?.teams?.forEach((mpgTeam) => {
+            const listeBonus = bonusList();
+            mpgTeam.timeline.forEach((day, index) => {
+                const opponent = farmersPlayersId().get(day.o) || 'Inconnu';
+
+                // Filtrer les bonus non pertinents (0 : Capitaine, 6 : Chapron, 8 : 4 défenseurs, 9 : 5 défenseurs)
+                const idxBonus = day?.b?.filter(bonus => ![0, 6, 8, 9].includes(bonus)).flatMap(bonus => bonus);
+
+                // Construire une map des bonus ciblés pour chaque opposant
+                const keyOpponentId = day.o;
+
+                if (idxBonus && idxBonus.length === 1) {
+                    const existingData = mapBonusTargeted.get(keyOpponentId) || [];
+                    mapBonusTargeted.set(keyOpponentId, [...existingData, {nom : farmersPlayersId().get(mpgTeam.id) ?? 'Inconnu', bonus: idxBonus, day: index + 1}]);
+
+                    const existingDataPlayed = mapBonusPlayed.get(mpgTeam.id) || [];
+                    const detail = listeBonus[idxBonus[0]];
+                    mapBonusPlayed.set(mpgTeam.id, [...existingDataPlayed, {adversaire : opponent, bonus: idxBonus[0], day: index + 1, info: detail}]);
+                } else {
+                    mapBonusTargeted.set(keyOpponentId, mapBonusTargeted.get(keyOpponentId) || []);
+                    mapBonusPlayed.set(mpgTeam.id, mapBonusPlayed.get(mpgTeam.id) || []);
+                }
+            });
+        });
+
+        // Créer le composant d'affichage pour la division
+        expandableTables.push(new ExpandableTable(
+            `classementBodyDiv${divisionNumber}`,
+            `divisionTitle${divisionNumber}`,
+            matchesData.division,
+            `bonusBodyDiv${divisionNumber}`,
+            `bonusDivisionTitle${divisionNumber}`
+        ));
+
+        // Afficher le contenu si nécessaire
+        // contentDisplay();
+    } catch (error) {
+        console.error(`Error loading division ${divisionNumber} data:`, error);
+    }
+}
 
 const ringElement = '<span class="badge"><img src="./img/ring.png" style="vertical-align: bottom; width: 20px"/></span>';
 
@@ -98,154 +338,6 @@ document.querySelectorAll('.tab-button').forEach(button => {
 });
 
 
-// Charger les données au démarrage
-async function loadMatches() {
-    try {
-        const response = await fetch('https://proxy-football-api.onrender.com/api/matches');
-        const data = await response.json();
-        allMatches = data?.matches || [];
-
-        // Chercher la première journée avec des matchs non joués
-        const firstUnplayed = allMatches.find(match => match.status !== 'FINISHED');
-        currentJournee = firstUnplayed ? firstUnplayed.matchday : 1;
-        displayJournee(currentJournee);
-    } catch (error) {
-        console.error('Erreur de chargement:', error);
-        document.getElementById('loadingCal').innerHTML = 
-            '<p style="color: #e74c3c;">Erreur lors du chargement des données</p>';
-    }
-}
-
-// Fonction pour changer de journée
-function changeJournee(direction, event) {
-    const newJournee = currentJournee + direction;
-    
-    if (newJournee < 1 || newJournee > totalJournees) {
-        return;
-    }
-    
-    currentJournee = newJournee;
-    displayJournee(currentJournee);
-    updateNavigationButtons();
-}
-
-// Afficher une journée spécifique
-function displayJournee(journeeNum) {
-    document.getElementById('loadingCal').style.display = 'block';
-    document.getElementById('matchesContainer').style.display = 'none';
-    
-    // Simuler un délai de chargement
-    setTimeout(() => {
-        const journees = allMatches.filter(j => j.matchday === journeeNum);
-        if (!journees || journees.length === 0) {
-            document.getElementById('matchesContainer').innerHTML = 
-                '<p style="text-align: center; padding: 40px;">Aucun match disponible pour cette journée</p>';
-        } else {
-            renderMatches(journees);
-        }
-        
-        document.getElementById('currentJournee').textContent = journeeNum;
-        updateJourneeDates(journees);
-        document.getElementById('loadingCal').style.display = 'none';
-        document.getElementById('matchesContainer').style.display = 'block';
-        
-        updateNavigationButtons();
-    }, 300);
-}
-
-// Mettre à jour les dates de la journée
-function updateJourneeDates(journeeData) {
-    const datesDiv = document.getElementById('journeeDates');
-    if (journeeData && journeeData.dates) {
-        const startDate = new Date(journeeData.dates.start).toLocaleDateString('fr-FR', { 
-            day: 'numeric', 
-            month: 'short' 
-        });
-        const endDate = new Date(journeeData.dates.end).toLocaleDateString('fr-FR', { 
-            day: 'numeric', 
-            month: 'short',
-            year: 'numeric'
-        });
-        datesDiv.textContent = `${startDate} - ${endDate}`;
-    }
-}
-
-// Afficher les matchs
-function renderMatches(journees) {
-    const container = document.getElementById('matchesContainer');
-    container.innerHTML = '';
-    
-    // Grouper les matchs par date
-    const matchesByDate = {};
-    journees.forEach(match => {
-        const dateKey = match.utcDate;
-        if (!matchesByDate[dateKey]) {
-            matchesByDate[dateKey] = [];
-        }
-        matchesByDate[dateKey].push(match);
-    });
-    
-    // Afficher chaque groupe de date
-    Object.entries(matchesByDate).forEach(([date, matches]) => {
-        const dateGroup = document.createElement('div');
-        dateGroup.className = 'match-date-group';
-        
-        const dateHeader = document.createElement('div');
-        dateHeader.className = 'match-date-header';
-        
-        dateHeader.textContent = new Date(date).toLocaleDateString('fr-FR', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        });
-        dateGroup.appendChild(dateHeader);
-        
-        matches.forEach(match => {
-            const matchCard = createMatchCard(match);
-            dateGroup.appendChild(matchCard);
-        });
-        
-        container.appendChild(dateGroup);
-    });
-}
-
-// Créer une carte de match
-function createMatchCard(match) {
-    const card = document.createElement('div');
-    card.className = 'match-card';
-    
-    const time = new Date(match.utcDate).toLocaleTimeString('fr-FR', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    
-    const statusClass = match.status === 'FINISHED' ? 'status-termine' : 'status-avenir';
-    const statusText = match.status === 'FINISHED' ? 'Terminé' : 'À venir';
-    
-    card.innerHTML = `
-        <div class="match-time">${time}</div>
-        <div class="match-content">
-            <div class="team-section">
-                <div class="team-name">${match.homeTeam.shortName}</div>
-            </div>
-            <div class="match-score">${match.score.fullTime.home ?? ''} - ${match.score.fullTime.away ?? ''}</div>
-            <div class="team-section-away">
-                <div class="team-name-away">${match.awayTeam.shortName}</div>
-            </div>
-        </div>
-        <span class="match-status ${statusClass}">${statusText}</span>
-    `;
-    
-    return card;
-}
-
-// Mettre à jour l'état des boutons de navigation
-function updateNavigationButtons() {
-    document.getElementById('prevBtn').disabled = currentJournee <= 1;
-    document.getElementById('nextBtn').disabled = currentJournee >= totalJournees;
-}
-
 // Variable pour suivre la ligne actuellement étendue
 let currentExpandedRowId = null;
 
@@ -317,7 +409,7 @@ class ExpandableTable {
         const divisionTitle = document.getElementById(this.divisionTitleId);
         divisionTitle.innerHTML = '';
         const divisionSpan = document.createElement('span');
-        divisionSpan.innerHTML = `<p>${divisionName}</p>`;
+        divisionSpan.innerHTML = `<p>${divisionName}<h6>(mode : ${this.data.mode === 'default' ? 'défaut' : this.data.mode})</h6></p>`;
         divisionTitle.appendChild(divisionSpan);
 
         const bonusDivisionTitle = document.getElementById(this.bonusDivisionTitleId);
@@ -350,7 +442,7 @@ class ExpandableTable {
         // Gestion de l'anneau, extraction de la dernière journée de championnat sans modifier l'original
         let ring = '';
         const lastTimeline = [...mpgTeam.timeline].pop();
-        if (lastTimeline.P === 1) {
+        if (lastTimeline?.P === 1) {
             ring = ringElement;
         }
 
@@ -380,6 +472,7 @@ class ExpandableTable {
         const numDivision = this.divNum;
         const nbJoueurs = this.data.teams.length;
 
+        if (this.data.mode === 'default') {
         // Mise en évidence des équipes en situation de promotion
         if (mpgTeam.nextPromotion === 1) {
             tr.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
@@ -387,6 +480,7 @@ class ExpandableTable {
         // Mise en évidence des équipes en situation de relégation
         else if (mpgTeam.nextPromotion === -1 && nbDivisionsForSeason !== numDivision) {
             tr.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+            }
         }
 
         // Résultats des dernières journées
@@ -709,93 +803,76 @@ class ExpandableTable {
     }
 }
 
-const createNotPlayedIconElement = (labelId = 'validation-notplayed') => {
+const createIconElement = (title, labelId, svgPath) => {
     const div = document.createElement('div');
     div.setAttribute('aria-labelledby', labelId);
-    div.innerHTML = `
-        <svg aria-hidden="true" viewBox="0 0 22 22" style="height: 22px; width: 22px">
-            <path d="M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" fill="none" stroke="#9D9BA7" stroke-width="2"></path>
-        </svg>`;
+    div.innerHTML = `<span title="${title}">${_svgCache.get(svgPath) || ''}</span>`;
     return div;
+};
+
+const createNotPlayedIconElement = () => {
+    return createIconElement('', 'validation-notplayed', './img/svg/notplayed-icon.svg');
 };
 
 const createSuccessIconElement = (title) => {
-    const labelId = 'validation-success'
-    const div = document.createElement('div');
-    div.setAttribute('aria-labelledby', labelId);
-    div.innerHTML = `<span title="${title}">${_svgCache.get('./img/svg/victory-icon.svg') || ''}</span>`;
-    return div;
+    return createIconElement(title, 'validation-success', './img/svg/victory-icon.svg');
 };
 
 const createNulIconElement = (title) => {
-    const labelId = 'validation-nul';
-    const div = document.createElement('div');
-    div.setAttribute('aria-labelledby', labelId);
-    div.innerHTML = `<span title="${title}">${_svgCache.get('./img/svg/draw-icon.svg') || ''}</span>`;
-    return div;
+    return createIconElement(title, 'validation-nul', './img/svg/draw-icon.svg');
 };
 
 const createDefeatIconElement = (title) => {
-    const labelId = 'validation-defeat';
-    const div = document.createElement('div');
-    div.setAttribute('aria-labelledby', labelId);
-    div.innerHTML = `<span title="${title}">${_svgCache.get('./img/svg/loss-icon.svg') || ''}</span>`;
-    return div;
+    return createIconElement(title, 'validation-defeat', './img/svg/loss-icon.svg');
 };
-
-async function fetchJson(url) {
-    const resp = await fetch(url);
-    if (!resp.ok) {
-        console.error(url, ' -> Erreur HTTP ' + resp.status);
-        return null;
-    } else {
-        return resp.json();
-    }
-}
 
 async function fetchLeague() {
     try {
+        let API_URL_LEAGUE = 'https://api.mlnstats.com/mpgleague/league/' + codeLeague;
         const response = await fetch(API_URL_LEAGUE);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data = await response.json();
 
-        if(data?.error === 'championshipNotManaged') {
+        const dataLeague = await response.json();
+
+        if(dataLeague?.error === 'championshipNotManaged') {
             throw new Error('Championnat non géré par la source de données.');
         }
-        else if(data?.error === 'notFetchable') {
+        else if(dataLeague?.error === 'notFetchable') {
             throw new Error('Ligue non trouvée. Vérifiez le code de la ligue.');
         } else {
-            displayLeague(data);
+            seasonNum = dataLeague?.seasonNum?.toString() || "1";
+
+            // Déterminer la quantité de divisions de la saison courante
+            const divisionsForSeason = (dataLeague.divisions || []).filter(div => div.seasonNum.toString() === seasonNum);
+            nbDivisionsForSeason = divisionsForSeason.length;
+
+            if (nbDivisionsForSeason === 0) {
+                throw new Error(`Aucune division disponible pour la saison ${seasonNum} de cette ligue !`);
+            }
+            
+            displayLeague(dataLeague);
         }
     } catch (error) {
         contentDisplay(); // Afficher le contenu même en cas d'erreur
-        showError(`Impossible de charger les données de la ligue : ${error.message}`);
+        showError(`Impossible de charger les données de la ligue ${codeLeague} : ${error.message}`);
         throw error; // Rejeter la promesse pour indiquer l'échec
     }
 }
 
-function displayLeague(data) {
-    seasonNum = data?.seasonNum?.toString() || "1";
-
-    // Déterminer la quantité de divisions de la saison courante
-    const divisionsForSeason = (data.divisions || []).filter(div => div.seasonNum.toString() === seasonNum);
-    nbDivisionsForSeason = divisionsForSeason.length;
-
+function displayLeague(dataLeague) {
     // Affichage de la ligue
     const leagueTitle = document.getElementById('leagueTitle');
     leagueTitle.innerHTML = '';
     const spanELement = document.createElement('span');
     
-    let spanLibelle = `<p>${data.name} / Saison ${seasonNum}</p>`
+    let spanLibelle = `<p>${dataLeague.name} / Saison ${seasonNum}</p>`
     if (nbDivisionsForSeason > 1)
         spanLibelle += `<h6>(${nbDivisionsForSeason} divisions)</h6>`;
     
     spanELement.innerHTML = spanLibelle;
     leagueTitle.appendChild(spanELement);
-
-    updateApiUrls();        
 }
 
 function loadLeague(newLeagueCode) {
@@ -804,8 +881,10 @@ function loadLeague(newLeagueCode) {
         return;
     }
 
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    showLoading();
+
     codeLeague = newLeagueCode.trim().toUpperCase();
-    updateApiUrls();
 
     fetchLeague()
         .then(() => {
@@ -831,98 +910,14 @@ function loadLeague(newLeagueCode) {
 
             document.getElementById('content').style.display = 'none';
             document.getElementById('error').style.display = 'none';
-            document.getElementById('loading').style.display = 'block';
-
-            fetchMatches();
+            showLoading();
         })
         .catch((error) => {
-            console.error('Erreur lors du fetch de la league:', error);
+            const cfgTabButton = document.querySelector('.tab-button[data-tab="cfg"]');
+            cfgTabButton.classList.add('active');
+            document.getElementById('cfg-tab').classList.add('active');
             throw error; // Propager l'erreur pour arrêter le processus
         });
-}
-
-function updateApiUrls() {
-    API_URL_LEAGUE = 'https://api.mlnstats.com/mpgleague/league/' + codeLeague;
-    codeLeagueAndSeasonNum = codeLeague + '_' + seasonNum;
-    API_URL_DIV_1 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_1";
-    API_URL_DIV_2 = 'https://api.mpgstats.fr/mpgleague/matches/' + codeLeagueAndSeasonNum + "_2";
-
-    API_URL_TEAMS_DIV_1 = 'https://api.mlnstats.com/mpgleague/teams/' + codeLeagueAndSeasonNum + "_1";
-    API_URL_TEAMS_DIV_2 = 'https://api.mlnstats.com/mpgleague/teams/' + codeLeagueAndSeasonNum + "_2";
-}
-
-async function fetchMatches() {
-    try {
-        const divisionConfigs = [];
-        divisionConfigs.push([API_URL_DIV_1, 'classementBodyDiv1', 'divisionTitle1', 'division1', 'bonusBodyDiv1', 'bonusDivisionTitle1', API_URL_TEAMS_DIV_1]);
-        // Inclure la deuxième division uniquement si elle est présente
-        if (nbDivisionsForSeason > 1) {
-            divisionConfigs.push([API_URL_DIV_2, 'classementBodyDiv2', 'divisionTitle2', 'division2', 'bonusBodyDiv2', 'bonusDivisionTitle2', API_URL_TEAMS_DIV_2]);
-            document.getElementById('div2').style.display = 'block';
-            document.getElementById('bonusdiv2').style.display = 'block';
-        } else {
-            // Si une deuxième division n'est pas présente, masquer son conteneur
-            document.getElementById('div2').style.display = 'none';
-            document.getElementById('bonusdiv2').style.display = 'none';
-        }
-
-        const allTeams = await Promise.all(
-            divisionConfigs.map(([url, a, b, c, d, e, urlTeam]) => fetchJson(urlTeam))
-        );
-
-        allTeams.forEach((teams, i) => {
-            teamsOfDivision[i] = allTeams[i].teams;
-        });
-
-        const allMatches = await Promise.all(
-            divisionConfigs.map(([url]) => fetchJson(url))
-        );
-
-        allMatches.forEach((matches, i) => {
-            // Il faut supprimer les anciens tableaux avant d'en créer de nouveaux
-            let oldContainer = document.getElementById(divisionConfigs[i][1]);
-            oldContainer.innerHTML = '';
-            oldContainer = document.getElementById(divisionConfigs[i][2]);
-            oldContainer.innerHTML = '';
-
-            nbPlayers = matches.division.teams.length;
-            liveStandings[i] = matches.liveStandings;
-            calendarDiv[i] = matches.calendar;
-
-            matches.division.teams.forEach((mpgTeam) => {
-                const listeBonus = bonusList();
-                mpgTeam.timeline.forEach((day, index) => {
-                    const opponent = farmersPlayersId().get(day.o) || 'Inconnu';
-
-                    // Filtrer les bonus non pertinents (0 : Capitaine, 6 : Chapron, 8 : 4 défenseurs, 9 : 5 défenseurs)
-                    const idxBonus = day?.b?.filter(bonus => ![0, 6, 8, 9].includes(bonus)).flatMap(bonus => bonus);
-
-                    // Construire une map des bonus ciblés pour chaque opposant
-                    const keyOpponentId = day.o;
-
-                    if (idxBonus && idxBonus.length === 1) {
-                        const existingData = mapBonusTargeted.get(keyOpponentId) || [];
-                        mapBonusTargeted.set(keyOpponentId, [...existingData, {nom : farmersPlayersId().get(mpgTeam.id) ?? 'Inconnu', bonus: idxBonus, day: index + 1}]);
-
-                        const existingDataPlayed = mapBonusPlayed.get(mpgTeam.id) || [];
-                        const detail = listeBonus[idxBonus[0]];
-                        mapBonusPlayed.set(mpgTeam.id, [...existingDataPlayed, {adversaire : opponent, bonus: idxBonus[0], day: index + 1, info: detail}]);
-                    } else {
-                        mapBonusTargeted.set(keyOpponentId, mapBonusTargeted.get(keyOpponentId) || []);
-                        mapBonusPlayed.set(mpgTeam.id, mapBonusPlayed.get(mpgTeam.id) || []);
-                    }
-                });
-            });
-
-            expandableTables.push(new ExpandableTable(divisionConfigs[i][1], divisionConfigs[i][2], matches.division, divisionConfigs[i][4], divisionConfigs[i][5]));
-        });
-
-        contentDisplay();
-
-    } catch (error) {
-        console.error('Erreur:', error);
-        showError('Erreur lors du chargement des matchs. Vérifiez le code de la ligue.');
-    }
 }
 
 function bonusDetails() {
@@ -1077,6 +1072,18 @@ function hideLoading() {
     document.getElementById('loading').style.display = 'none';
 }
 
+function showLoading() {
+    document.getElementById('loading').style.display = 'block';
+}
+
+function hideLoadingClassement() {
+    document.getElementById('loadingClassement').style.display = 'none';
+}
+
+function showLoadingClassement() {
+    document.getElementById('loadingClassement').style.display = 'block';
+}
+
 function showError(message = 'Erreur lors du chargement des données. Veuillez réessayer.') {
     hideLoading();
     const errorDiv = document.getElementById('error');
@@ -1084,28 +1091,22 @@ function showError(message = 'Erreur lors du chargement des données. Veuillez r
     errorDiv.style.display = 'block';
 }
 
-// Chargement initial
-fetchLeague()
-    .then(() => {
-        fetchMatches();
-    });
-
-loadMatches();
-
 document.addEventListener('DOMContentLoaded', () => {
     // Charger les composants SVG
     loadSvgComponents();
 
     prefetchSvg('./img/svg/home.svg');
     prefetchSvg('./img/svg/away.svg');
+    prefetchSvg('./img/svg/notplayed-icon.svg');
     
     // Gestion du formulaire de sélection de ligue
     document.getElementById('leagueForm').addEventListener('submit', (e) => {
         e.preventDefault();
         document.getElementById('error').style.display = 'none';  // Cacher les erreurs précédentes
         const input = document.getElementById('leagueCodeInput'); 
+        
         try {
-            loadLeague(input.value)
+            loadLeague(input.value);
         }          
         catch(error) {
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -1121,7 +1122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Gestion du sous-menu avec click si nécessaire
+// Gestion du sous-menu avec clic si nécessaire
 document.querySelectorAll('.submenu button').forEach(btn => {
     btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1135,5 +1136,10 @@ function showTab(tabName) {
     document.getElementById(tabName + '-tab').classList.add('active');
 }
 
-// Actualisation automatique toutes les heures
-setInterval(fetchMatches, 60 * 60 * 1000);
+// Chargement initial
+fetchLeague()
+    .then(() => {    
+        // Initialiser les données des divisions
+        initializeData();
+    });
+
