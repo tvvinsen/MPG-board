@@ -39,10 +39,11 @@
                     <button class="tab-button active" data-tab="classement">📊 Classement</button>
                     <div class="submenu">
                         <button class="tab-button" data-tab="cfg">⚙️ Configuration</button>
+                        <button class="tab-button" data-tab="bonus">📦 Bonus</button>
                     </div>
                 </li>
                 <li class="tab-item"><button class="tab-button" data-tab="calendrier">📅 Calendrier L1</button></li>
-                <li class="tab-item"><button class="tab-button" data-tab="bonus">📦 Bonus</button></li>
+                <!-- <li class="tab-item"><button class="tab-button" data-tab="bonus">📦 Bonus</button></li> -->
                 <!-- <li><button class="tab-button" data-tab="stats">📈 Statistiques</button></li> -->
                 <!-- <li><button class="tab-button" data-tab="equipes">👥 Équipes</button></li> -->
             </ul>
@@ -60,67 +61,37 @@
         <div id="content" style="display: none;">
             <!-- Onglet Classement -->
             <div id="classement-tab" class="tab-content active">
-                <div id="legende" style="display: flex;justify-content: right;">
-                    <div style="display: flex; padding-left: 10px; padding-right: 10px; gap: 15px;">
-                        <div style="display: flex;">
-                            <div aria-labelledby="l5l-w">
-                                <span class="svg-component" data-src="./img/svg/victory-icon.svg" aria-hidden="true"></span>
+                <div class="div-classement-select">
+                    <div class="division-tab-select"></div>
+                    <div id="legende">
+                        <div style="display: flex; padding-left: 10px; padding-right: 10px; gap: 15px;">
+                            <div style="display: flex;">
+                                <div aria-labelledby="l5l-w">
+                                    <span class="svg-component" data-src="./img/svg/victory-icon.svg" aria-hidden="true"></span>
+                                </div>
+                                <div id="l5l-w">Victoire</div>
                             </div>
-                            <div id="l5l-w">Victoire</div>
-                        </div>
-                        <div style="display: flex;">
-                            <div aria-labelledby="l5l-t">
-                                <span class="svg-component" data-src="./img/svg/draw-icon.svg" aria-hidden="true"></span>
+                            <div style="display: flex;">
+                                <div aria-labelledby="l5l-t">
+                                    <span class="svg-component" data-src="./img/svg/draw-icon.svg" aria-hidden="true"></span>
+                                </div>
+                                <div id="l5l-t">Nul</div>
                             </div>
-                            <div id="l5l-t">Nul</div>
-                        </div>
-                        <div style="display: flex;">
-                            <div aria-labelledby="l5l-l">
-                                <span class="svg-component" data-src="./img/svg/loss-icon.svg" aria-hidden="true"></span>
+                            <div style="display: flex;">
+                                <div aria-labelledby="l5l-l">
+                                    <span class="svg-component" data-src="./img/svg/loss-icon.svg" aria-hidden="true"></span>
+                                </div>
+                                <div id="l5l-l">Défaite</div>
                             </div>
-                            <div id="l5l-l">Défaite</div>
                         </div>
                     </div>
                 </div>
-                <div class="divisions">
-                    <div id="div1" class="division">
-                        <h2 id="divisionTitle1"></h2>
-                        <table id="division1" class="classement-table">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>Equipe</th>
-                                    <th>Points</th>
-                                    <th style="text-align: center">J</th>
-                                    <th style="text-align: center">V/N/D</th>
-                                    <th style="text-align: center">Diff.</th>
-                                    <th style="text-align: center">Buts<br>réels</th>
-                                    <th style="text-align: center">Buts<br>MPG</th>
-                                    <th style="text-align: center">Derniers<br>matchs</th>
-                                </tr>
-                            </thead>
-                            <tbody id="classementBodyDiv1"></tbody>
-                        </table>
-                    </div>
-                    <div id="div2" class="division">
-                        <h2 id="divisionTitle2"></h2>
-                        <table id="division2" class="classement-table">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>Equipe</th>
-                                    <th>Points</th>
-                                    <th style="text-align: center">J</th>
-                                    <th style="text-align: center">V/N/D</th>
-                                    <th style="text-align: center">Diff.</th>
-                                    <th style="text-align: center">Buts<br>réels</th>
-                                    <th style="text-align: center">Buts<br>MPG</th>
-                                    <th style="text-align: center">Derniers<br>matchs</th>
-                                </tr>
-                            </thead>
-                            <tbody id="classementBodyDiv2"></tbody>
-                        </table>
-                    </div>
+                <div id="loadingClassement" class="loading">
+                    <div class="spinner"></div>
+                    Chargement des données...
+                </div>
+                <div class="division-tabs">
+                    <div class="divisions-content"></div>
                 </div>
             </div>
 
@@ -159,7 +130,7 @@
 
             <!-- Onglet Équipes -->
             <div id="equipes-tab" class="tab-content">
-                <div style="padding: 40px; text-align: center;">
+                <div style="padding: 10px; text-align: center;">
                     <h2>Équipes</h2>
                     <p style="margin-top: 20px; color: #666;">Contenu à venir...</p>
                 </div>
@@ -167,7 +138,7 @@
 
             <!-- Onglet Calendrier -->
             <div id="calendrier-tab" class="tab-content">
-                <div style="padding: 40px; text-align: center;">
+                <div style="padding: 10px; text-align: center;">
                     <div id="cal">
                         <div class="journee-navigation">
                             <button id="prevBtn" onclick="changeJournee(-1)">
@@ -197,7 +168,7 @@
 
             <!-- Onglet Statistiques -->
             <div id="stats-tab" class="tab-content">
-                <div style="padding: 40px; text-align: center;">
+                <div style="padding: 10px; text-align: center;">
                     <h2>Statistiques</h2>
                     <p style="margin-top: 20px; color: #666;">Contenu à venir...</p>
                 </div>
@@ -205,8 +176,8 @@
 
             <!-- Onglet Configuration -->
             <div id="cfg-tab" class="tab-content">
-                <div style="padding: 40px; text-align: center;">
-                    <h3>Saisir le code d'une ligue pour afficher le classement de ses 2 premières divisions dans l'onglet dédié.</h3>
+                <div style="padding: 10px; text-align: center;">
+                    <h3>Saisir le code d'une ligue pour afficher le classement de ses divisions</h3>
                     <div class="league-selector">
                         <form id="leagueForm" class="league-selector-content">
                             <label for="leagueCodeInput">Code de la ligue</label>
@@ -230,5 +201,6 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-9LJB9V4E62"></script>
     <script src="scripts/js/script-tag.js"></script>
     <script src="scripts/js/recast.js"></script>
+    <script src="scripts/js/ligue1.js"></script>
 </body>
 </html>
