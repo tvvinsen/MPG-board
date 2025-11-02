@@ -249,9 +249,7 @@ async function loadDivisionData(divisionNumber, urls) {
         expandableTables.push(new ExpandableTable(
             `classementBodyDiv${divisionNumber}`,
             `divisionTitle${divisionNumber}`,
-            matchesData.division,
-            `bonusBodyDiv${divisionNumber}`,
-            `bonusDivisionTitle${divisionNumber}`
+            matchesData.division
         ));
 
         // Afficher le contenu si nécessaire
@@ -347,11 +345,9 @@ let expandableTables = [];
 
 // Classe pour gérer le tableau extensible
 class ExpandableTable {
-    constructor(containerId, divisionTitleId, data, bonusContainerId, bonusDivisionTitleId) {
+    constructor(containerId, divisionTitleId, data) {
         this.container = document.getElementById(containerId);
-        this.bonusContainer = document.getElementById(bonusContainerId);
         this.divisionTitleId = divisionTitleId;
-        this.bonusDivisionTitleId = bonusDivisionTitleId;
         this.data = data;
         this.divNum = data.divisionNum;
         this.clickHandler = null; // Référence à l'écouteur de clic
@@ -380,25 +376,15 @@ class ExpandableTable {
         if (this.container) {
             this.container.innerHTML = '';
         }
-        if (this.bonusContainer) {
-            this.bonusContainer.innerHTML = '';
-        }
         
         const divisionTitle = document.getElementById(this.divisionTitleId);
         if (divisionTitle) {
             divisionTitle.innerHTML = '';
         }
 
-        const bonusDivisionTitle = document.getElementById(this.bonusDivisionTitleId);
-        if (bonusDivisionTitle) {
-            bonusDivisionTitle.innerHTML = '';
-        }
-        
         // Libérer les références
         this.container = null;
-        this.bonusContainer = null;
         this.divisionTitleId = null;
-        this.bonusDivisionTitleId = null;
         this.data = null;
     }
 
@@ -412,18 +398,10 @@ class ExpandableTable {
         divisionSpan.innerHTML = `<p>${divisionName}<h6>(mode : ${this.data.mode === 'default' ? 'défaut' : this.data.mode})</h6></p>`;
         divisionTitle.appendChild(divisionSpan);
 
-        const bonusDivisionTitle = document.getElementById(this.bonusDivisionTitleId);
-        bonusDivisionTitle.innerHTML = '';
-        const bonusDivisionSpan = document.createElement('span');
-        bonusDivisionSpan.innerHTML = `<p>${divisionName}</p>`;
-        bonusDivisionTitle.appendChild(bonusDivisionSpan);
-
         this.container.innerHTML = '';
-        this.bonusContainer.innerHTML = '';
 
         this.data.teams.forEach((mpgTeam, index) => {
             this.container.appendChild(this.createDataRow(mpgTeam, index));
-            this.bonusContainer.appendChild(this.createBonusRow(mpgTeam));
         });
     }
 
@@ -473,13 +451,13 @@ class ExpandableTable {
         const nbJoueurs = this.data.teams.length;
 
         if (this.data.mode === 'default') {
-        // Mise en évidence des équipes en situation de promotion
-        if (mpgTeam.nextPromotion === 1) {
-            tr.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
-        }
-        // Mise en évidence des équipes en situation de relégation
-        else if (mpgTeam.nextPromotion === -1 && nbDivisionsForSeason !== numDivision) {
-            tr.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+            // Mise en évidence des équipes en situation de promotion
+            if (mpgTeam.nextPromotion === 1) {
+                tr.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
+            }
+            // Mise en évidence des équipes en situation de relégation
+            else if (mpgTeam.nextPromotion === -1 && nbDivisionsForSeason !== numDivision) {
+                tr.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
             }
         }
 
@@ -647,80 +625,6 @@ class ExpandableTable {
         `;
 
         tr.appendChild(td);
-        return tr;
-    }
-
-    createBonusRow(mpgUser) {
-        const tr = document.createElement('tr');
-        // tr.className = 'expanded-row';
-        tr.setAttribute('bonus-id', mpgUser.id);
-
-        const td = document.createElement('td');
-
-        const nbBonusDefault = Array.from(bonusDetails().entries()).map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);   
-        const bonusCount = getBonusCountUpdated(mpgUser.bonusTab);
-        const availableBonuses = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
-        const nbAvailableBonuses = availableBonuses.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
-        
-        let tableHTML = `<td style="padding-right: 16px;"><strong>${mpgUser.name}</strong></td>`;
-
-        if (nbAvailableBonuses > 0) {
-            tableHTML += `
-                <td style="vertical-align: top; padding-right: 16px;">
-                    <div id="dispos" style="display: inline-flex; margin-right: 16px;">
-                        ${availableBonuses.map(([nom, [description, compteur, linkImg]]) => `
-                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-                                ${Array.from({ length: compteur }, 
-                                    () => `<img title="${description}" src="${linkImg}" width="30" height="42" style="vertical-align: middle;">`).join('')}
-                            </div>
-                        `).join('')}
-                    </div>
-                </td>
-                `;
-        }
-
-        const bonusPlayed = Array.from(mapBonusPlayed.get(mpgUser.id));
-        const nbBonusPlayed = bonusPlayed.length;
-
-        if (nbBonusPlayed > 0) {
-            tableHTML += `
-                <td style="vertical-align: top; padding-right: 16px;">
-                    <div id="used" style="display: inline-flex; margin-right: 16px;">
-                        ${bonusPlayed.map((element) => `
-                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-                                ${Array.from({ length: 1 },
-                                    () => `<img title="${element.info[1]} : contre ${element.adversaire} (J${element.day})" src="${element.info[2]}" width="30" height="42" style="vertical-align: middle;">`).join('')}
-                            </div>
-                        `).join('')}
-                    </div>
-                </td>
-                `;
-        }
-
-        const bonusTargeted = mapBonusTargeted.get(mpgUser.id);
-
-        if (bonusTargeted?.length > 0) {   
-            const targetBonus = Array.from(getBonusTargeted(bonusTargeted));
-
-            // Trier les bonus par journée de championnat
-            targetBonus.sort((a, b) => a[1][3].day - b[1][3].day);
-            let nbBonusTarget = bonusTargeted.length
-
-            tableHTML += `
-                <td style="vertical-align: top; padding-right: 16px;">
-                    <div id="used" style="display: inline-flex; margin-right: 16px;">
-                        ${targetBonus.map(([nom, [bKey, libelle, linkImg, tmp]]) => `
-                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-                                ${Array.from({ length: 1 }, 
-                                    () => `<img title="${libelle} : attaque de ${tmp.nom} (J${tmp.day})" src="${linkImg}" width="30" height="42" style="vertical-align: middle;">`).join('')}
-                            </div>
-                        `).join('')}
-                    </div>
-                </td>`;
-        }
-
-        tableHTML += `</tr>`;
-        tr.innerHTML += tableHTML;
         return tr;
     }
 
@@ -911,6 +815,8 @@ function loadLeague(newLeagueCode) {
             document.getElementById('content').style.display = 'none';
             document.getElementById('error').style.display = 'none';
             showLoading();
+            
+            initializeData();
         })
         .catch((error) => {
             const cfgTabButton = document.querySelector('.tab-button[data-tab="cfg"]');
@@ -1103,7 +1009,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('leagueForm').addEventListener('submit', (e) => {
         e.preventDefault();
         document.getElementById('error').style.display = 'none';  // Cacher les erreurs précédentes
-        const input = document.getElementById('leagueCodeInput'); 
+        const input = document.getElementById('leagueCodeInput');
         
         try {
             loadLeague(input.value);
