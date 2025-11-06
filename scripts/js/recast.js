@@ -892,6 +892,7 @@ function farmersPlayers() {
     mapPlayerNames.set(7206496, "Leïla");
     mapPlayerNames.set(6942448, "Thomas");
     mapPlayerNames.set(6742055, "Antoine C.");
+
     return mapPlayerNames;
 }
 
@@ -914,6 +915,9 @@ function farmersPlayersId() {
     mapPlayerNames.set(2919639, "Leïla");
     mapPlayerNames.set(2919637, "Thomas");
     mapPlayerNames.set(2919636, "Antoine C.");
+
+    mapPlayerNames.set(3074332, "Cyrille");
+
     return mapPlayerNames;
 }
 
