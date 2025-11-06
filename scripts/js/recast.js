@@ -501,11 +501,13 @@ class ExpandableTable {
             lastFiveMatchesChild.appendChild(createNotPlayedIconElement());
         });
 
+        const leagueDay = this.data.leagueDayScan ?? '-';
+
         tr.innerHTML = `
             <td class="position ${positionClass}"><span>${position}${variationImg}</span></td>
             <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name} ${ring}<br><span style="font-size: 80%;">${playerName}</span></td>
             <td class="points">${mpgTeam.points} pts</td>
-            <td style="text-align: center">${this.data.leagueDayScan}</td>
+            <td style="text-align: center">${leagueDay}</td>
             <td style="text-align: center">${wdl}</td>
             <td style="text-align: center">${mpgTeam.goalAvg}</td>
             <td style="text-align: center">${realGoals}</td>
