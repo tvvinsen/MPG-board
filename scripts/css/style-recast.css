@@ -349,18 +349,6 @@ body {
     margin-left: 10px;
 }
 
-@media (max-width: 768px) {
-    .header h1 {
-        font-size: 1.8em;
-    }
-
-    .classement-table th,
-    .classement-table td {
-        padding: 10px 8px;
-        font-size: 0.9em;
-    }
-}
-
 .divisions {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -376,8 +364,18 @@ body {
 }
 
 @media (max-width: 900px) {
+    .header h1 {
+        font-size: 1.8em;
+    }
+
     .divisions {
         grid-template-columns: 1fr;
+    }
+
+    .tab-button {
+        min-width: 120px;
+        padding: 12px 15px;
+        font-size: 0.9em;
     }
 
     .classement-table th,
@@ -399,7 +397,6 @@ body {
     .league-selector button {
         width: 100%;
     }
-
 }
 
 .division {
@@ -444,33 +441,6 @@ body {
 .legend-table svg {
     flex-shrink: 0; /* Empêche le SVG de rétrécir */
 }
-
-@media (max-width: 900px) {
-    .header h1 {
-        font-size: 1.8em;
-    }
-
-    .divisions {
-        grid-template-columns: 1fr;
-    }
-
-    .classement-table th,
-    .classement-table td {
-        font-size: 0.85em;
-        padding: 10px 6px;
-    }
-
-    .position {
-        font-size: 1em;
-    }
-
-    .tab-button {
-        min-width: 120px;
-        padding: 12px 15px;
-        font-size: 0.9em;
-    }
-}
-
 
 /* Navigation par journée */
 .journee-navigation {
@@ -674,6 +644,20 @@ body {
 }
 
 @media (max-width: 768px) {
+    .header h1 {
+        font-size: 1.8em;
+    }
+
+    .classement-table th,
+    .classement-table td {
+        padding: 10px 8px;
+        font-size: 0.9em;
+    }
+
+    #legende {
+        position: relative;
+    }
+
     .match-card {
         flex-direction: column;
         gap: 12px;
