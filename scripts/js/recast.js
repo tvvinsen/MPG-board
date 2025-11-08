@@ -101,6 +101,43 @@ function createDivisionPairs() {
             `;
         }
 
+        // Bonus
+        html += `
+            <div id="bnDiv${div1}" class="division">
+                <h2 id="bonusDivisionTitle${div1}"></h2>
+                <table id="bonusDivision${div1}" class="classement-table">
+                    <thead>
+                        <tr>
+                            <th>Equipe</th>
+                            <th style="text-align: center">Bonus disponibles</th>
+                            <th style="text-align: center">Bonus joués</th>
+                            <th style="text-align: center">Bonus encaissés</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bonusBodyDiv${div1}"></tbody>
+                </table>
+            </div>
+        `;
+
+        if (div2) {
+            html += `
+                <div id="bnDiv${div2}" class="division">
+                    <h2 id="bonusDivisionTitle${div2}"></h2>
+                    <table id="bonusDivision${div2}" class="classement-table">
+                        <thead>
+                            <tr>
+                                <th>Equipe</th>
+                                <th style="text-align: center">Bonus disponibles</th>
+                                <th style="text-align: center">Bonus joués</th>
+                                <th style="text-align: center">Bonus encaissés</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bonusBodyDiv${div2}"></tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
         html += '</div>';
         pairContent.innerHTML = html;
 
@@ -249,7 +286,9 @@ async function loadDivisionData(divisionNumber, urls) {
         expandableTables.push(new ExpandableTable(
             `classementBodyDiv${divisionNumber}`,
             `divisionTitle${divisionNumber}`,
-            matchesData.division
+            matchesData.division,
+            `bonusBodyDiv${divisionNumber}`,
+            `bonusDivisionTitle${divisionNumber}`
         ));
 
         // Afficher le contenu si nécessaire
@@ -345,9 +384,11 @@ let expandableTables = [];
 
 // Classe pour gérer le tableau extensible
 class ExpandableTable {
-    constructor(containerId, divisionTitleId, data) {
+    constructor(containerId, divisionTitleId, data, bonusContainerId, bonusDivisionTitleId) {
         this.container = document.getElementById(containerId);
+        this.bonusContainer = document.getElementById(bonusContainerId);
         this.divisionTitleId = divisionTitleId;
+        this.bonusDivisionTitleId = bonusDivisionTitleId;
         this.data = data;
         this.divNum = data.divisionNum;
         this.clickHandler = null; // Référence à l'écouteur de clic
@@ -376,15 +417,25 @@ class ExpandableTable {
         if (this.container) {
             this.container.innerHTML = '';
         }
-        
+        if (this.bonusContainer) {
+            this.bonusContainer.innerHTML = '';
+        }
+
         const divisionTitle = document.getElementById(this.divisionTitleId);
         if (divisionTitle) {
             divisionTitle.innerHTML = '';
         }
 
+        const bonusDivisionTitle = document.getElementById(this.bonusDivisionTitleId);
+        if (bonusDivisionTitle) {
+            bonusDivisionTitle.innerHTML = '';
+        }
+
         // Libérer les références
         this.container = null;
+        this.bonusContainer = null;
         this.divisionTitleId = null;
+        this.bonusDivisionTitleId = null;
         this.data = null;
     }
 
@@ -398,10 +449,18 @@ class ExpandableTable {
         divisionSpan.innerHTML = `<p>${divisionName}<h6>(mode : ${this.data.mode === 'default' ? 'défaut' : this.data.mode})</h6></p>`;
         divisionTitle.appendChild(divisionSpan);
 
+        const bonusDivisionTitle = document.getElementById(this.bonusDivisionTitleId);
+        bonusDivisionTitle.innerHTML = '';
+        const bonusDivisionSpan = document.createElement('span');
+        bonusDivisionSpan.innerHTML = `<p>${divisionName}</p>`;
+        bonusDivisionTitle.appendChild(bonusDivisionSpan);
+
         this.container.innerHTML = '';
+        this.bonusContainer.innerHTML = '';
 
         this.data.teams.forEach((mpgTeam, index) => {
             this.container.appendChild(this.createDataRow(mpgTeam, index));
+            this.bonusContainer.appendChild(this.createBonusRow(mpgTeam));
         });
     }
 
@@ -553,7 +612,7 @@ class ExpandableTable {
                 `;
         }
 
-        const bonusPlayed = Array.from(mapBonusPlayed.get(mpgUser.id));
+        const bonusPlayed = Array.from(mapBonusPlayed.get(mpgUser.id) || []);
         const nbBonusPlayed = bonusPlayed.length;
 
         if (nbBonusPlayed > 0) {
@@ -624,6 +683,75 @@ class ExpandableTable {
         `;
 
         tr.appendChild(td);
+        return tr;
+    }
+
+    createBonusRow(mpgUser) {
+        const tr = document.createElement('tr');
+        tr.setAttribute('bonus-id', mpgUser.id);
+
+        const bonusCount = getBonusCountUpdated(mpgUser.bonusTab);
+        const availableBonuses = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
+        const nbAvailableBonuses = availableBonuses.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+        
+        let tableHTML = `<td style="padding-right: 16px;">${mpgUser.name}</td>`;
+
+        if (nbAvailableBonuses > 0) {
+            tableHTML += `
+                <td style="vertical-align: top; padding-right: 16px;">
+                    <div id="dispos" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                        ${availableBonuses.map(([nom, [description, compteur, linkImg]]) => `
+                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                ${Array.from({ length: compteur }, 
+                                    () => `<img title="${description}" src="${linkImg}" width="18" height="25" style="vertical-align: middle;">`).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </td>
+                `;
+        }
+
+        const bonusPlayed = Array.from(mapBonusPlayed.get(mpgUser.id) || []);
+        const nbBonusPlayed = bonusPlayed.length;
+
+        if (nbBonusPlayed > 0) {
+            tableHTML += `
+                <td style="vertical-align: top; padding-right: 16px;">
+                    <div id="used" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                        ${bonusPlayed.map((element) => `
+                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                ${Array.from({ length: 1 },
+                                    () => `<img title="${element.info[1]} : contre ${element.adversaire} (J${element.day})" src="${element.info[2]}" width="18" height="25" style="vertical-align: middle;">`).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </td>
+                `;
+        }
+
+        const bonusTargeted = mapBonusTargeted.get(mpgUser.id);
+
+        if (bonusTargeted?.length > 0) {   
+            const targetBonus = Array.from(getBonusTargeted(bonusTargeted));
+
+            // Trier les bonus par journée de championnat
+            targetBonus.sort((a, b) => a[1][3].day - b[1][3].day);
+
+            tableHTML += `
+                <td style="vertical-align: top; padding-right: 16px;">
+                    <div id="used" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                        ${targetBonus.map(([nom, [bKey, libelle, linkImg, tmp]]) => `
+                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+                                ${Array.from({ length: 1 }, 
+                                    () => `<img title="${libelle} : attaque de ${tmp.nom} (J${tmp.day})" src="${linkImg}" width="18" height="25" style="vertical-align: middle;">`).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </td>`;
+        }
+
+        tableHTML += `</tr>`;
+        tr.innerHTML += tableHTML;
         return tr;
     }
 
