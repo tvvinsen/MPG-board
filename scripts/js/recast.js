@@ -606,18 +606,15 @@ class ExpandableTable {
         const nextMatchToPlay = calendarDiv[this.divNum-1]?.filter(item => item.isPlayed === false).slice().shift();
         if (nextMatchToPlay) {
             const teamNextMatch = nextMatchToPlay?.matches.filter(it => it[0] === mpgUser.teamNum || it[1] === mpgUser.teamNum).pop();
-
             const isHomeMatch = teamNextMatch[0] === mpgUser.teamNum;
-            let svgHA;
-            let versusPlayer;
-            if (isHomeMatch) {
-                svgHA = _svgCache.get('./img/svg/home.svg')
-                versusPlayer = teamsOfDivision[this.divNum-1]?.filter(it => it.teamNum === teamNextMatch[1]).slice().shift();
-            } else {
-                svgHA = _svgCache.get('./img/svg/away.svg')
-                versusPlayer = teamsOfDivision[this.divNum-1]?.filter(it => it.teamNum === teamNextMatch[0]).slice().shift();
-            }
-            td.innerHTML += `<div>Prochain match : ${svgHA} ${versusPlayer.name}</div>`;
+
+            const svgPath = isHomeMatch ? './img/svg/home.svg' : './img/svg/away.svg';
+            const svgMatch = _svgCache.get(svgPath);
+
+            const idxVersusTeam = isHomeMatch ? 1 : 0;
+            const versusPlayer = teamsOfDivision[this.divNum-1]?.filter(it => it.teamNum === teamNextMatch[idxVersusTeam]).slice().shift();
+
+            td.innerHTML += `<div>Prochain match : ${svgMatch} ${versusPlayer.name}</div>`;
         }
 
         td.innerHTML += `
