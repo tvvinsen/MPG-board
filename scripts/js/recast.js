@@ -1,5 +1,4 @@
 let codeLeague = "PNAL4RJN";
-// let codeLeague = "RDRE1KZA";
 let seasonNum = "9";
 let nbPlayers = 8;
 let nbDivisionsForSeason = 2;
@@ -22,6 +21,8 @@ function createDivisionPairs() {
     if (!tabSelect || !tabContent) return;
     tabSelect.innerHTML = '';
     tabContent.innerHTML = '';
+    const bonusContent = document.querySelector('.bonus-content');
+    bonusContent.innerHTML = '';
 
     // Créer une liste déroulante pour sélectionner la paire
     const select = document.createElement('select');
@@ -53,7 +54,7 @@ function createDivisionPairs() {
         pairContent.setAttribute('aria-labelledby', `divisionPairLabel-${pairNum}`);
         pairContent.hidden = (i !== 0);
 
-        // Construire le HTML pour la paire
+        // Construire le HTML pour la paire (uniquement les classements)
         let html = `
             <div class="divisions">
                 <div id="div${div1}" class="division">
@@ -101,26 +102,37 @@ function createDivisionPairs() {
             `;
         }
 
-        // Bonus
-        html += `
-            <div id="bnDiv${div1}" class="division">
-                <h2 id="bonusDivisionTitle${div1}"></h2>
-                <table id="bonusDivision${div1}" class="classement-table">
-                    <thead>
-                        <tr>
-                            <th>Equipe</th>
-                            <th style="text-align: center">Bonus disponibles</th>
-                            <th style="text-align: center">Bonus joués</th>
-                            <th style="text-align: center">Bonus encaissés</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bonusBodyDiv${div1}"></tbody>
-                </table>
-            </div>
-        `;
+        html += '</div>';
+        pairContent.innerHTML = html;
+        tabContent.appendChild(pairContent);
 
+        const panelBonusId = `panelBonus-${pairNum}`;
+        const pairBonusContent = document.createElement('div');
+        pairBonusContent.className = 'division-pair';
+        pairBonusContent.id = panelBonusId;
+        pairBonusContent.setAttribute('role', 'region');
+        pairBonusContent.setAttribute('aria-labelledby', `divisionPairLabel-${pairNum}`);
+        pairBonusContent.hidden = (i !== 0);
+
+        let htmlBonus = `
+            <div class="divisions">
+                <div id="bnDiv${div1}" class="division">
+                    <h2 id="bonusDivisionTitle${div1}"></h2>
+                    <table id="bonusDivision${div1}" class="classement-table">
+                        <thead>
+                            <tr>
+                                <th>Equipe</th>
+                                <th style="text-align: center">Bonus disponibles</th>
+                                <th style="text-align: center">Bonus joués</th>
+                                <th style="text-align: center">Bonus encaissés</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bonusBodyDiv${div1}"></tbody>
+                    </table>
+                </div>
+        `;
         if (div2) {
-            html += `
+            htmlBonus += `
                 <div id="bnDiv${div2}" class="division">
                     <h2 id="bonusDivisionTitle${div2}"></h2>
                     <table id="bonusDivision${div2}" class="classement-table">
@@ -137,12 +149,12 @@ function createDivisionPairs() {
                 </div>
             `;
         }
-        
-        html += '</div>';
-        pairContent.innerHTML = html;
 
-        tabContent.appendChild(pairContent);
-        pairs.push({ pairNum, option, panel: pairContent });
+        htmlBonus += '</div>';
+        pairBonusContent.innerHTML = htmlBonus;
+        bonusContent.appendChild(pairBonusContent);
+        
+        pairs.push({ pairNum, option, panel: pairContent, bonusPanel: pairBonusContent });
     }
 
     // Helper pour charger une paire par son numéro
@@ -174,11 +186,13 @@ function createDivisionPairs() {
     }
 
     function activatePanel(pairNum) {
-        pairs.forEach(({pairNum: pn, panel, option}) => {
+        pairs.forEach(({pairNum: pn, panel, option, bonusPanel}) => {
             const selected = pn === pairNum;
             panel.classList.toggle('active', selected);
             panel.hidden = !selected;
             option.selected = selected;
+            bonusPanel.classList.toggle('active', selected);
+            bonusPanel.hidden = !selected;
         });
     }
 
