@@ -67,7 +67,8 @@ function renderMatches(journees) {
     // Grouper les matchs par date
     const matchesByDate = {};
     journees.forEach(match => {
-        const dateKey = match.utcDate;
+        // Récupérer la date au format YYYY-MM-DD pour regrouper les matchs par jour
+        const dateKey = match.utcDate.split('T')[0];
         if (!matchesByDate[dateKey]) {
             matchesByDate[dateKey] = [];
         }

@@ -448,7 +448,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 20px;
-    padding: 20px;
+    padding: 5px;
     background: #f8f9fa;
     border-bottom: 2px solid #e0e0e0;
 }
@@ -499,11 +499,11 @@ body {
 
 /* Conteneur des matchs */
 .matches-container {
-    padding: 20px;
+    padding: 5px;
 }
 
 .match-date-group {
-    margin-bottom: 30px;
+    margin-bottom: 0px;
 }
 
 .match-date-header {
@@ -513,15 +513,12 @@ body {
     padding: 10px;
     background: linear-gradient(135deg, #f8f9fa, #e9ecef);
     border-radius: 8px;
-    margin-bottom: 15px;
 }
 
 .match-card {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 20px;
-    margin-bottom: 12px;
     background: white;
     border: 2px solid #e0e0e0;
     border-radius: 10px;
@@ -549,7 +546,6 @@ body {
     align-items: center;
     justify-content: center;
     gap: 20px;
-    min-height: 60px;
 }
 
 .team-section {
