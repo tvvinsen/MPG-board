@@ -485,7 +485,7 @@ class ExpandableTable {
         const wdl = mpgTeam.win + '/' + mpgTeam.draw + '/' + mpgTeam.loss;
         const realGoals = formatGP(mpgTeam.realGP) + '/' + formatGC(mpgTeam.realGC)
         const mpgGoals = formatGP(mpgTeam.MPGGP) + '/' + formatGC(mpgTeam.MPGGC);
-        const playerName = farmersPlayers().get(mpgTeam.MPGuserId) || 'Inconnu';
+        const playerName = farmersPlayers().get(mpgTeam.MPGuserId) ?? '<br>';
     
         // Construire une liste des bonus utilisés par le joueur
         const bonusFormates = formatBonusTitle(mpgTeam.bonusTab);
@@ -1014,13 +1014,13 @@ function bonusList() {
     return Object.freeze(bonus);
 }
 
+// Map dont la clé est division.teams[x].MPGuserId associée au prénom du joueur MPG
 function farmersPlayers() {
     const mapPlayerNames = new Map();
+
+    // Ligue Farmers Visas
     mapPlayerNames.set(188049, "Yannick");
     mapPlayerNames.set(3535140, "Jérôme");
-
-    mapPlayerNames.set(3090804, "Jérôme");
-    
     mapPlayerNames.set(649848, "Vincent");
     mapPlayerNames.set(5142264, "Richard");
     mapPlayerNames.set(3536346, "David");
@@ -1037,18 +1037,19 @@ function farmersPlayers() {
     mapPlayerNames.set(6942448, "Thomas");
     mapPlayerNames.set(6742055, "Antoine C.");
 
+    // Ligue Referential
     mapPlayerNames.set(7726375, "Cyrille");
 
     return mapPlayerNames;
 }
 
+// Map dont la clé est division.teams[x].id associée au prénom du joueur MPG
 function farmersPlayersId() {
     const mapPlayerNames = new Map();
+
+    // Ligue Farmers Visas
     mapPlayerNames.set(2919624, "Yannick");
     mapPlayerNames.set(2919625, "Jérôme");
-    
-    mapPlayerNames.set(3535140, "Jérôme");
-    
     mapPlayerNames.set(2919631, "Vincent");
     mapPlayerNames.set(2919627, "Richard");
     mapPlayerNames.set(2919626, "David");
@@ -1064,6 +1065,14 @@ function farmersPlayersId() {
     mapPlayerNames.set(2919639, "Leïla");
     mapPlayerNames.set(2919637, "Thomas");
     mapPlayerNames.set(2919636, "Antoine C.");
+
+    // Ligue Referential
+    mapPlayerNames.set(3090804, "Jérôme");
+    mapPlayerNames.set(3090798, "Benoît");
+    mapPlayerNames.set(3090830, "Cyrille");
+    mapPlayerNames.set(3090827, "Richard");
+    mapPlayerNames.set(3090809, "David");
+    mapPlayerNames.set(3090823, "Antoine C.");
 
     return mapPlayerNames;
 }
