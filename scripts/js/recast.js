@@ -1018,6 +1018,9 @@ function farmersPlayers() {
     const mapPlayerNames = new Map();
     mapPlayerNames.set(188049, "Yannick");
     mapPlayerNames.set(3535140, "Jérôme");
+
+    mapPlayerNames.set(3090804, "Jérôme");
+    
     mapPlayerNames.set(649848, "Vincent");
     mapPlayerNames.set(5142264, "Richard");
     mapPlayerNames.set(3536346, "David");
@@ -1043,6 +1046,9 @@ function farmersPlayersId() {
     const mapPlayerNames = new Map();
     mapPlayerNames.set(2919624, "Yannick");
     mapPlayerNames.set(2919625, "Jérôme");
+    
+    mapPlayerNames.set(3535140, "Jérôme");
+    
     mapPlayerNames.set(2919631, "Vincent");
     mapPlayerNames.set(2919627, "Richard");
     mapPlayerNames.set(2919626, "David");
