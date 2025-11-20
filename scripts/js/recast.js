@@ -23,6 +23,8 @@ function createDivisionPairs() {
     tabContent.innerHTML = '';
     const bonusContent = document.querySelector('.bonus-content');
     bonusContent.innerHTML = '';
+    const resultsContent = document.querySelector('.results-content');
+    resultsContent.innerHTML = '';
 
     // Créer une liste déroulante pour sélectionner la paire
     const select = document.createElement('select');
@@ -153,8 +155,38 @@ function createDivisionPairs() {
         htmlBonus += '</div>';
         pairBonusContent.innerHTML = htmlBonus;
         bonusContent.appendChild(pairBonusContent);
+
+        const panelResultsId = `panelResults-${pairNum}`;
+        const pairResultsContent = document.createElement('div');
+        pairResultsContent.className = 'division-pair';
+        pairResultsContent.id = panelResultsId;
+        pairResultsContent.setAttribute('role', 'region');
+        pairResultsContent.setAttribute('aria-labelledby', `divisionPairLabel-${pairNum}`);
+        pairResultsContent.hidden = (i !== 0);
+
+        let match = undefined;
+
+        let htmlResults = `
+            <div class="divisions">
+                <div id="resultsDiv${div1}" class="division">
+                    <h2 id="resultsTitle${div1}"></h2>
+                    <div id="resultsBodyDiv${div1}"></div>
+                </div>
+        `;
+        if (div2) {
+            htmlResults += `
+                <div id="resultsDiv${div2}" class="division">
+                    <h2 id="resultsTitle${div2}"></h2>
+                    <div id="resultsBodyDiv${div2}"></div>
+                </div>
+            `;
+        }
+
+        htmlResults += '</div>';
+        pairResultsContent.innerHTML = htmlResults;
+        resultsContent.appendChild(pairResultsContent);
         
-        pairs.push({ pairNum, option, panel: pairContent, bonusPanel: pairBonusContent });
+        pairs.push({ pairNum, option, panel: pairContent, bonusPanel: pairBonusContent, resultsPanel: pairResultsContent});
     }
 
     // Helper pour charger une paire par son numéro
@@ -186,13 +218,15 @@ function createDivisionPairs() {
     }
 
     function activatePanel(pairNum) {
-        pairs.forEach(({pairNum: pn, panel, option, bonusPanel}) => {
+        pairs.forEach(({pairNum: pn, panel, option, bonusPanel, resultsPanel}) => {
             const selected = pn === pairNum;
             panel.classList.toggle('active', selected);
             panel.hidden = !selected;
             option.selected = selected;
             bonusPanel.classList.toggle('active', selected);
             bonusPanel.hidden = !selected;
+            resultsPanel.classList.toggle('active', selected);
+            resultsPanel.hidden = !selected;
         });
     }
 
@@ -239,6 +273,24 @@ function initializeData() {
     });
 }
 
+function buildCalendarResults(matchesData, divIndex) {
+
+    calendarDiv[divIndex].forEach((cal, idxDay) => {
+        cal.matches.forEach((calDay, idxMatch) => {
+            calDay.homePlayer = teamsOfDivision[divIndex]?.filter(it => it.teamNum === calDay[0]).slice().shift();
+            calDay.awayPlayer = teamsOfDivision[divIndex]?.filter(it => it.teamNum === calDay[1]).slice().shift();
+
+            const timelineDayHome = matchesData?.division?.teams?.filter(it => it.teamNum === calDay[0]).slice().shift().timeline[idxDay];
+            // Calcul des buts encaissés pour définir le score adverse
+            calDay.scoreAway = cal.isPlayed ? (timelineDayHome?.g || 0) + (timelineDayHome?.m || 0) : undefined;
+
+            const timelineDayAway = matchesData?.division?.teams?.filter(it => it.teamNum === calDay[1]).slice().shift().timeline[idxDay];
+            // Calcul des buts encaissés pour définir le score adverse
+            calDay.scoreHome = cal.isPlayed ? (timelineDayAway?.g || 0) + (timelineDayAway?.m || 0) : undefined;
+        })
+    });
+}
+
 async function loadDivisionData(divisionNumber, urls) {
     try {
         const [teamsResponse, matchesResponse] = await Promise.all([
@@ -265,10 +317,18 @@ async function loadDivisionData(divisionNumber, urls) {
         const bonusDivisionTitle = document.getElementById(`bonusDivisionTitle${divisionNumber}`);
         if (bonusDivisionTitle) bonusDivisionTitle.innerHTML = '';
 
+        const resultsTitle = document.getElementById(`resultsTitle${divisionNumber}`);
+        if (resultsTitle) resultsTitle.innerHTML = '';
+        const resultsBody = document.getElementById(`resultsBodyDiv${divisionNumber}`);
+        if (resultsBody) resultsBody.innerHTML = '';
+
         // Récupérer et stocker les données de classement et calendrier
         nbPlayers = matchesData?.division?.teams?.length || nbPlayers;
         liveStandings[divIndex] = matchesData?.liveStandings || [];
         calendarDiv[divIndex] = matchesData?.calendar || [];
+
+        // Associer les résultats des matchs au calendrier des matchs pour afficher dans l'onglet de résultats
+        buildCalendarResults(matchesData, divIndex);
 
         // Construire les maps de bonus
         matchesData?.division?.teams?.forEach((mpgTeam) => {
@@ -302,11 +362,10 @@ async function loadDivisionData(divisionNumber, urls) {
             `divisionTitle${divisionNumber}`,
             matchesData.division,
             `bonusBodyDiv${divisionNumber}`,
-            `bonusDivisionTitle${divisionNumber}`
+            `bonusDivisionTitle${divisionNumber}`,
+            `resultsBodyDiv${divisionNumber}`,
+            `resultsTitle${divisionNumber}`
         ));
-
-        // Afficher le contenu si nécessaire
-        // contentDisplay();
     } catch (error) {
         console.error(`Error loading division ${divisionNumber} data:`, error);
     }
@@ -398,7 +457,7 @@ let expandableTables = [];
 
 // Classe pour gérer le tableau extensible
 class ExpandableTable {
-    constructor(containerId, divisionTitleId, data, bonusContainerId, bonusDivisionTitleId) {
+    constructor(containerId, divisionTitleId, data, bonusContainerId, bonusDivisionTitleId, resultsContainerId, resultsTitleId) {
         this.container = document.getElementById(containerId);
         this.bonusContainer = document.getElementById(bonusContainerId);
         this.divisionTitleId = divisionTitleId;
@@ -406,6 +465,8 @@ class ExpandableTable {
         this.data = data;
         this.divNum = data.divisionNum;
         this.clickHandler = null; // Référence à l'écouteur de clic
+        this.resultsContainer = document.getElementById(resultsContainerId);
+        this.resultsTitleId = resultsTitleId;
         this.init();
     }
 
@@ -434,6 +495,9 @@ class ExpandableTable {
         if (this.bonusContainer) {
             this.bonusContainer.innerHTML = '';
         }
+        if (this.resultsContainer) {
+            this.resultsContainer.innerHTML = '';
+        }
 
         const divisionTitle = document.getElementById(this.divisionTitleId);
         if (divisionTitle) {
@@ -445,12 +509,19 @@ class ExpandableTable {
             bonusDivisionTitle.innerHTML = '';
         }
 
+        const resultsTitle = document.getElementById(this.resultsTitleId);
+        if (resultsTitle) {
+            resultsTitle.innerHTML = '';
+        }
+
         // Libérer les références
         this.container = null;
         this.bonusContainer = null;
         this.divisionTitleId = null;
         this.bonusDivisionTitleId = null;
         this.data = null;
+        this.resultsContainer = null;
+        this.resultsTitleId = null;
     }
 
     render() {
@@ -469,15 +540,24 @@ class ExpandableTable {
         bonusDivisionSpan.innerHTML = `<p>${divisionName}</p>`;
         bonusDivisionTitle.appendChild(bonusDivisionSpan);
 
+        const resultsTitle = document.getElementById(this.resultsTitleId);
+        resultsTitle.innerHTML = '';
+        const resultsSpan = document.createElement('span');
+        resultsSpan.innerHTML = `<p>${divisionName}</p>`;
+        resultsTitle.appendChild(resultsSpan);
+
         this.container.innerHTML = '';
         this.bonusContainer.innerHTML = '';
+        this.resultsContainer.innerHTML = '';
+
+        this.resultsContainer.appendChild(this.createResults(this.divNum));
 
         this.data.teams.forEach((mpgTeam, index) => {
             this.container.appendChild(this.createDataRow(mpgTeam, index));
             this.bonusContainer.appendChild(this.createBonusRow(mpgTeam));
         });
     }
-
+    
     createDataRow(mpgTeam, index) {
         const position = index + 1;
         let positionClass = '';
@@ -520,16 +600,13 @@ class ExpandableTable {
         tr.className = 'data-row';
         tr.setAttribute('data-row-id', mpgTeam.id);
 
-        const numDivision = this.divNum;
-        const nbJoueurs = this.data.teams.length;
-
         if (this.data.mode === 'default') {
             // Mise en évidence des équipes en situation de promotion
             if (mpgTeam.nextPromotion === 1) {
                 tr.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
             }
             // Mise en évidence des équipes en situation de relégation
-            else if (mpgTeam.nextPromotion === -1 && nbDivisionsForSeason !== numDivision) {
+            else if (mpgTeam.nextPromotion === -1 && nbDivisionsForSeason !== this.divNum) {
                 tr.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
             }
         }
@@ -767,6 +844,33 @@ class ExpandableTable {
         tableHTML += `</tr>`;
         tr.innerHTML += tableHTML;
         return tr;
+    }
+
+    createResults(divNum) {
+        const elDiv = document.createElement('div');
+
+        let tableHTML = `<div class="match-date-group">`;
+
+        calendarDiv[divNum - 1].forEach(matches => {
+            tableHTML += `<div class="match-date-header" style="text-align: center">Journée ${matches.gameWeek}</div>`;
+            matches?.matches.forEach(journee => {
+                tableHTML += `
+                    <div class="match-content">
+                        <div class="team-section">
+                            <div class="team-name">${journee.homePlayer.name}</div>
+                        </div>
+                        <div class="match-score">${journee.scoreHome ?? ''} - ${journee.scoreAway ?? ''}</div>
+                        <div class="team-section-away">
+                            <div class="team-name-away">${journee.awayPlayer.name}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+
+        tableHTML += `</div>`;
+        elDiv.innerHTML += tableHTML;
+        return elDiv;
     }
 
     attachEventListeners() {
