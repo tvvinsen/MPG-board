@@ -55,6 +55,7 @@ body {
 .div-classement-select {
   display: flex;
   align-items: center;
+  justify-content: center;
   width: 100%;
   position: relative;
 }
@@ -144,6 +145,7 @@ body {
     padding: 5px;
     display: none;
     animation: fadeIn 0.3s ease;
+    min-height: 200px;
 }
 
 .tab-content.active {
@@ -511,7 +513,7 @@ body {
     font-weight: bold;
     color: #2c3e50;
     padding: 10px;
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    /* background: linear-gradient(135deg, #f8f9fa, #e9ecef); */
     border-radius: 8px;
 }
 
@@ -524,6 +526,8 @@ body {
     border-radius: 10px;
     transition: all 0.3s ease;
     gap: 15px;
+    width: 40%;
+    margin: 0 auto;
 }
 
 .match-card:hover {
@@ -580,7 +584,7 @@ body {
 }
 
 .match-score {
-    font-size: 1.6em;
+    font-size: 1.1em;
     font-weight: 700;
     color: #27ae60;
     min-width: 80px;
@@ -600,6 +604,7 @@ body {
     white-space: nowrap;
     min-width: 90px;
     text-align: center;
+    margin: 5px;
 }
 
 .status-avenir {

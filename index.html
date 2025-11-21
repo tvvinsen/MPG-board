@@ -36,14 +36,15 @@
         <div class="tabs-container">
             <ul class="tabs">
                 <li class="tab-item">
-                    <button class="tab-button active" data-tab="classement">📊 Classement</button>
+                    <button class="tab-button" data-tab="ligue">📊 Ligue MPG</button>
                     <div class="submenu">
+                        <button class="tab-button active" data-tab="classement">📊 Classement</button>
                         <button class="tab-button" data-tab="bonus">📦 Bonus</button>
                         <button class="tab-button" data-tab="results">📅 Résultats</button>
                         <button class="tab-button" data-tab="cfg">⚙️ Configuration</button>
                     </div>
                 </li>
-                <li class="tab-item"><button class="tab-button" data-tab="calendrier">📅 Calendrier L1</button></li>
+                <li class="tab-item"><button class="tab-button" data-tab="calendrier">📅 Résultats L1</button></li>
                 <!-- <li><button class="tab-button" data-tab="stats">📈 Statistiques</button></li> -->
                 <!-- <li><button class="tab-button" data-tab="equipes">👥 Équipes</button></li> -->
             </ul>
@@ -56,6 +57,13 @@
 
         <div id="error" class="error" style="display: none;">
             Erreur lors du chargement des données. Veuillez réessayer.
+        </div>
+
+        <!-- Onglet ligue -->
+        <div id="ligue-tab" class="tab-content">
+            <div class="division-tabs">
+                <div class="ligue-content"></div>
+            </div>
         </div>
 
         <div id="content" style="display: none;">
@@ -97,6 +105,9 @@
 
             <!-- Onglet Bonus -->
             <div id="bonus-tab" class="tab-content">
+                <div class="div-classement-select">
+                    <div class="division-tab-select-bonus"></div>
+                </div>
                 <div class="division-tabs">
                     <div class="bonus-content"></div>
                 </div>
@@ -104,6 +115,9 @@
 
             <!-- Onglet Résultats ligue MPG -->
             <div id="results-tab" class="tab-content">
+                <div class="div-classement-select">
+                    <div class="division-tab-select-results"></div>
+                </div>
                 <div class="division-tabs">
                     <div class="results-content"></div>
                 </div>

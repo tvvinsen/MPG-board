@@ -26,12 +26,28 @@ function createDivisionPairs() {
     const resultsContent = document.querySelector('.results-content');
     resultsContent.innerHTML = '';
 
+    const tabSelectBonus = document.querySelector('.division-tab-select-bonus');
+    const tabBonusContent = document.querySelector('.bonus-content');
+    if (!tabSelectBonus || !tabBonusContent) return;
+    tabSelectBonus.innerHTML = '';
+
+    const tabSelectResults = document.querySelector('.division-tab-select-results');
+    const tabResultsContent = document.querySelector('.results-content');
+    if (!tabSelectResults || !tabResultsContent) return;
+    tabSelectResults.innerHTML = '';
+
     // Créer une liste déroulante pour sélectionner la paire
     const select = document.createElement('select');
     select.id = 'divisionPairSelect';
     select.setAttribute('aria-label', 'Sélection des paires de divisions');
     select.className = 'division-pair-select';
     tabSelect.appendChild(select);
+
+    const selectBonus = select.cloneNode(true);
+    tabSelectBonus.appendChild(selectBonus);
+
+    const selectResults = select.cloneNode(true);
+    tabSelectResults.appendChild(selectResults);
 
     const pairs = [];
     for (let i = 0; i < divisions.length; i += 2) {
@@ -47,6 +63,12 @@ function createDivisionPairs() {
 
         option.className = 'division-pair-select';
         select.appendChild(option);
+
+        const optionBonus = option.cloneNode(true);
+        selectBonus.appendChild(optionBonus);
+
+        const optionResults = option.cloneNode(true);
+        selectResults.appendChild(optionResults);
 
         const panelId = `panel-${pairNum}`;
         const pairContent = document.createElement('div');
@@ -233,6 +255,34 @@ function createDivisionPairs() {
     // Écouter le changement de sélection
     select.addEventListener('change', () => {
         const pairNum = parseInt(select.value, 10);
+        selectBonus.selectedIndex = select.selectedIndex;
+        selectResults.selectedIndex = select.selectedIndex;
+
+        document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
+        showLoadingClassement();
+        loadPairByNum(pairNum).then(() => {
+            activatePanel(pairNum);
+            hideLoadingClassement();
+        });
+    });
+
+    selectBonus.addEventListener('change', () => {
+        const pairNum = parseInt(selectBonus.value, 10);
+        select.selectedIndex = selectBonus.selectedIndex;
+        selectResults.selectedIndex = selectBonus.selectedIndex;
+
+        document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
+        showLoadingClassement();
+        loadPairByNum(pairNum).then(() => {
+            activatePanel(pairNum);
+            hideLoadingClassement();
+        });
+    });
+
+    selectResults.addEventListener('change', () => {
+        const pairNum = parseInt(selectResults.value, 10);
+        select.selectedIndex = selectResults.selectedIndex;
+        selectBonus.selectedIndex = selectResults.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
         showLoadingClassement();
@@ -245,6 +295,8 @@ function createDivisionPairs() {
     // Charger immédiatement la première paire pour affichage à l'ouverture de la page
     if (pairs.length > 0) {
         select.selectedIndex = 0;
+        selectBonus.selectedIndex = 0;
+        selectResults.selectedIndex = 0;
         loadPairByNum(pairs[0].pairNum).then(() => {
             activatePanel(pairs[0].pairNum);
             hideLoading();
