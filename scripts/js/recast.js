@@ -1313,6 +1313,18 @@ function showError(message = 'Erreur lors du chargement des données. Veuillez r
     errorDiv.style.display = 'block';
 }
 
+// Gestion du clic sur les codes de ligue
+document.querySelectorAll('.league-code-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const code = this.getAttribute('data-code');
+        const input = document.getElementById('leagueCodeInput');
+        input.value = code;
+        
+        // Déclencher la soumission du formulaire
+        document.querySelector('#leagueForm button[type="submit"]').click();
+    });
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     // Charger les composants SVG
     loadSvgComponents();
