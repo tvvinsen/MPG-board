@@ -1,5 +1,6 @@
 let codeLeague = "PNAL4RJN";
 let seasonNum = "9";
+let seasonNumChoice = seasonNum;
 let nbPlayers = 8;
 let nbDivisionsForSeason = 2;
 
@@ -1043,7 +1044,7 @@ async function fetchLeague() {
         else if(dataLeague?.error === 'notFetchable') {
             throw new Error('Ligue non trouvée. Vérifiez le code de la ligue.');
         } else {
-            seasonNum = dataLeague?.seasonNum?.toString() || "1";
+            seasonNum = seasonNumChoice || dataLeague?.seasonNum?.toString() || "1";
 
             // Déterminer la quantité de divisions de la saison courante
             const divisionsForSeason = (dataLeague.divisions || []).filter(div => div.seasonNum.toString() === seasonNum);
@@ -1053,6 +1054,27 @@ async function fetchLeague() {
                 throw new Error(`Aucune division disponible pour la saison ${seasonNum} de cette ligue !`);
             }
             
+            // Lister les saisons disponibles pour la ligue
+            const seasonsSet = new Set();
+            (dataLeague.divisions || []).forEach(div => {
+                seasonsSet.add(div.seasonNum.toString());
+            });
+            availableSeasons = Array.from(seasonsSet).sort((a, b) => b - a);
+
+            // Ajouter les options de saison dans le selecteur
+            const seasonSelect = document.getElementById('seasonSelect');
+            seasonSelect.innerHTML = '';
+            seasonSelect.className = 'division-pair-select';
+            availableSeasons.forEach(season => {
+                const option = document.createElement('option');
+                option.value = season;
+                option.textContent = `Saison ${season}`;
+                option.className = 'division-pair-select';
+                if (season === seasonNum) {
+                    option.selected = true;
+                }
+                seasonSelect.appendChild(option);
+            });
             displayLeague(dataLeague);
         }
     } catch (error) {
@@ -1193,6 +1215,12 @@ function farmersPlayers() {
     mapPlayerNames.set(6942448, "Thomas");
     mapPlayerNames.set(6742055, "Antoine C.");
 
+    mapPlayerNames.set(3536318, "Paul");
+    mapPlayerNames.set(1905716, "Audric");
+    mapPlayerNames.set(4995952, "Christelle");
+    mapPlayerNames.set(382722, "Simon");
+    mapPlayerNames.set(4895077, "Axel");
+    mapPlayerNames.set(5026495, "Mikael");
     // Ligue Referential
     mapPlayerNames.set(7726375, "Cyrille");
 
@@ -1338,7 +1366,8 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         document.getElementById('error').style.display = 'none';  // Cacher les erreurs précédentes
         const input = document.getElementById('leagueCodeInput');
-        
+        seasonNumChoice = null; // Réinitialiser le choix de saison lors du changement de ligue
+
         try {
             loadLeague(input.value);
         }          
@@ -1352,8 +1381,30 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Erreur lors du chargement de la ligue:', error);
             return; // Sortir de la fonction en cas d'erreur
         }
-
     });
+
+    // Gestion du formulaire de sélection de la saison
+    document.getElementById('seasonSelect').addEventListener('change', (e) => {
+        e.preventDefault();
+        document.getElementById('error').style.display = 'none';  // Cacher les erreurs précédentes
+        const input = document.getElementById('seasonSelect');
+        
+        try {
+            seasonNumChoice = input.value;
+            loadLeague(codeLeague);
+        }
+        catch(error) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            const cfgTabButton = document.querySelector('.tab-button[data-tab="cfg"]');
+            cfgTabButton.classList.add('active');
+            document.getElementById('cfg-tab').classList.add('active');
+
+            console.error('Erreur lors du chargement de la ligue:', error);
+            return; // Sortir de la fonction en cas d'erreur
+        }
+    });
+
 });
 
 // Gestion du sous-menu avec clic si nécessaire

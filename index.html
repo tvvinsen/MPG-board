@@ -172,7 +172,7 @@
             <!-- Onglet Configuration -->
             <div id="cfg-tab" class="tab-content">
                 <div style="text-align: center;">
-                    <h3>Saisir le code d'une ligue pour afficher le classement de ses divisions</h3>
+                    <h3>Saisir le code d'une ligue pour afficher ses informations</h3>
                     <div class="league-selector">
                         <form id="leagueForm" class="league-selector-content">
                             <label for="leagueCodeInput">Code de la ligue</label>
@@ -189,28 +189,41 @@
                         </form>
                     </div>
                 </div>
-                <div class="league-selector">
-                    <div style="display: flex;justify-content: center;flex-wrap: wrap;padding: 5px 5px;gap: 5px">
-                        <button type="button" class="league-code-btn" data-code="PNAL4RJN">
-                            <strong>Farmers-Visas League</strong>
-                        </button>
-                        <button type="button" class="league-code-btn" data-code="T4D5JPZU">
-                            <strong>Referential League</strong>
-                        </button>
-                        <button type="button" class="league-code-btn" data-code="RDRE1KZA">
-                            <strong>Saison 2025/2026</strong>
-                        </button>
+                <div style="text-align: center;">
+                    <h3>Choisir parmi les saisons disponibles de la ligue actuelle</h3>
+                    <div class="league-selector">
+                        <form id="seasonForm" class="league-selector-content">
+                            <select id="seasonSelect">
+                                <!-- Options seront ajoutées dynamiquement -->
+                            </select>
+                        </form>
                     </div>
-                    <div style="display: flex;justify-content: center;flex-wrap: wrap;padding: 5px 5px;gap: 5px">
-                        <button type="button" class="league-code-btn" data-code="TKMXKZDF">
-                            <strong>La kadastrophe</strong>
-                        </button>
-                        <button type="button" class="league-code-btn" data-code="T3UZYS9D">
-                            <strong>Saison 2025 / 2026</strong>
-                        </button>
-                        <button type="button" class="league-code-btn" data-code="PJ4V8EXJ">
-                            <strong>Notchup 25-26</strong>
-                        </button>
+                </div>
+                <div style="text-align: center;">
+                    <h3>Accès direct à quelques ligues connues</h3>
+                    <div class="league-selector">
+                        <div style="display: flex;justify-content: center;flex-wrap: wrap;padding: 5px 5px;gap: 5px">
+                            <button type="button" class="league-code-btn" data-code="PNAL4RJN">
+                                <strong>Farmers-Visas League</strong>
+                            </button>
+                            <button type="button" class="league-code-btn" data-code="T4D5JPZU">
+                                <strong>Referential League</strong>
+                            </button>
+                            <button type="button" class="league-code-btn" data-code="RDRE1KZA">
+                                <strong>Saison 2025/2026</strong>
+                            </button>
+                        </div>
+                        <div style="display: flex;justify-content: center;flex-wrap: wrap;padding: 5px 5px;gap: 5px">
+                            <button type="button" class="league-code-btn" data-code="TKMXKZDF">
+                                <strong>La kadastrophe</strong>
+                            </button>
+                            <button type="button" class="league-code-btn" data-code="T3UZYS9D">
+                                <strong>Saison 2025 / 2026</strong>
+                            </button>
+                            <button type="button" class="league-code-btn" data-code="PJ4V8EXJ">
+                                <strong>Notchup 25-26</strong>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
