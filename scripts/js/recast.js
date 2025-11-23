@@ -387,7 +387,8 @@ async function loadDivisionData(divisionNumber, urls) {
         matchesData?.division?.teams?.forEach((mpgTeam) => {
             const listeBonus = bonusList();
             mpgTeam.timeline.forEach((day, index) => {
-                const opponent = farmersPlayersId().get(day.o) || 'Inconnu';
+                const opponentTeam = matchesData?.division?.teams?.filter(team => team.id == day.o).slice().shift();
+                const opponentPlayerName = farmersPlayers().get(opponentTeam.MPGuserId) || opponentTeam.name;
 
                 // Filtrer les bonus non pertinents (0 : Capitaine, 6 : Chapron, 8 : 4 défenseurs, 9 : 5 défenseurs)
                 const idxBonus = day?.b?.filter(bonus => ![0, 6, 8, 9].includes(bonus)).flatMap(bonus => bonus);
@@ -397,11 +398,12 @@ async function loadDivisionData(divisionNumber, urls) {
 
                 if (idxBonus && idxBonus.length === 1) {
                     const existingData = mapBonusTargeted.get(keyOpponentId) || [];
-                    mapBonusTargeted.set(keyOpponentId, [...existingData, {nom : farmersPlayersId().get(mpgTeam.id) ?? 'Inconnu', bonus: idxBonus, day: index + 1}]);
+                    const currentTeamName = farmersPlayers().get(mpgTeam.MPGuserId) || mpgTeam.name;
+                    mapBonusTargeted.set(keyOpponentId, [...existingData, {nom : currentTeamName, bonus: idxBonus, day: index + 1}]);
 
                     const existingDataPlayed = mapBonusPlayed.get(mpgTeam.id) || [];
                     const detail = listeBonus[idxBonus[0]];
-                    mapBonusPlayed.set(mpgTeam.id, [...existingDataPlayed, {adversaire : opponent, bonus: idxBonus[0], day: index + 1, info: detail}]);
+                    mapBonusPlayed.set(mpgTeam.id, [...existingDataPlayed, {adversaire : opponentPlayerName, bonus: idxBonus[0], day: index + 1, info: detail}]);
                 } else {
                     mapBonusTargeted.set(keyOpponentId, mapBonusTargeted.get(keyOpponentId) || []);
                     mapBonusPlayed.set(mpgTeam.id, mapBonusPlayed.get(mpgTeam.id) || []);
@@ -682,14 +684,20 @@ class ExpandableTable {
                 // Somme des buts encaissés
                 const butsGC = (day.g || 0) + (day.m || 0);
 
+                const currentTeamName = farmersPlayers().get(mpgTeam.MPGuserId) || mpgTeam.name;
+
+                // Identifier le joueur adverse à partir de son ID
+                const opponentTeam = this.data.teams.filter(team => team.id == day.o).slice().shift();
+                const opponentPlayerName = farmersPlayers().get(opponentTeam.MPGuserId) || opponentTeam.name;
+
                 // Construction du titre de l'icône
                 let titleDay;
                 if (day.S === 'H') {
                     // Match à domicile 'Home'
-                    titleDay = `${farmersPlayersId().get(mpgTeam.id) || 'Inconnu'} ${butsGP} - ${butsGC} ${farmersPlayersId().get(day.o) || 'Inconnu'}`;
+                    titleDay = `${currentTeamName} ${butsGP} - ${butsGC} ${opponentPlayerName}`;
                 } else {
                     // Match à l'extérieur 'Away'
-                    titleDay = `${farmersPlayersId().get(day.o) || 'Inconnu'} ${butsGC} - ${butsGP} ${farmersPlayersId().get(mpgTeam.id) || 'Inconnu'}`;
+                    titleDay = `${opponentPlayerName} ${butsGC} - ${butsGP} ${currentTeamName}`;
                 }
 
                 switch (day.r) {
@@ -1196,7 +1204,6 @@ function bonusList() {
 function farmersPlayers() {
     const mapPlayerNames = new Map();
 
-    // Ligue Farmers Visas
     mapPlayerNames.set(188049, "Yannick");
     mapPlayerNames.set(3535140, "Jérôme");
     mapPlayerNames.set(649848, "Vincent");
@@ -1205,7 +1212,6 @@ function farmersPlayers() {
     mapPlayerNames.set(521473, "Robin");
     mapPlayerNames.set(6429552, "Benoît");
     mapPlayerNames.set(6430884, "Julien");
-
     mapPlayerNames.set(5892169, "Nicolas");
     mapPlayerNames.set(1497344, "Antoine P.");
     mapPlayerNames.set(1519479, "Jean-Philippe");
@@ -1214,49 +1220,13 @@ function farmersPlayers() {
     mapPlayerNames.set(7206496, "Leïla");
     mapPlayerNames.set(6942448, "Thomas");
     mapPlayerNames.set(6742055, "Antoine C.");
-
     mapPlayerNames.set(3536318, "Paul");
     mapPlayerNames.set(1905716, "Audric");
     mapPlayerNames.set(4995952, "Christelle");
     mapPlayerNames.set(382722, "Simon");
     mapPlayerNames.set(4895077, "Axel");
     mapPlayerNames.set(5026495, "Mikael");
-    // Ligue Referential
     mapPlayerNames.set(7726375, "Cyrille");
-
-    return mapPlayerNames;
-}
-
-// Map dont la clé est division.teams[x].id associée au prénom du joueur MPG
-function farmersPlayersId() {
-    const mapPlayerNames = new Map();
-
-    // Ligue Farmers Visas
-    mapPlayerNames.set(2919624, "Yannick");
-    mapPlayerNames.set(2919625, "Jérôme");
-    mapPlayerNames.set(2919631, "Vincent");
-    mapPlayerNames.set(2919627, "Richard");
-    mapPlayerNames.set(2919626, "David");
-    mapPlayerNames.set(2919628, "Robin");
-    mapPlayerNames.set(2919629, "Benoît");
-    mapPlayerNames.set(2919630, "Julien");
-
-    mapPlayerNames.set(2919634, "Nicolas");
-    mapPlayerNames.set(2919632, "Antoine P.");
-    mapPlayerNames.set(2919633, "Jean-Philippe");
-    mapPlayerNames.set(2919635, "Stéphane");
-    mapPlayerNames.set(2919638, "Charlotte");
-    mapPlayerNames.set(2919639, "Leïla");
-    mapPlayerNames.set(2919637, "Thomas");
-    mapPlayerNames.set(2919636, "Antoine C.");
-
-    // Ligue Referential
-    mapPlayerNames.set(3090804, "Jérôme");
-    mapPlayerNames.set(3090798, "Benoît");
-    mapPlayerNames.set(3090830, "Cyrille");
-    mapPlayerNames.set(3090827, "Richard");
-    mapPlayerNames.set(3090809, "David");
-    mapPlayerNames.set(3090823, "Antoine C.");
 
     return mapPlayerNames;
 }
