@@ -783,14 +783,9 @@ class ExpandableTable {
                 `;
         }
 
-        tableHTML += `</td></tr></table>`;
-        td.innerHTML += tableHTML;
-
         const bonusTargeted = mapBonusTargeted.get(mpgUser.id);
             
         if (bonusTargeted?.length > 0) {   
-            let tableHTML = '<table><tr>';
-            
             const targetBonus = Array.from(getBonusTargeted(bonusTargeted));
 
             // Trier les bonus par journée de championnat
@@ -809,10 +804,10 @@ class ExpandableTable {
                         `).join('')}
                     </div>
                 </td>`;
-
-            tableHTML += `</tr></table>`;
-            td.innerHTML += tableHTML
         }
+
+        tableHTML += `</tr></table>`;
+        td.innerHTML += tableHTML;
 
         const nextMatchToPlay = calendarDiv[this.divNum-1]?.filter(item => item.isPlayed === false).slice().shift();
         if (nextMatchToPlay) {
@@ -861,6 +856,14 @@ class ExpandableTable {
                     </div>
                 </td>
                 `;
+        } else {
+            tableHTML += `
+                <td style="vertical-align: top; padding-right: 16px;">
+                    <div id="dispos" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                        -
+                    </div>
+                </td>
+                `;
         }
 
         const bonusPlayed = Array.from(mapBonusPlayed.get(mpgUser.id) || []);
@@ -876,6 +879,14 @@ class ExpandableTable {
                                     () => `<img title="${element.info[1]} : contre ${element.adversaire} (J${element.day})" src="${element.info[2]}" width="18" height="25" style="vertical-align: middle;">`).join('')}
                             </div>
                         `).join('')}
+                    </div>
+                </td>
+                `;
+        } else {
+            tableHTML += `
+                <td style="vertical-align: top; padding-right: 16px;">
+                    <div id="used" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                        -
                     </div>
                 </td>
                 `;
@@ -900,6 +911,14 @@ class ExpandableTable {
                         `).join('')}
                     </div>
                 </td>`;
+        } else {
+            tableHTML += `
+                <td style="vertical-align: top; padding-right: 16px;">
+                    <div id="used" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                        -
+                    </div>
+                </td>
+            `;
         }
 
         tableHTML += `</tr>`;
