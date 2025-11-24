@@ -752,7 +752,7 @@ class ExpandableTable {
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
                     <div>Bonus disponible${nbAvailableBonuses > 1 ? "s" : ""} (${nbAvailableBonuses}/${nbBonusDefault})</div>
-                    <div id="dispos" style="display: inline-flex; margin-right: 16px;">
+                    <div id="dispos" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
                         ${availableBonuses.map(([nom, [description, compteur, linkImg]]) => `
                             <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                 ${Array.from({ length: compteur }, 
@@ -771,7 +771,7 @@ class ExpandableTable {
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
                     <div>Bonus utilisé${nbBonusPlayed > 1 ? "s" : ""} (${nbBonusPlayed}/${nbBonusDefault})</div>
-                    <div id="used" style="display: inline-flex; margin-right: 16px;">
+                    <div id="used" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
                         ${bonusPlayed.map((element) => `
                             <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                 ${Array.from({ length: 1 },
@@ -795,7 +795,7 @@ class ExpandableTable {
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
                     <div>Bonus encaissé${nbBonusTarget > 1 ? "s" : ""} (${nbBonusTarget})</div>
-                    <div id="used" style="display: inline-flex; margin-right: 16px;">
+                    <div id="attack" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
                         ${targetBonus.map(([nom, [bKey, libelle, linkImg, tmp]]) => `
                             <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                 ${Array.from({ length: 1 }, 
@@ -902,7 +902,7 @@ class ExpandableTable {
 
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
-                    <div id="used" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                    <div id="attack" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
                         ${targetBonus.map(([nom, [bKey, libelle, linkImg, tmp]]) => `
                             <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                 ${Array.from({ length: 1 }, 
@@ -914,7 +914,7 @@ class ExpandableTable {
         } else {
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
-                    <div id="used" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                    <div id="attack" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
                         -
                     </div>
                 </td>
