@@ -1,4 +1,6 @@
-const totalJournees = 34; // Nombre total de journées en Ligue 1
+let totalJournees; // Nombre total de journées en Ligue 1
+let allMatches = [];
+let currentJournee = 1;
 
 // Charger les données au démarrage
 async function loadMatches() {
@@ -7,6 +9,8 @@ async function loadMatches() {
         const data = await response.json();
         allMatches = data?.matches || [];
 
+        totalJournees = Math.max(...allMatches.map(m => m.matchday));
+        
         // Chercher la première journée avec des matchs non joués
         const firstUnplayed = allMatches.find(match => match.status !== 'FINISHED');
         currentJournee = firstUnplayed?.matchday ?? 1;

@@ -45,6 +45,7 @@
                     </div>
                 </li>
                 <li class="tab-item"><button class="tab-button" data-tab="calendrier">📅 Résultats L1</button></li>
+                <li class="tab-item"><button class="tab-button" data-tab="champions">📅 Champions League</button></li>
                 <!-- <li><button class="tab-button" data-tab="stats">📈 Statistiques</button></li> -->
                 <!-- <li><button class="tab-button" data-tab="equipes">👥 Équipes</button></li> -->
             </ul>
@@ -131,7 +132,7 @@
                 </div>
             </div>
 
-            <!-- Onglet Calendrier -->
+            <!-- Onglet Résultats L1 -->
             <div id="calendrier-tab" class="tab-content">
                 <div style="text-align: center;">
                     <div id="cal">
@@ -141,7 +142,7 @@
                             </button>
                             
                             <div class="journee-info">
-                                <div class="journee-number">Journée <span id="currentJournee">9</span></div>
+                                <div class="journee-number">Journée <span id="currentJournee"></span></div>
                                 <div class="journee-dates" id="journeeDates"></div>
                             </div>
                             
@@ -156,6 +157,35 @@
                         </div>
 
                         <div id="matchesContainer" class="matches-container" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="champions-tab" class="tab-content">
+                <div style="text-align: center;">
+                    <div id="calChampions">
+                        <div class="journee-navigation">
+                            <button id="prevBtnChampions" onclick="changeJourneeChampions(-1)">
+                                <
+                            </button>
+                            
+                            <div class="journee-info">
+                                <div class="journee-number">Journée <span id="currentJourneeChampions"></span></div>
+                                <div class="journee-dates" id="journeeDatesChampions"></div>
+                            </div>
+                            
+                            <button id="nextBtnChampions" onclick="changeJourneeChampions(1)">
+                                >
+                            </button>
+                        </div>
+
+                        <div id="loadingCalChampions" class="loadingCal">
+                            <div class="spinner"></div>
+                            Chargement des matchs...
+                        </div>
+
+                        <div id="matchesContainerChampions" class="matches-container" style="display: none;">
                         </div>
                     </div>
                 </div>
@@ -237,5 +267,6 @@
     <script src="scripts/js/script-tag.js"></script>
     <script src="scripts/js/recast.js"></script>
     <script src="scripts/js/ligue1.js"></script>
+    <script src="scripts/js/championsleague.js"></script>
 </body>
 </html>

@@ -9,9 +9,6 @@ let liveStandings = [[]];
 let calendarDiv = [[]];
 let divisions = [];
 
-let currentJournee = 1;
-let allMatches = [];
-
 function createDivisionPairs() {
     const numDivisions = nbDivisionsForSeason;
     divisions = [];
