@@ -36,16 +36,22 @@
         <div class="tabs-container">
             <ul class="tabs">
                 <li class="tab-item">
-                    <button class="tab-button" data-tab="ligue">📊 Ligue MPG</button>
+                    <button class="tab-button" data-tab="ligue">⚽ Ligue MPG</button>
                     <div class="submenu">
                         <button class="tab-button active" data-tab="classement">📊 Classement</button>
-                        <button class="tab-button" data-tab="bonus">📦 Bonus</button>
-                        <button class="tab-button" data-tab="results">📅 Résultats</button>
+                        <button class="tab-button" data-tab="bonus">🎁 Bonus</button>
+                        <button class="tab-button" data-tab="results">📆 Calendrier</button>
                         <button class="tab-button" data-tab="cfg">⚙️ Configuration</button>
                     </div>
                 </li>
-                <li class="tab-item"><button class="tab-button" data-tab="calendrier">📅 Résultats L1</button></li>
-                <li class="tab-item"><button class="tab-button" data-tab="champions">📅 Champions League</button></li>
+                <li class="tab-item">
+                    <button class="tab-button" data-tab="ligue">📆 Calendriers</button>
+                    <div class="submenu">
+                        <button class="tab-button" data-tab="calendrier">Ligue 1</button>
+                        <button class="tab-button" data-tab="premier_league">Premier League</button>
+                        <button class="tab-button" data-tab="champions">Champions League</button>
+                    </div>
+                </li>
                 <!-- <li><button class="tab-button" data-tab="stats">📈 Statistiques</button></li> -->
                 <!-- <li><button class="tab-button" data-tab="equipes">👥 Équipes</button></li> -->
             </ul>
@@ -64,6 +70,10 @@
         <div id="ligue-tab" class="tab-content">
             <div class="division-tabs">
                 <div class="ligue-content"></div>
+                <div style="text-align: center;">
+                    <div id="liguempg">
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -191,6 +201,35 @@
                 </div>
             </div>
 
+            <div id="premier_league-tab" class="tab-content">
+                <div style="text-align: center;">
+                    <div id="calPL">
+                        <div class="journee-navigation">
+                            <button id="prevBtnPL" onclick="changeJourneePL(-1)">
+                                <
+                            </button>
+                            
+                            <div class="journee-info">
+                                <div class="journee-number">Journée <span id="currentJourneePL"></span></div>
+                                <div class="journee-dates" id="journeeDatesPL"></div>
+                            </div>
+                            
+                            <button id="nextBtnPL" onclick="changeJourneePL(1)">
+                                >
+                            </button>
+                        </div>
+
+                        <div id="loadingCalPL" class="loadingCal">
+                            <div class="spinner"></div>
+                            Chargement des matchs...
+                        </div>
+
+                        <div id="matchesContainerPL" class="matches-container" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Onglet Statistiques -->
             <div id="stats-tab" class="tab-content">
                 <div style="text-align: center;">
@@ -268,5 +307,6 @@
     <script src="scripts/js/recast.js"></script>
     <script src="scripts/js/ligue1.js"></script>
     <script src="scripts/js/championsleague.js"></script>
+    <script src="scripts/js/premierleague.js"></script>
 </body>
 </html>
