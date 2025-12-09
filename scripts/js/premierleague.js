@@ -15,7 +15,7 @@ stageTypes.set("FINAL", 6);
 // Charger les données au démarrage
 async function loadMatchesPL() {
     try {
-        const response = await fetch('https://proxy-football-api.onrender.com/api/england');
+        const response = await fetch('https://proxy-football-api.onrender.com/api/en-pl');
         const data = await response.json();
         allMatchesPL = data?.matches || [];
 

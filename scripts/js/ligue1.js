@@ -5,7 +5,7 @@ let currentJournee = 1;
 // Charger les données au démarrage
 async function loadMatches() {
     try {
-        const response = await fetch('https://proxy-football-api.onrender.com/api/matches');
+        const response = await fetch('https://proxy-football-api.onrender.com/api/fr-l1');
         const data = await response.json();
         allMatches = data?.matches || [];
 

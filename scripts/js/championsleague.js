@@ -15,7 +15,7 @@ stageTypes.set("FINAL", 6);
 // Charger les données au démarrage
 async function loadChampions() {
     try {
-        const response = await fetch('https://proxy-football-api.onrender.com/api/champions');
+        const response = await fetch('https://proxy-football-api.onrender.com/api/eu-cl');
         const data = await response.json();
         allMatchesChampions = data?.matches || [];
 
