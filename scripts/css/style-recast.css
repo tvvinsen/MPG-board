@@ -144,7 +144,7 @@ body {
     padding: 5px;
     display: none;
     animation: fadeIn 0.3s ease;
-    min-height: 200px;
+    min-height: 300px;
 }
 
 .tab-content.active {
