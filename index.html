@@ -45,17 +45,7 @@
                     </div>
                 </li>
                 <li class="tab-item">
-                    <button class="tab-button" data-tab="ligue">📆 Calendriers</button>
-                    <div class="submenu">
-                        <button class="tab-button" data-tab="calendrier">Ligue 1</button>
-                        <button class="tab-button" data-tab="premier_league">Premier League</button>
-                        <button class="tab-button" data-tab="primera_division">La Liga</button>
-                        <button class="tab-button" data-tab="bundesliga">Bundesliga</button>
-                        <button class="tab-button" data-tab="serie_a">Serie A</button>
-                        <button class="tab-button" data-tab="eredivisie">Eredivisie</button>
-                        <button class="tab-button" data-tab="primeira_liga">Primeira Liga</button>
-                        <button class="tab-button" data-tab="champions">Champions League</button>
-                    </div>
+                    <button class="tab-button" data-tab="calendrier">📆 Calendriers</button>
                 </li>
                 <!-- <li><button class="tab-button" data-tab="stats">📈 Statistiques</button></li> -->
                 <!-- <li><button class="tab-button" data-tab="equipes">👥 Équipes</button></li> -->
@@ -147,236 +137,17 @@
                 </div>
             </div>
 
-            <!-- Onglet Résultats L1 -->
+            <!-- Onglet Calendriers -->
             <div id="calendrier-tab" class="tab-content">
-                <div style="text-align: center;">
-                    <div id="cal">
-                        <div class="journee-navigation">
-                            <button id="prevBtn" onclick="changeJournee(-1)">
-                                <
-                            </button>
-                            
-                            <div class="journee-info">
-                                <div class="journee-number">Journée <span id="currentJournee"></span></div>
-                                <div class="journee-dates" id="journeeDates"></div>
-                            </div>
-                            
-                            <button id="nextBtn" onclick="changeJournee(1)">
-                                >
-                            </button>
-                        </div>
-
-                        <div id="loadingCal" class="loadingCal">
-                            <div class="spinner"></div>
-                            Chargement des matchs...
-                        </div>
-
-                        <div id="matchesContainer" class="matches-container" style="display: none;">
-                        </div>
+                <div style="text-align: center">
+                    <div class="league-selector">
+                        <form id="otherLeagueForm" class="league-selector-content">
+                            <select id="leagueSelect"></select>
+                        </form>
                     </div>
                 </div>
-            </div>
-
-            <div id="champions-tab" class="tab-content">
-                <div style="text-align: center;">
-                    <div id="calChampions">
-                        <div class="journee-navigation">
-                            <button id="prevBtnChampions" onclick="changeJourneeChampions(-1)">
-                                <
-                            </button>
-                            
-                            <div class="journee-info">
-                                <div class="journee-number">Journée <span id="currentJourneeChampions"></span></div>
-                                <div class="journee-dates" id="journeeDatesChampions"></div>
-                            </div>
-                            
-                            <button id="nextBtnChampions" onclick="changeJourneeChampions(1)">
-                                >
-                            </button>
-                        </div>
-
-                        <div id="loadingCalChampions" class="loadingCal">
-                            <div class="spinner"></div>
-                            Chargement des matchs...
-                        </div>
-
-                        <div id="matchesContainerChampions" class="matches-container" style="display: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="premier_league-tab" class="tab-content">
-                <div style="text-align: center;">
-                    <div id="calPL">
-                        <div class="journee-navigation">
-                            <button id="prevBtnPL" onclick="changeJourneePL(-1)">
-                                <
-                            </button>
-                            
-                            <div class="journee-info">
-                                <div class="journee-number">Journée <span id="currentJourneePL"></span></div>
-                                <div class="journee-dates" id="journeeDatesPL"></div>
-                            </div>
-                            
-                            <button id="nextBtnPL" onclick="changeJourneePL(1)">
-                                >
-                            </button>
-                        </div>
-
-                        <div id="loadingCalPL" class="loadingCal">
-                            <div class="spinner"></div>
-                            Chargement des matchs...
-                        </div>
-
-                        <div id="matchesContainerPL" class="matches-container" style="display: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="primera_division-tab" class="tab-content">
-                <div style="text-align: center;">
-                    <div id="calPD">
-                        <div class="journee-navigation">
-                            <button id="prevBtnPD" onclick="changeJourneePD(-1)">
-                                <
-                            </button>
-                            
-                            <div class="journee-info">
-                                <div class="journee-number">Journée <span id="currentJourneePD"></span></div>
-                                <div class="journee-dates" id="journeeDatesPD"></div>
-                            </div>
-                            
-                            <button id="nextBtnPD" onclick="changeJourneePD(1)">
-                                >
-                            </button>
-                        </div>
-
-                        <div id="loadingCalPD" class="loadingCal">
-                            <div class="spinner"></div>
-                            Chargement des matchs...
-                        </div>
-
-                        <div id="matchesContainerPD" class="matches-container" style="display: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="bundesliga-tab" class="tab-content">
-                <div style="text-align: center;">
-                    <div id="calBL1">
-                        <div class="journee-navigation">
-                            <button id="prevBtnBL1" onclick="changeJourneeBL1(-1)">
-                                <
-                            </button>
-                            
-                            <div class="journee-info">
-                                <div class="journee-number">Journée <span id="currentJourneeBL1"></span></div>
-                                <div class="journee-dates" id="journeeDatesBL1"></div>
-                            </div>
-                            
-                            <button id="nextBtnBL1" onclick="changeJourneeBL1(1)">
-                                >
-                            </button>
-                        </div>
-
-                        <div id="loadingCalBL1" class="loadingCal">
-                            <div class="spinner"></div>
-                            Chargement des matchs...
-                        </div>
-
-                        <div id="matchesContainerBL1" class="matches-container" style="display: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="serie_a-tab" class="tab-content">
-                <div style="text-align: center;">
-                    <div id="calSA">
-                        <div class="journee-navigation">
-                            <button id="prevBtnSA" onclick="changeJourneeSA(-1)">
-                                <
-                            </button>
-                            
-                            <div class="journee-info">
-                                <div class="journee-number">Journée <span id="currentJourneeSA"></span></div>
-                                <div class="journee-dates" id="journeeDatesSA"></div>
-                            </div>
-                            
-                            <button id="nextBtnSA" onclick="changeJourneeSA(1)">
-                                >
-                            </button>
-                        </div>
-
-                        <div id="loadingCalSA" class="loadingCal">
-                            <div class="spinner"></div>
-                            Chargement des matchs...
-                        </div>
-
-                        <div id="matchesContainerSA" class="matches-container" style="display: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="eredivisie-tab" class="tab-content">
-                <div style="text-align: center;">
-                    <div id="calDED">
-                        <div class="journee-navigation">
-                            <button id="prevBtnDED" onclick="changeJourneeDED(-1)">
-                                <
-                            </button>
-                            
-                            <div class="journee-info">
-                                <div class="journee-number">Journée <span id="currentJourneeDED"></span></div>
-                                <div class="journee-dates" id="journeeDatesDED"></div>
-                            </div>
-                            
-                            <button id="nextBtnDED" onclick="changeJourneeDED(1)">
-                                >
-                            </button>
-                        </div>
-
-                        <div id="loadingCalDED" class="loadingCal">
-                            <div class="spinner"></div>
-                            Chargement des matchs...
-                        </div>
-
-                        <div id="matchesContainerDED" class="matches-container" style="display: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="primeira_liga-tab" class="tab-content">
-                <div style="text-align: center;">
-                    <div id="calPPL">
-                        <div class="journee-navigation">
-                            <button id="prevBtnPPL" onclick="changeJourneePPL(-1)">
-                                <
-                            </button>
-                            
-                            <div class="journee-info">
-                                <div class="journee-number">Journée <span id="currentJourneePPL"></span></div>
-                                <div class="journee-dates" id="journeeDatesPPL"></div>
-                            </div>
-                            
-                            <button id="nextBtnPPL" onclick="changeJourneePPL(1)">
-                                >
-                            </button>
-                        </div>
-
-                        <div id="loadingCalPPL" class="loadingCal">
-                            <div class="spinner"></div>
-                            Chargement des matchs...
-                        </div>
-
-                        <div id="matchesContainerPPL" class="matches-container" style="display: none;">
-                        </div>
-                    </div>
+                <div style="text-align: center">
+                    <div id="leagueContainer" style="display: none;"></div>
                 </div>
             </div>
 
@@ -456,7 +227,6 @@
     <script src="scripts/js/script-tag.js"></script>
     <script src="scripts/js/matchCalendar.js"></script>
     <script src="scripts/js/recast.js"></script>
-    <script src="scripts/js/ligue1.js"></script>
-    <script src="scripts/js/championsleague.js"></script>
+    <script src="scripts/js/ligues.js"></script>
 </body>
 </html>

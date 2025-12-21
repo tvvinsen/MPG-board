@@ -1,33 +1,31 @@
 class MatchCalendar {
-  constructor({ fetchUrl, idSuffix = ''}) {
-    this.fetchUrl = fetchUrl;
-    this.idSuffix = idSuffix; // '', 'PL', 'Champions', ...
+  constructor({ codeLeague }) {
+    this.codeLeague = codeLeague;
     this.allMatches = [];
     this.totalJournees = 0;
     this.currentJournee = 1;
   }
 
-  _id(name) {
-    return name + this.idSuffix;
-  }
-
   async load() {
+
+    const URL_PROXY_API = "https://proxy-football-api.onrender.com/api/";
     try {
-      const response = await fetch(this.fetchUrl);
+      const response = await fetch(URL_PROXY_API + this.codeLeague);
       const data = await response.json();
       this.allMatches = data?.matches || [];
 
       this.allMatches.forEach((m, i) => { m.index = this.computeStageIndex(this.allMatches, i, m); });
 
+      // Stockage des données dans une map globale
+      mapLeaguesResults.set(this.codeLeague, this.allMatches);
+
       this.totalJournees = Math.max(...this.allMatches.map(m => m.index || 1), 1);
 
       const firstUnplayed = this.allMatches.find(m => m.status !== 'FINISHED');
       this.currentJournee = firstUnplayed?.index ?? 1;
-
-      this.displayJournee(this.currentJournee);
     } catch (err) {
       console.error('Erreur de chargement:', err);
-      const el = document.getElementById(this._id('loadingCal'));
+      const el = document.getElementById('loadingCal');
       if (el) el.innerHTML = '<p style="color: #e74c3c;">Erreur lors du chargement des données</p>';
     }
   }
@@ -45,26 +43,24 @@ class MatchCalendar {
     return current;
   }
 
-  displayJournee(journeeNum) {
-    const loadingEl = document.getElementById(this._id('loadingCal'));
-    const container = document.getElementById(this._id('matchesContainer'));
-    if (loadingEl) loadingEl.style.display = 'block';
-    if (container) container.style.display = 'none';
+  displayJournee() {
+    const container = document.getElementById('leagueContainer');
+    if (container) container.style.display = 'block';
 
+    const journee = this.currentJournee;
     setTimeout(() => {
-      const journees = this.allMatches.filter(m => m.index === journeeNum);
+      const journees = this.allMatches.filter(m => m.index === journee);
       if (!journees || journees.length === 0) {
         if (container) container.innerHTML = '<p style="text-align: center; padding: 10px;">Aucun match disponible pour cette journée</p>';
       } else {
         this.renderMatches(journees, container);
       }
 
-      const currentEl = document.getElementById(this._id('currentJournee'));
-      if (currentEl) currentEl.textContent = journeeNum;
+      const currentEl = document.getElementById('currentJournee');
+      if (currentEl) currentEl.textContent = journee;
 
       this.updateJourneeDates(journees);
 
-      if (loadingEl) loadingEl.style.display = 'none';
       if (container) container.style.display = 'block';
 
       this.updateNavigationButtons();
@@ -81,6 +77,51 @@ class MatchCalendar {
       matchesByDate[dateKey].push(match);
     });
 
+    const divLeague = document.createElement('div');
+    divLeague.id = this.codeLeague;
+
+    const divNav = document.createElement('div');
+    divNav.id = this.codeLeague;
+    divNav.className = 'journee-navigation';
+
+    const button = document.createElement('button');
+    button.id = 'prevBtn';
+    button.onclick = () => this.changeJournee(-1);
+    button.innerHTML = '&lt;';
+    divNav.appendChild(button);
+    divLeague.appendChild(divNav);
+
+    const divInfo = document.createElement('div');
+    divInfo.id = this.codeLeague;
+    divInfo.className = 'journee-info';
+    const divNumber = document.createElement('div');
+    divNumber.className = 'journee-number';
+    divNumber.innerHTML = `Journée <span id="currentJournee">${this.currentJournee}</span>`;
+    divInfo.appendChild(divNumber);
+    const divDates = document.createElement('div');
+    divDates.className = 'journee-dates';
+    divDates.id = 'journeeDates';
+
+    const dates = journees.map(m => new Date(m.utcDate));
+    const min = new Date(Math.min(...dates));
+    const max = new Date(Math.max(...dates));
+    const start = min.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    const end = max.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    divDates.textContent = `${start} - ${end}`;
+
+    divInfo.appendChild(divDates);
+    divNav.appendChild(divInfo);
+    const buttonNext = document.createElement('button');
+    buttonNext.id = 'nextBtn';
+    buttonNext.onclick = () => this.changeJournee(1);
+    buttonNext.innerHTML = '&gt;';
+    divNav.appendChild(buttonNext);
+    divLeague.appendChild(divNav);
+
+    const divMatches = document.createElement('div');
+    divMatches.id = 'matchesContainer';
+    divMatches.className = 'matches-container';
+
     Object.entries(matchesByDate).forEach(([date, matches]) => {
       const dateGroup = document.createElement('div');
       dateGroup.className = 'match-date-group';
@@ -96,8 +137,11 @@ class MatchCalendar {
         const matchCard = this.createMatchCard(match);
         dateGroup.appendChild(matchCard);
       });
-      container.appendChild(dateGroup);
+      divMatches.appendChild(dateGroup);
     });
+    
+    divLeague.appendChild(divMatches);
+    container.appendChild(divLeague);
   }
 
   createMatchCard(match) {
@@ -124,7 +168,7 @@ class MatchCalendar {
   }
 
   updateJourneeDates(journeeMatches) {
-    const datesDiv = document.getElementById(this._id('journeeDates'));
+    const datesDiv = document.getElementById('journeeDates');
     if (!datesDiv) return;
     if (!journeeMatches || journeeMatches.length === 0) { datesDiv.textContent = ''; return; }
     const dates = journeeMatches.map(m => new Date(m.utcDate));
@@ -139,12 +183,12 @@ class MatchCalendar {
     const newJ = this.currentJournee + direction;
     if (newJ < 1 || newJ > this.totalJournees) return;
     this.currentJournee = newJ;
-    this.displayJournee(this.currentJournee);
+    this.displayJournee();
   }
 
   updateNavigationButtons() {
-    const prev = document.getElementById(this._id('prevBtn'));
-    const next = document.getElementById(this._id('nextBtn'));
+    const prev = document.getElementById('prevBtn');
+    const next = document.getElementById('nextBtn');
     if (prev) prev.disabled = this.currentJournee <= 1;
     if (next) next.disabled = this.currentJournee >= this.totalJournees;
   }
