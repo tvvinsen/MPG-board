@@ -44,6 +44,7 @@ class MatchCalendar {
   }
 
   displayJournee() {
+    document.getElementById('loadingCalendar').style.display = 'none';
     const container = document.getElementById('leagueContainer');
     if (container) container.style.display = 'block';
 

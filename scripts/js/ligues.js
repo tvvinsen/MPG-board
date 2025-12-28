@@ -37,68 +37,40 @@ document.addEventListener('DOMContentLoaded', () => {
   // Gestion du formulaire de sélection du championnat
   document.getElementById('leagueSelect').addEventListener('change', (e) => {
     e.preventDefault();
+    document.getElementById('leagueContainer').style.display = 'none';
+    document.getElementById('loadingCalendar').style.display = 'block';
+    
     const input = document.getElementById('leagueSelect');  
-    leagueNumChoice = input.value;          
+    leagueNumChoice = input.value;
+
+    // Tester la présence du composant avant de l'afficher
+    if (!mapLeaguesComponents.has(leagueNumChoice)) {
+      // Charger les données du championnat si le composant n'existe pas
+      const leagueCalendar = new MatchCalendar({
+        codeLeague: leagueNumChoice
+      });
+      mapLeaguesComponents.set(leagueNumChoice, leagueCalendar);
+      leagueCalendar.load().then(() => {
+        // Afficher les résultats du championnat sélectionné
+        leagueCalendar.displayJournee();
+      });
+    } else {
+    const leagueComponent =  mapLeaguesComponents.get(leagueNumChoice)
     // Afficher les résultats du championnat sélectionné
-    mapLeaguesComponents.get(leagueNumChoice).displayJournee();
+      leagueComponent?.displayJournee();
+    }
   });
 });
 
-// France
-const ligue1Calendar = new MatchCalendar({
-  codeLeague: League.FR_L1.code
-});
-mapLeaguesComponents.set(League.FR_L1.code, ligue1Calendar);
-ligue1Calendar.load().then(() => {
-  // Afficher la Ligue 1 par défaut au chargement
-  leagueSelect.value = League.FR_L1.code;
-  mapLeaguesComponents.get(League.FR_L1.code).displayJournee();
-});
-
-// Angleterre
-const plCalendar = new MatchCalendar({
-  codeLeague: League.EN_PL.code
-});
-mapLeaguesComponents.set(League.EN_PL.code, plCalendar);
-plCalendar.load();
-
-// Allemagne
-const bl1Calendar = new MatchCalendar({
-  codeLeague: League.DE_BL1.code
-});
-mapLeaguesComponents.set(League.DE_BL1.code, bl1Calendar);
-bl1Calendar.load();
-
-// Espagne
-const spainCalendar = new MatchCalendar({
-  codeLeague: League.SP_PD.code
-});
-mapLeaguesComponents.set(League.SP_PD.code, spainCalendar);
-spainCalendar.load();
-
-// Italie
-const italiaCalendar = new MatchCalendar({
-  codeLeague: League.IT_SA.code
-});
-mapLeaguesComponents.set(League.IT_SA.code, italiaCalendar);
-italiaCalendar.load();
-
-// Pays-Bas
-const paysbasCalendar = new MatchCalendar({
-  codeLeague: League.PB_DED.code
-});
-mapLeaguesComponents.set(League.PB_DED.code, paysbasCalendar);
-paysbasCalendar.load();
-
-// Portugal
-const portugalCalendar = new MatchCalendar({
-  codeLeague: League.PT_PPL.code
-});
-mapLeaguesComponents.set(League.PT_PPL.code, portugalCalendar);
-portugalCalendar.load();
-
-const championsCalendar = new MatchCalendar({
-  codeLeague: League.EU_CL.code
-});
-mapLeaguesComponents.set(League.EU_CL.code, championsCalendar);
-championsCalendar.load();
+// Fonction pour charger et afficher le calendrier de la Ligue 1 française
+function displayFrenchLigueCalendar() {
+  const ligue1Calendar = new MatchCalendar({
+    codeLeague: League.FR_L1.code
+  });
+  mapLeaguesComponents.set(League.FR_L1.code, ligue1Calendar);
+  document.getElementById('leagueContainer').style.display = 'none';
+  document.getElementById('loadingCalendar').style.display = 'block';
+  ligue1Calendar.load().then(() => {
+    ligue1Calendar.displayJournee();
+  });
+}

@@ -45,7 +45,7 @@
                     </div>
                 </li>
                 <li class="tab-item">
-                    <button class="tab-button" data-tab="calendrier">📆 Calendriers</button>
+                    <button onclick="displayFrenchLigueCalendar()" id="calendar" class="tab-button" data-tab="calendrier">📆 Calendriers</button>
                 </li>
                 <!-- <li><button class="tab-button" data-tab="stats">📈 Statistiques</button></li> -->
                 <!-- <li><button class="tab-button" data-tab="equipes">👥 Équipes</button></li> -->
@@ -145,6 +145,10 @@
                             <select id="leagueSelect"></select>
                         </form>
                     </div>
+                </div>
+                <div id="loadingCalendar" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    Chargement des données...
                 </div>
                 <div style="text-align: center">
                     <div id="leagueContainer" style="display: none;"></div>
