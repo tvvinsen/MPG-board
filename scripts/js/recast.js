@@ -1403,7 +1403,7 @@ document.querySelectorAll('.submenu button').forEach(btn => {
 });
 
 function showTab(tabName) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
     document.getElementById(tabName + '-tab').classList.add('active');
 }
 
