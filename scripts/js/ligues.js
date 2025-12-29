@@ -1,4 +1,3 @@
-const mapLeaguesResults = new Map();
 const mapLeaguesComponents = new Map();
 
 // Ajouter les options de championnat dans le selecteur

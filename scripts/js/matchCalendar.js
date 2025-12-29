@@ -16,9 +16,6 @@ class MatchCalendar {
 
       this.allMatches.forEach((m, i) => { m.index = this.computeStageIndex(this.allMatches, i, m); });
 
-      // Stockage des données dans une map globale
-      mapLeaguesResults.set(this.codeLeague, this.allMatches);
-
       this.totalJournees = Math.max(...this.allMatches.map(m => m.index || 1), 1);
 
       const firstUnplayed = this.allMatches.find(m => m.status !== 'FINISHED');
