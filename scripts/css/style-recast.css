@@ -526,7 +526,7 @@ body {
     border-radius: 10px;
     transition: all 0.3s ease;
     gap: 15px;
-    width: 40%;
+    width: 45%;
     margin: 0 auto;
 }
 
@@ -553,14 +553,14 @@ body {
 }
 
 .team-section {
-    flex: 0 1 200px;
+    flex: 0 1 260px;
     display: flex;
     justify-content: flex-end;
     align-items: center;
 }
 
 .team-section-away {
-    flex: 0 1 200px;
+    flex: 0 1 260px;
     display: flex;
     justify-content: flex-start;
     align-items: center;
