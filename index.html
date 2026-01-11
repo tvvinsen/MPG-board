@@ -47,8 +47,11 @@
                 <li class="tab-item">
                     <button onclick="displayFrenchLigueCalendar()" id="calendar" class="tab-button" data-tab="calendrier">📆 Calendriers</button>
                 </li>
-                <!-- <li><button class="tab-button" data-tab="stats">📈 Statistiques</button></li> -->
-                <!-- <li><button class="tab-button" data-tab="equipes">👥 Équipes</button></li> -->
+            <!-- --> 
+                <li><button class="tab-button" data-tab="stats">📈 Statistiques 1</button></li>
+                <li><button class="tab-button" data-tab="stits">📈 Statistiques 2</button></li>
+                <li><button class="tab-button" data-tab="stuts">📈 Statistiques 3</button></li>
+                <li><button class="tab-button" data-tab="equipes">👥 Équipes</button></li>
             </ul>
         </div>
 
@@ -131,9 +134,22 @@
 
             <!-- Onglet Équipes -->
             <div id="equipes-tab" class="tab-content">
-                <div style="text-align: center;">
-                    <h2>Équipes</h2>
-                    <p style="margin-top: 20px; color: #666;">Contenu à venir...</p>
+                <div style="text-align: center">
+                    <div class="league-selector">
+                        <form class="league-selector-content">
+                            <select id="resultSelect"></select>
+                        </form>
+                    </div>
+                </div>
+                <!-- <script src="https://widgets.365scores.com/main.js"></script> -->
+                <div id="rslt35" class="result-class" style="display: block;text-align: center;width: 35%;margin-left: auto;margin-right: auto;">
+                    <div class="entityStandings" data-widget-type="entityStandings" data-entity-type="league" data-entity-id="35" data-lang="fr-fr" data-widget-id="2dffb98d-eb18-4d4e-a655-d4371e726116" data-limit-height-display="800" data-standings-only-major-columns="true" data-hide-home-away-tabs="true"></div>
+                </div>
+                <div id="rslt36" class="result-class" style="display: none;text-align: center;width: 35%;margin-left: auto;margin-right: auto;">
+                    <div class="entityStandings" data-widget-type="entityStandings" data-entity-type="league" data-entity-id="36" data-lang="fr-fr" data-widget-id="2dffb98d-eb18-4d4e-a655-d4371e726116" data-limit-height-display="800" data-standings-only-major-columns="true" data-hide-home-away-tabs="true"></div>
+                </div>
+                <div id="rslt357" class="result-class" style="display: none;text-align: center;width: 35%;margin-left: auto;margin-right: auto;">
+                    <div class="entityStandings" data-widget-type="entityStandings" data-entity-type="league" data-entity-id="357" data-lang="fr-fr" data-widget-id="2dffb98d-eb18-4d4e-a655-d4371e726116" data-limit-height-display="800" data-standings-only-major-columns="true" data-hide-home-away-tabs="true"></div>
                 </div>
             </div>
 
@@ -159,7 +175,21 @@
             <div id="stats-tab" class="tab-content">
                 <div style="text-align: center;">
                     <h2>Statistiques</h2>
-                    <p style="margin-top: 20px; color: #666;">Contenu à venir...</p>
+<div id="fs-standings"></div> <script> (function (w,d,s,o,f,js,fjs) { w['fsStandingsEmbed']=o;w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) }; js = d.createElement(s), fjs = d.getElementsByTagName(s)[0]; js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs); }(window, document, 'script', 'mw', 'https://cdn.footystats.org/embeds/standings-loc.js')); mw('params', { leagueID: 14932, lang: 'fr' }); </script>
+                </div>
+            </div>
+
+            <div id="stits-tab" class="tab-content" style="display: none;">
+                <div style="text-align: center;">
+                    <h2>Statistiques</h2>
+<div id="fs-standings1"></div> <script>mw('params', { leagueID: 14954, lang: 'fr' }); </script>
+                </div>
+            </div>
+
+            <div id="stuts-tab" class="tab-content" style="display: none;">
+                <div style="text-align: center;">
+                    <h2>Statistiques</h2>
+<div id="fs-standings2"></div> <script>mw('params', { leagueID: 15361, lang: 'fr' }); </script>
                 </div>
             </div>
 
@@ -232,5 +262,6 @@
     <script src="scripts/js/matchCalendar.js"></script>
     <script src="scripts/js/recast.js"></script>
     <script src="scripts/js/ligues.js"></script>
+    <script src="scripts/js/widget.js"></script>
 </body>
 </html>
