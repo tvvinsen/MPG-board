@@ -19,20 +19,24 @@ function createDivisionPairs() {
     if (!tabSelect || !tabContent) return;
     tabSelect.innerHTML = '';
     tabContent.innerHTML = '';
-    const bonusContent = document.querySelector('.bonus-content');
-    bonusContent.innerHTML = '';
-    const resultsContent = document.querySelector('.results-content');
-    resultsContent.innerHTML = '';
 
     const tabSelectBonus = document.querySelector('.division-tab-select-bonus');
-    const tabBonusContent = document.querySelector('.bonus-content');
-    if (!tabSelectBonus || !tabBonusContent) return;
+    const bonusContent = document.querySelector('.bonus-content');
+    if (!tabSelectBonus || !bonusContent) return;
     tabSelectBonus.innerHTML = '';
+    bonusContent.innerHTML = '';
 
     const tabSelectResults = document.querySelector('.division-tab-select-results');
-    const tabResultsContent = document.querySelector('.results-content');
-    if (!tabSelectResults || !tabResultsContent) return;
+    const resultsContent = document.querySelector('.results-content');
+    if (!tabSelectResults || !resultsContent) return;
     tabSelectResults.innerHTML = '';
+    resultsContent.innerHTML = '';
+
+    const tabSelectLigue = document.querySelector('.division-tab-select-ligue');
+    const ligueContent = document.querySelector('.ligue-content');
+    if (!tabSelectLigue || !ligueContent) return;
+    tabSelectLigue.innerHTML = '';
+    ligueContent.innerHTML = '';
 
     // Créer une liste déroulante pour sélectionner la paire
     const select = document.createElement('select');
@@ -46,6 +50,9 @@ function createDivisionPairs() {
 
     const selectResults = select.cloneNode(true);
     tabSelectResults.appendChild(selectResults);
+
+    const selectLigue = select.cloneNode(true);
+    tabSelectLigue.appendChild(selectLigue);
 
     const pairs = [];
     for (let i = 0; i < divisions.length; i += 2) {
@@ -67,6 +74,9 @@ function createDivisionPairs() {
 
         const optionResults = option.cloneNode(true);
         selectResults.appendChild(optionResults);
+
+        const optionLigue = option.cloneNode(true);
+        selectLigue.appendChild(optionLigue);
 
         const panelId = `panel-${pairNum}`;
         const pairContent = document.createElement('div');
@@ -184,8 +194,6 @@ function createDivisionPairs() {
         pairResultsContent.setAttribute('aria-labelledby', `divisionPairLabel-${pairNum}`);
         pairResultsContent.hidden = (i !== 0);
 
-        let match = undefined;
-
         let htmlResults = `
             <div class="divisions">
                 <div id="resultsDiv${div1}" class="division">
@@ -205,8 +213,35 @@ function createDivisionPairs() {
         htmlResults += '</div>';
         pairResultsContent.innerHTML = htmlResults;
         resultsContent.appendChild(pairResultsContent);
+
+        const panelLigueId = `panelLigue-${pairNum}`;
+        const pairLigueContent = document.createElement('div');
+        pairLigueContent.className = 'division-pair';
+        pairLigueContent.id = panelLigueId;
+        pairLigueContent.setAttribute('role', 'region');
+        pairLigueContent.setAttribute('aria-labelledby', `divisionPairLabel-${pairNum}`);
+        pairLigueContent.hidden = (i !== 0);
+
+        let htmlLigue = `
+            <div class="divisions">
+                <div id="ligueDiv${div1}" class="division">
+                    <h2 id="ligueTitle${div1}"></h2>
+                    <div id="ligueBodyDiv${div1}"></div>
+                </div>
+        `;
+        if (div2) {
+            htmlLigue += `
+                <div id="ligueDiv${div2}" class="division">
+                    <h2 id="ligueTitle${div2}"></h2>
+                    <div id="ligueBodyDiv${div2}"></div>
+                </div>
+            `;
+        }
+        htmlLigue += '</div>';
+        pairLigueContent.innerHTML = htmlLigue;
+        ligueContent.appendChild(pairLigueContent);
         
-        pairs.push({ pairNum, option, panel: pairContent, bonusPanel: pairBonusContent, resultsPanel: pairResultsContent});
+        pairs.push({ pairNum, option, panel: pairContent, bonusPanel: pairBonusContent, resultsPanel: pairResultsContent, liguePanel: pairLigueContent });
     }
 
     // Helper pour charger une paire par son numéro
@@ -238,7 +273,7 @@ function createDivisionPairs() {
     }
 
     function activatePanel(pairNum) {
-        pairs.forEach(({pairNum: pn, panel, option, bonusPanel, resultsPanel}) => {
+        pairs.forEach(({pairNum: pn, panel, option, bonusPanel, resultsPanel, liguePanel}) => {
             const selected = pn === pairNum;
             panel.classList.toggle('active', selected);
             panel.hidden = !selected;
@@ -247,6 +282,8 @@ function createDivisionPairs() {
             bonusPanel.hidden = !selected;
             resultsPanel.classList.toggle('active', selected);
             resultsPanel.hidden = !selected;
+            liguePanel.classList.toggle('active', selected);
+            liguePanel.hidden = !selected;
         });
     }
 
@@ -255,6 +292,7 @@ function createDivisionPairs() {
         const pairNum = parseInt(select.value, 10);
         selectBonus.selectedIndex = select.selectedIndex;
         selectResults.selectedIndex = select.selectedIndex;
+        selectLigue.selectedIndex = select.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
         showLoadingClassement();
@@ -268,6 +306,7 @@ function createDivisionPairs() {
         const pairNum = parseInt(selectBonus.value, 10);
         select.selectedIndex = selectBonus.selectedIndex;
         selectResults.selectedIndex = selectBonus.selectedIndex;
+        selectLigue.selectedIndex = selectBonus.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
         showLoadingClassement();
@@ -281,6 +320,7 @@ function createDivisionPairs() {
         const pairNum = parseInt(selectResults.value, 10);
         select.selectedIndex = selectResults.selectedIndex;
         selectBonus.selectedIndex = selectResults.selectedIndex;
+        selectLigue.selectedIndex = selectResults.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
         showLoadingClassement();
@@ -290,15 +330,31 @@ function createDivisionPairs() {
         });
     });
 
+    selectLigue.addEventListener('change', () => {
+        const pairNum = parseInt(selectLigue.value, 10);
+        select.selectedIndex = selectLigue.selectedIndex;
+        selectBonus.selectedIndex = selectLigue.selectedIndex;
+        selectResults.selectedIndex = selectLigue.selectedIndex;
+
+        document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
+        showLoadingByType('Ligue');
+        loadPairByNum(pairNum).then(() => {
+            activatePanel(pairNum);
+            hideLoadingByType('Ligue');
+        });
+    });
+
     // Charger immédiatement la première paire pour affichage à l'ouverture de la page
     if (pairs.length > 0) {
         select.selectedIndex = 0;
         selectBonus.selectedIndex = 0;
         selectResults.selectedIndex = 0;
+        selectLigue.selectedIndex = 0;
         loadPairByNum(pairs[0].pairNum).then(() => {
             activatePanel(pairs[0].pairNum);
             hideLoading();
             hideLoadingClassement();
+            hideLoadingByType('Ligue');
             contentDisplay();
         });
     }
@@ -416,7 +472,9 @@ async function loadDivisionData(divisionNumber, urls) {
             `bonusBodyDiv${divisionNumber}`,
             `bonusDivisionTitle${divisionNumber}`,
             `resultsBodyDiv${divisionNumber}`,
-            `resultsTitle${divisionNumber}`
+            `resultsTitle${divisionNumber}`,
+            `ligueBodyDiv${divisionNumber}`,
+            `ligueTitle${divisionNumber}`
         ));
     } catch (error) {
         console.error(`Error loading division ${divisionNumber} data:`, error);
@@ -509,7 +567,7 @@ let expandableTables = [];
 
 // Classe pour gérer le tableau extensible
 class ExpandableTable {
-    constructor(containerId, divisionTitleId, data, bonusContainerId, bonusDivisionTitleId, resultsContainerId, resultsTitleId) {
+    constructor(containerId, divisionTitleId, data, bonusContainerId, bonusDivisionTitleId, resultsContainerId, resultsTitleId, ligueContainerId, ligueTitleId) {
         this.container = document.getElementById(containerId);
         this.bonusContainer = document.getElementById(bonusContainerId);
         this.divisionTitleId = divisionTitleId;
@@ -519,6 +577,8 @@ class ExpandableTable {
         this.clickHandler = null; // Référence à l'écouteur de clic
         this.resultsContainer = document.getElementById(resultsContainerId);
         this.resultsTitleId = resultsTitleId;
+        this.ligueContainer = document.getElementById(ligueContainerId);
+        this.ligueTitleId = ligueTitleId;
         this.init();
     }
 
@@ -550,6 +610,9 @@ class ExpandableTable {
         if (this.resultsContainer) {
             this.resultsContainer.innerHTML = '';
         }
+        if (this.ligueContainer) {
+            this.ligueContainer.innerHTML = '';
+        }
 
         const divisionTitle = document.getElementById(this.divisionTitleId);
         if (divisionTitle) {
@@ -566,6 +629,11 @@ class ExpandableTable {
             resultsTitle.innerHTML = '';
         }
 
+        const ligueTitle = document.getElementById(this.ligueTitleId);
+        if (ligueTitle) {
+            ligueTitle.innerHTML = '';
+        }
+
         // Libérer les références
         this.container = null;
         this.bonusContainer = null;
@@ -573,7 +641,9 @@ class ExpandableTable {
         this.bonusDivisionTitleId = null;
         this.data = null;
         this.resultsContainer = null;
+        this.ligueContainer = null;
         this.resultsTitleId = null;
+        this.ligueTitleId = null;
     }
 
     render() {
@@ -598,11 +668,20 @@ class ExpandableTable {
         resultsSpan.innerHTML = `<p>${divisionName}</p>`;
         resultsTitle.appendChild(resultsSpan);
 
+        const ligueTitle = document.getElementById(this.ligueTitleId);
+        ligueTitle.innerHTML = '';
+        const ligueSpan = document.createElement('span');
+        ligueSpan.innerHTML = `<p>${divisionName}</p>`;
+        ligueTitle.appendChild(ligueSpan);
+
         this.container.innerHTML = '';
         this.bonusContainer.innerHTML = '';
         this.resultsContainer.innerHTML = '';
+        this.ligueContainer.innerHTML = '';
 
         this.resultsContainer.appendChild(this.createResults(this.divNum));
+
+        this.ligueContainer.appendChild(this.createNextDayMatch(this.divNum));
 
         this.data.teams.forEach((mpgTeam, index) => {
             this.container.appendChild(this.createDataRow(mpgTeam, index));
@@ -944,6 +1023,40 @@ class ExpandableTable {
                 `;
             });
         });
+
+        tableHTML += `</div>`;
+        elDiv.innerHTML += tableHTML;
+        return elDiv;
+    }
+
+    createNextDayMatch(divNum) {
+        const elDiv = document.createElement('div');
+
+        let tableHTML = `<div class="match-date-group">`;
+
+        // Trouver la prochaine journée non jouée dans calendarDiv
+        const nextMatchDay = calendarDiv[divNum - 1].find(day => !day.isPlayed);
+        if (!nextMatchDay) {
+            tableHTML += `<div class="match-date-header" style="text-align: center">Aucun match à venir</div>`;
+            tableHTML += `</div>`;
+            elDiv.innerHTML += tableHTML;
+            return elDiv;
+        } else {
+            tableHTML += `<div class="match-date-header" style="text-align: center">Journée ${nextMatchDay.gameWeek}</div>`;
+            nextMatchDay?.matches.forEach(journee => {
+                tableHTML += `
+                    <div class="match-content">
+                        <div class="team-section">
+                            <div class="team-name">${journee.homePlayer.name}</div>
+                        </div>
+                        <div class="match-score">${journee.scoreHome ?? ''} - ${journee.scoreAway ?? ''}</div>
+                        <div class="team-section-away">
+                            <div class="team-name-away">${journee.awayPlayer.name}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
 
         tableHTML += `</div>`;
         elDiv.innerHTML += tableHTML;
@@ -1318,6 +1431,14 @@ function hideLoadingClassement() {
 
 function showLoadingClassement() {
     document.getElementById('loadingClassement').style.display = 'block';
+}
+
+function hideLoadingByType(type) {
+    document.getElementById('loading' + type).style.display = 'none';
+}
+
+function showLoadingByType(type) {
+    document.getElementById('loading' + type).style.display = 'block';
 }
 
 function showError(message = 'Erreur lors du chargement des données. Veuillez réessayer.') {
