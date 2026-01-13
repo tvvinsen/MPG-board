@@ -1345,7 +1345,7 @@ function farmersPlayers() {
     mapPlayerNames.set(1497344, "Antoine P.");
     mapPlayerNames.set(1519479, "Jean-Philippe");
     mapPlayerNames.set(6429841, "Stéphane");
-    mapPlayerNames.set(7143201, "Charlotte");
+    mapPlayerNames.set(7143201, "Charlotte B.");
     mapPlayerNames.set(7206496, "Leïla");
     mapPlayerNames.set(6942448, "Thomas");
     mapPlayerNames.set(6742055, "Antoine C.");
@@ -1356,7 +1356,8 @@ function farmersPlayers() {
     mapPlayerNames.set(4895077, "Axel");
     mapPlayerNames.set(5026495, "Mikael");
     mapPlayerNames.set(7726375, "Cyrille");
-
+    mapPlayerNames.set(7931768, "Charlotte D.");
+    
     return mapPlayerNames;
 }
 
