@@ -8,6 +8,7 @@ let teamsOfDivision = [[]];
 let liveStandings = [[]];
 let calendarDiv = [[]];
 let divisions = [];
+let bonusesRules = [];
 
 function createDivisionPairs() {
     const numDivisions = nbDivisionsForSeason;
@@ -376,6 +377,7 @@ function initializeData() {
         teamsOfDivision[idx] = [];
         liveStandings[idx] = [];
         calendarDiv[idx] = [];
+        bonusesRules = [];
     });
 }
 
@@ -432,6 +434,7 @@ async function loadDivisionData(divisionNumber, urls) {
         nbPlayers = matchesData?.division?.teams?.length || nbPlayers;
         liveStandings[divIndex] = matchesData?.liveStandings || [];
         calendarDiv[divIndex] = matchesData?.calendar || [];
+        bonusesRules = matchesData?.division.bonusesRules || [];
 
         // Associer les résultats des matchs au calendrier des matchs pour afficher dans l'onglet de résultats
         buildCalendarResults(matchesData, divIndex);
@@ -1284,31 +1287,14 @@ function loadLeague(newLeagueCode) {
 
 function bonusDetails() {
     const bonusMap = new Map();
-
-    let nbUber = 3;
-    let nbSuarez = 1;
-    let nbTonton = 1;
-    let nbCheat = 1;
-
-    switch(nbPlayers) {
-        case 6:
-            nbUber = 2;
-            nbCheat = 0;
-            nbTonton = 0;
-            break;
-        case 10:
-            nbSuarez = 2;
-            break;
-    }
-
-    bonusMap.set("valise", ["Valise à Nanard", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
-    bonusMap.set("uber", ["McDo+", nbUber, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
-    bonusMap.set("suarez", ["Suarez", nbSuarez, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
-    bonusMap.set("zahia", ["Zahia", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
-    bonusMap.set("miroir", ["Miroir", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
-    bonusMap.set("tonton", ["Tonton Pat'", nbTonton, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
-    bonusMap.set("decat", ["4 Decat", 1, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
-    bonusMap.set("cheat", ["Cheat Code 18-26", nbCheat, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
+    bonusMap.set("valise", ["Valise à Nanard", bonusesRules.valise, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
+    bonusMap.set("uber", ["McDo+", bonusesRules.uber, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
+    bonusMap.set("suarez", ["Suarez", bonusesRules.suarez, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
+    bonusMap.set("zahia", ["Zahia", bonusesRules.zahia, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
+    bonusMap.set("miroir", ["Miroir", bonusesRules.miroir, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
+    bonusMap.set("tonton", ["Tonton Pat'", bonusesRules.tonton, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
+    bonusMap.set("decat", ["4 Decat", bonusesRules.decat, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
+    bonusMap.set("cheat", ["Cheat Code 18-26", bonusesRules.cheat, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
     return Object.freeze(bonusMap);
 }
 
@@ -1410,7 +1396,7 @@ function formatBonusTitle(bonusTab) {
     const bonusDispos = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
     let nbBonusDispos = bonusDispos.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
 
-    return remainingBonuses.length > 0 ? "Bonus disponibles (" + nbBonusDispos + "/" + nbBonusDefault + ") : " + remainingBonuses : "Plus aucun bonus disponible !"
+    return remainingBonuses.length > 0 ? "Bonus disponibles (" + nbBonusDispos + "/" + nbBonusDefault + ") : " + remainingBonuses : "Aucun bonus disponible !"
 }
 
 function contentDisplay() {
