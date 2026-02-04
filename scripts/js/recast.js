@@ -1,5 +1,5 @@
 let codeLeague = "PNAL4RJN";
-let seasonNum = "9";
+let seasonNum = "10";
 let seasonNumChoice = seasonNum;
 let nbPlayers = 8;
 let nbDivisionsForSeason = 2;
