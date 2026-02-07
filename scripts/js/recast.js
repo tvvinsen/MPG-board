@@ -1009,24 +1009,7 @@ class ExpandableTable {
         const elDiv = document.createElement('div');
 
         let tableHTML = `<div class="match-date-group">`;
-
-        calendarDiv[divNum - 1].forEach(matches => {
-            tableHTML += `<div class="match-date-header" style="text-align: center">Journée ${matches.gameWeek}</div>`;
-            matches?.matches.forEach(journee => {
-                tableHTML += `
-                    <div class="match-content">
-                        <div class="team-section">
-                            <div class="team-name">${journee.homePlayer.name}</div>
-                        </div>
-                        <div class="match-score">${journee.scoreHome ?? ''} - ${journee.scoreAway ?? ''}</div>
-                        <div class="team-section-away">
-                            <div class="team-name-away">${journee.awayPlayer.name}</div>
-                        </div>
-                    </div>
-                `;
-            });
-        });
-
+        calendarDiv[divNum - 1].forEach(matches => tableHTML += this.createHtmlDayMatch(matches));
         tableHTML += `</div>`;
         elDiv.innerHTML += tableHTML;
         return elDiv;
@@ -1045,25 +1028,39 @@ class ExpandableTable {
             elDiv.innerHTML += tableHTML;
             return elDiv;
         } else {
-            tableHTML += `<div class="match-date-header" style="text-align: center">Journée ${nextMatchDay.gameWeek}</div>`;
-            nextMatchDay?.matches.forEach(journee => {
-                tableHTML += `
-                    <div class="match-content">
-                        <div class="team-section">
-                            <div class="team-name">${journee.homePlayer.name}</div>
-                        </div>
-                        <div class="match-score">${journee.scoreHome ?? ''} - ${journee.scoreAway ?? ''}</div>
-                        <div class="team-section-away">
-                            <div class="team-name-away">${journee.awayPlayer.name}</div>
-                        </div>
-                    </div>
-                `;
-            });
+            tableHTML += this.createHtmlDayMatch(nextMatchDay);
         }
 
         tableHTML += `</div>`;
         elDiv.innerHTML += tableHTML;
         return elDiv;
+    }
+
+    createHtmlDayMatch(matchDay) {
+        let tableHTML = '';
+
+        tableHTML += `<div class="match-date-header" style="text-align: center">Journée ${matchDay.gameWeek}</div>`;
+        matchDay?.matches.forEach(journee => {    
+            const idMpgUserHome = this.data.teams.filter(team => team.teamNum == journee.homePlayer.teamNum).slice().shift().MPGuserId;
+            const firstnameHome = farmersPlayers().get(idMpgUserHome) ?? '';
+
+            const idMpgUserAway = this.data.teams.filter(team => team.teamNum == journee.awayPlayer.teamNum).slice().shift().MPGuserId;
+            const firstnameAway = farmersPlayers().get(idMpgUserAway) ?? '';
+
+            tableHTML += `
+                <div class="match-content" style="padding: 20px;">
+                    <div class="team-section">
+                        <div class="team-name">${journee.homePlayer.name}<br><span style="font-size: 80%;">${firstnameHome}</span></div>
+                    </div>
+                    <div class="match-score">${journee.scoreHome ?? ''} - ${journee.scoreAway ?? ''}</div>
+                    <div class="team-section-away">
+                        <div class="team-name-away">${journee.awayPlayer.name}<br><span style="font-size: 80%;">${firstnameAway}</span></div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        return tableHTML;
     }
 
     attachEventListeners() {
