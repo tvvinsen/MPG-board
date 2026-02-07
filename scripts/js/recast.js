@@ -1,6 +1,6 @@
 let codeLeague = "PNAL4RJN";
-let seasonNum = "10";
-let seasonNumChoice = seasonNum;
+let seasonNum = undefined;
+let seasonNumChoice = undefined;
 let nbPlayers = 8;
 let nbDivisionsForSeason = 2;
 
