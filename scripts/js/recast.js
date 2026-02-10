@@ -686,6 +686,10 @@ class ExpandableTable {
 
         this.ligueContainer.appendChild(this.createNextDayMatch(this.divNum));
 
+        // Tri des équipes par ordre de classement dans la division avant les playoffs
+        this.data.teams.sort((a, b) => {
+            return a.poolRank - b.poolRank;
+        });
         this.data.teams.forEach((mpgTeam, index) => {
             this.container.appendChild(this.createDataRow(mpgTeam, index));
             this.bonusContainer.appendChild(this.createBonusRow(mpgTeam));
