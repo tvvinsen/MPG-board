@@ -1049,24 +1049,31 @@ class ExpandableTable {
     }
 
     createNextDayMatch(divNum) {
-        const elDiv = document.createElement('div');
-
         let tableHTML = `<div class="match-date-group">`;
 
-        // Trouver la prochaine journée non jouée dans calendarDiv
-        let nextMatchDay = calendarDiv[divNum - 1].find(day => !day.isPlayed && !day.isPlayoffs)?.slice().shift();
-        // Si aucune journée non jouée n'est trouvée, afficher le résultat de la dernière journée jouée
-        if (nextMatchDay === undefined) {
-            nextMatchDay = calendarDiv[divNum - 1].reverse().slice().shift();
+        let last;
+        let nextMatchDays = calendarDiv[divNum - 1].filter(day => !day.isPlayed);
+        nextMatchDays = nextMatchDays.filter(day => !(day.isPlayoffs && day.matches.length > 0));
+        last = nextMatchDays.slice().shift();
+        
+        if (!last) {
+            nextMatchDays = calendarDiv[divNum - 1].filter(day => day.matches.length > 0);
+            if (nextMatchDays.length > 1) {
+                last = nextMatchDays.slice().reverse().shift();
+            } else {
+                last = nextMatchDays.slice().shift();
+            }
         }
+        
+        const elDiv = document.createElement('div');
 
-        if (!nextMatchDay) {
+        if (!last) {
             tableHTML += `<div class="match-date-header" style="text-align: center">Aucun match à venir</div>`;
             tableHTML += `</div>`;
             elDiv.innerHTML += tableHTML;
             return elDiv;
         } else {
-            tableHTML += this.createHtmlDayMatch(nextMatchDay);
+            tableHTML += this.createHtmlDayMatch(last);
         }
 
         tableHTML += `</div>`;
