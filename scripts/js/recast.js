@@ -390,11 +390,11 @@ function buildCalendarResults(matchesData, divIndex) {
 
             const timelineDayHome = matchesData?.division?.teams?.filter(it => it.teamNum === calDay[0]).slice().shift().timeline[idxDay];
             // Calcul des buts encaissés pour définir le score adverse
-            calDay.scoreAway = cal.isPlayed ? (timelineDayHome?.g || 0) + (timelineDayHome?.m || 0) : undefined;
+            calDay.scoreAway = cal.isPlayed || cal.isPlayoffs ? (timelineDayHome?.g || 0) + (timelineDayHome?.m || 0) : undefined;
 
             const timelineDayAway = matchesData?.division?.teams?.filter(it => it.teamNum === calDay[1]).slice().shift().timeline[idxDay];
             // Calcul des buts encaissés pour définir le score adverse
-            calDay.scoreHome = cal.isPlayed ? (timelineDayAway?.g || 0) + (timelineDayAway?.m || 0) : undefined;
+            calDay.scoreHome = cal.isPlayed || cal.isPlayoffs ? (timelineDayAway?.g || 0) + (timelineDayAway?.m || 0) : undefined;
         })
     });
 }
@@ -1054,7 +1054,12 @@ class ExpandableTable {
         let tableHTML = `<div class="match-date-group">`;
 
         // Trouver la prochaine journée non jouée dans calendarDiv
-        const nextMatchDay = calendarDiv[divNum - 1].find(day => !day.isPlayed);
+        let nextMatchDay = calendarDiv[divNum - 1].find(day => !day.isPlayed && !day.isPlayoffs)?.slice().shift();
+        // Si aucune journée non jouée n'est trouvée, afficher le résultat de la dernière journée jouée
+        if (nextMatchDay === undefined) {
+            nextMatchDay = calendarDiv[divNum - 1].reverse().slice().shift();
+        }
+
         if (!nextMatchDay) {
             tableHTML += `<div class="match-date-header" style="text-align: center">Aucun match à venir</div>`;
             tableHTML += `</div>`;
@@ -1072,7 +1077,8 @@ class ExpandableTable {
     createHtmlDayMatch(matchDay) {
         let tableHTML = '';
 
-        tableHTML += `<div class="match-date-header" style="text-align: center">Journée ${matchDay.gameWeek}</div>`;
+        const complement = matchDay.isPlayoffs ? ` (playoffs)` : ``;
+        tableHTML += `<div class="match-date-header" style="text-align: center">Journée ${matchDay.gameWeek}${complement}</div>`;
         matchDay?.matches.forEach(journee => {    
             const idMpgUserHome = this.data.teams.filter(team => team.teamNum == journee.homePlayer.teamNum).slice().shift().MPGuserId;
             const firstnameHome = farmersPlayers().get(idMpgUserHome) ?? '';
