@@ -560,6 +560,35 @@ document.querySelectorAll('.tab-button').forEach(button => {
     });
 });
 
+const otherLeaguesSelect = document.getElementById('otherLeaguesSelect');
+otherLeaguesSelect.innerHTML = '';
+otherLeaguesSelect.className = 'division-pair-select';
+
+let leagues = new Map();
+leagues.set("TKMXKZDF", "La kadastrophe");
+leagues.set("PNAL4RJN", "Farmers-Visas League");
+leagues.set("T4D5JPZU", "Referential League");
+leagues.set("PJ4V8EXJ", "Notchup 25-26");
+
+leagues.set("T3UZYS9D", "Staging League");
+leagues.set("TTD7J493", "Champions Referential League");
+
+leagues.set("TK8UPTE8", "Les strasbourgeois");
+leagues.set("RDRE1KZA", "Saison 2025/2026");
+leagues.set("U3VWU7K8", "👑King’s Ligue 1👑");
+
+// trier la map leagues par ordre alphabétique de la valeur
+leagues = new Map([...leagues.entries()].sort((a, b) => a[1].localeCompare(b[1])));
+
+// parcourir la map leagues pour ajouter dans une liste les clés et valeurs
+leagues.forEach((value, key) => {
+    const option = document.createElement('option');
+    option.value = key;
+    option.textContent = `${value} (${key})`;
+    option.className = 'division-pair-select';
+    otherLeaguesSelect.appendChild(option);
+});
+
 
 // Variable pour suivre la ligne actuellement étendue
 let currentExpandedRowId = null;
@@ -1497,6 +1526,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
             console.error('Erreur lors du chargement de la ligue:', error);
             return; // Sortir de la fonction en cas d'erreur
+        }
+    });
+
+    // Gestion du formulaire de sélection d'une ligue connue
+    document.getElementById('otherLeaguesSelect').addEventListener('change', (e) => {
+        e.preventDefault();
+        document.getElementById('error').style.display = 'none';  // Cacher les erreurs précédentes
+        const input = document.getElementById('otherLeaguesSelect');
+        
+        try {
+            seasonNumChoice = null;
+            loadLeague(input.value);
+        }
+        catch(error) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            const cfgTabButton = document.querySelector('.tab-button[data-tab="cfg"]');
+            cfgTabButton.classList.add('active');
+            document.getElementById('cfg-tab').classList.add('active');
+
+            console.error('Erreur lors du chargement de la ligue:', error);
+            return;
         }
     });
 
