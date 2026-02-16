@@ -572,6 +572,7 @@ leagues.set("PJ4V8EXJ", "Notchup 25-26");
 
 leagues.set("T3UZYS9D", "Staging League");
 leagues.set("TTD7J493", "Champions Referential League");
+leagues.set("U4L8ADMK", "Referential Champion's League");
 
 leagues.set("TK8UPTE8", "Les strasbourgeois");
 leagues.set("RDRE1KZA", "Saison 2025/2026");
