@@ -235,17 +235,22 @@ function createDivisionPairs() {
         pairTeamsContent.setAttribute('aria-labelledby', `divisionPairLabel-${pairNum}`);
         pairTeamsContent.hidden = (i !== 0);
 
+                                // <th style="text-align: center">Milieux</th>
+                                // <th style="text-align: center">Défenseurs</th>
+                                // <th style="text-align: center">Gardiens</th>
+
+                        // <thead>
+                        //     <tr>
+                        //         <th>Equipe</th>
+                        //         <th style="text-align: center">Nom / Poste / Achat</th>
+                        //     </tr>
+                        // </thead>
+        
         let htmlTeams = `
             <div class="divisions">
                 <div id="bnDiv${div1}" class="division">
                     <h2 id="teamsTitle${div1}"></h2>
                     <table id="teamsDivision${div1}" class="classement-table">
-                        <thead>
-                            <tr>
-                                <th>Equipe</th>
-                                <th style="text-align: center">Joueurs</th>
-                            </tr>
-                        </thead>
                         <tbody id="teamsBodyDiv${div1}"></tbody>
                     </table>
                 </div>
@@ -255,12 +260,6 @@ function createDivisionPairs() {
                 <div id="bnDiv${div2}" class="division">
                     <h2 id="teamsTitle${div2}"></h2>
                     <table id="teamsDivision${div2}" class="classement-table">
-                        <thead>
-                            <tr>
-                                <th>Equipe</th>
-                                <th style="text-align: center">Joueurs</th>
-                            </tr>
-                        </thead>
                         <tbody id="teamsBodyDiv${div2}"></tbody>
                     </table>
                 </div>
@@ -498,13 +497,15 @@ async function loadDivisionData(divisionNumber, urls) {
 
         // Extraire les joueurs obtenus via le mercato pour les associer aux équipes
         mercatoData.forEach(currentMercatoPlayer => {
-            // console.log(`Mercato - Joueur : ${currentMercatoPlayer.player.name}, TeamNum : ${currentMercatoPlayer.MPGteam.teamNum}, Type : ${currentMercatoPlayer.player.fullplace}, , Prix achat : ${currentMercatoPlayer.priceBuy}`, currentMercatoPlayer);
             const team = teamsOfDivision[divIndex]?.filter(it => it.teamNum === currentMercatoPlayer.MPGteam.teamNum).slice().shift();
             team.playersObtained = team.playersObtained || [];
             team.playersObtained.push(currentMercatoPlayer);
         });
 
-        console.log(`Joueurs de l'équipe pour la division ${divisionNumber} :`, teamsOfDivision[divIndex]);
+        teamsOfDivision[divIndex].forEach(team => {
+            // Trier les joueurs obtenus par ordre de nom pour une présentation plus lisible
+            team?.playersObtained?.sort((a, b) => a.player.name.localeCompare(b.player.name));
+        });
 
         // Nettoyer les anciens containers DOM
         const classementBody = document.getElementById(`classementBodyDiv${divisionNumber}`);
@@ -1159,56 +1160,65 @@ class ExpandableTable {
     }
 
     createTeamsRow(mpgUser) {
-        const tr = document.createElement('tr');
-        tr.setAttribute('team-id', mpgUser.id);
-        
-        let tableHTML = `<td style="padding-right: 16px;">${mpgUser.name}</td>`;
-
         const team = teamsOfDivision[this.divNum - 1]?.filter(it => it.teamNum === mpgUser.teamNum).slice().shift();
-        console.log("team", team);
+
+        const tr = document.createElement('table');
+        tr.setAttribute('team-id', mpgUser.id);
+
+        let tableHTML = `
+            `;
 
         tableHTML += `
-            <td style="vertical-align: top; padding-right: 16px;">
-            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
+            <table style="font-size: 1em; vertical-align: top; padding-right: 10px;">
+            <thead>
+                <tr>
+                    <th style="font-size: 1em; vertical-align: top; padding-right: 10px;">Nom</th>
+                    <th style="font-size: 1em; vertical-align: top; padding-right: 10px;">Poste</th>
+                    <th style="font-size: 1em; vertical-align: top; padding-right: 10px;">Achat</th>
+                    <th style="font-size: 1em; vertical-align: top; padding-right: 10px;">Côte</th>
+                    <th style="font-size: 1em; vertical-align: top; padding-right: 10px;">Buts (réels/MPG)</th>
+                    <th style="font-size: 1em; vertical-align: top; padding-right: 10px;">Coût par but</th>
+                </tr>
+            </thead>
+            <tbody>
         `;
-        team.playersObtained.forEach(current => {
+        team.playersObtained/*.filter(currentPl => ["A"].includes(currentPl.player.fullplace))*/.forEach(currentPl => {
             tableHTML += `
-                        <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-                        ${current.player.name} (${current.player.fullplace}) (${current.priceBuy} €)</div>
-            `;
+            <tr>
+                            <td>
+                                <div style="text-align: center">${currentPl.player.name}</div>
+                            </td>
+                            <td>
+                                <div style="text-align: center">${currentPl.player.fullplace}</div>
+                            </td>
+                            <td>
+                                <div style="text-align: center">${currentPl.priceBuy} M€</div>
+                            </td>
+                            <td>
+                                <div style="text-align: center">${currentPl.player?.ratings[0]?.rate} M€</div>
+                            </td>
+                            <td>
+                                <div style="text-align: center">${currentPl.nbGoal} / ${currentPl.nbMPG}</div>
+                            </td>
+                            <td>
+                                <div style="text-align: center">${currentPl.priceBuy / (currentPl.nbGoal + currentPl.nbMPG)} M€</div>
+                            </td>
+                        </div>
+            </tr>
+                        `;
         });
-            tableHTML += `
-                    </div>  
-                </td>
-            `;
+                    // <td style="font-size: 1em; vertical-align: top; padding-right: 10px;">${currentPl.player.name}</td>
+                    // <td style="font-size: 1em; vertical-align: top; padding-right: 10px;">${currentPl.priceBuy} M€</td>
+
+        tableHTML += `
+                </div>  
+            </td>
+        `;
 
         // <img title="${current.player.name} (${current.player.fullplace})" src="${current.player}" width="36.8" height="48" style="vertical-align: middle;">
 
-
-        // if (nbAvailableBonuses > 0) {
-        //     tableHTML += `
-        //         <td style="vertical-align: top; padding-right: 16px;">
-        //             <div id="dispos" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
-        //                 ${availableBonuses.map(([nom, [description, compteur, linkImg]]) => `
-        //                     <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-        //                         ${Array.from({ length: compteur }, 
-        //                             () => `<img title="${description}" src="${linkImg}" width="18" height="25" style="vertical-align: middle;">`).join('')}
-        //                     </div>
-        //                 `).join('')}
-        //             </div>
-        //         </td>
-        //         `;
-        // } else {
-        //     tableHTML += `
-        //         <td style="vertical-align: top; padding-right: 16px;">
-        //             <div id="dispos" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
-        //                 -
-        //             </div>
-        //         </td>
-        //         `;
-        // }
-
-        tableHTML += `</tr>`;
+        tableHTML += `</table>`;
+        tr.innerHTML += `<div style="display: inline-flex; align-items: center; gap: 16px;">${mpgUser.name}</div>`;
         tr.innerHTML += tableHTML;
         return tr;
     }
