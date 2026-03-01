@@ -940,9 +940,7 @@ class ExpandableTable {
             td.innerHTML += `<div>Prochain match : ${svgMatch} ${versusPlayer.name}</div>`;
         }
 
-        td.innerHTML += `
-                    <div>Classement général moyen : Points ${mpgUser.gScoreAvg} / Rang ${mpgUser.gRankAvg}</div>
-                </div>
+        td.innerHTML += `</div>
             </div>
         `;
 
