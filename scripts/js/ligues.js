@@ -7,14 +7,14 @@ leagueSelect.className = 'division-pair-select';
 
 class League {
   // Create new instances of the same class as static attributes
-  static FR_L1 = new League("Ligue 1", "fr-l1")
-  static EN_PL = new League("Premier League", "en-pl")
-  static SP_PD = new League("La Liga", "sp-pd")
-  static DE_BL1 = new League("Bundesliga", "de-bl1")
-  static IT_SA = new League("Serie A", "it-sa")
-  static PB_DED = new League("Eredivisie", "pb-ded")
-  static PT_PPL = new League("Primeira Liga", "pt-ppl")
-  static EU_CL = new League("Champions League", "eu-cl")
+  static FR_L1 = new League("Ligue 1", "fl1", "fr-l1")
+  static EN_PL = new League("Premier League", "pl", "en-pl")
+  static SP_PD = new League("La Liga", "pd", "sp-pd")
+  static DE_BL1 = new League("Bundesliga", "bl1", "de-bl1")
+  static IT_SA = new League("Serie A", "sa", "it-sa")
+  static PB_DED = new League("Eredivisie", "ded", "pb-ded")
+  static PT_PPL = new League("Primeira Liga", "ppl", "pt-ppl")
+  static EU_CL = new League("Champions League", "cl", "eu-cl")
 
   constructor(name, code) {
     this.name = name;

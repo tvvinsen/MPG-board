@@ -7,10 +7,10 @@ class MatchCalendar {
   }
 
   async load() {
-
-    const URL_PROXY_API = "https://proxy-football-api.onrender.com/api/";
+    // const URL_API = "https://proxy-football-api.onrender.com/api/"  + this.codeLeague;
+    const URL_API = `https://raw.githubusercontent.com/felixavier91/football-leagues-tracker/refs/heads/main/output/${this.codeLeague}.json`;
     try {
-      const response = await fetch(URL_PROXY_API + this.codeLeague);
+      const response = await fetch(URL_API);
       const data = await response.json();
       this.allMatches = data?.matches || [];
 
