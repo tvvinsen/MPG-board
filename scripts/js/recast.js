@@ -4,6 +4,9 @@ let seasonNumChoice = undefined;
 let nbPlayers = 8;
 let nbDivisionsForSeason = 2;
 
+let season_fr1 = undefined;
+let datesJourneesMap = undefined;
+
 let teamsOfDivision = [[]];
 let liveStandings = [[]];
 let calendarDiv = [[]];
@@ -1053,10 +1056,9 @@ class ExpandableTable {
     createNextDayMatch(divNum) {
         let tableHTML = `<div class="match-date-group">`;
 
-        let last;
         let nextMatchDays = calendarDiv[divNum - 1].filter(day => !day.isPlayed);
         nextMatchDays = nextMatchDays.filter(day => !(day.isPlayoffs && day.matches.length > 0));
-        last = nextMatchDays.slice().shift();
+        let last = nextMatchDays.slice().shift();
         
         if (!last) {
             nextMatchDays = calendarDiv[divNum - 1].filter(day => day.matches.length > 0);
@@ -1084,10 +1086,22 @@ class ExpandableTable {
     }
 
     createHtmlDayMatch(matchDay) {
-        let tableHTML = '';
+        // Formater au format "MM/JJ" les dates de la journée de championnat
+        const plage = datesJourneesMap.get("Matchday " + matchDay.realGameWeek)?.flatMap(date => {
+            const options = { month: 'numeric', day: 'numeric' };
+            return new Date(date).toLocaleDateString('fr-FR', options);
+        });
+        // Afficher la plage de date ou la date simple
+        let dayDates = `${plage[0]}`; 
+        if (plage && plage.length > 1) {
+            dayDates = `${plage[0]} au ${plage[plage.length - 1]}`;
+        }
+        let tableHTML = `<div class="match-date-header" style="text-align: center">Journée ${matchDay.gameWeek} - ${dayDates}</div>`;
 
-        const complement = matchDay.isPlayoffs ? ` (playoffs)` : ``;
-        tableHTML += `<div class="match-date-header" style="text-align: center">Journée ${matchDay.gameWeek}${complement}</div>`;
+        if (matchDay.isPlayoffs) {
+            tableHTML += `<div style="text-align: center">(playoffs)</div>`;
+        }
+
         matchDay?.matches.forEach(journee => {    
             const idMpgUserHome = this.data.teams.filter(team => team.teamNum == journee.homePlayer.teamNum).slice().shift().MPGuserId;
             const firstnameHome = farmersPlayers().get(idMpgUserHome) ?? '';
@@ -1213,7 +1227,7 @@ const createDefeatIconElement = (title) => {
     return createIconElement(title, 'validation-defeat', './img/svg/loss-icon.svg');
 };
 
-async function fetchLeague() {
+async function fetchMpgLeague() {
     try {
         let API_URL_LEAGUE = 'https://api.mlnstats.com/mpgleague/league/' + codeLeague;
         const response = await fetch(API_URL_LEAGUE);
@@ -1260,6 +1274,16 @@ async function fetchLeague() {
                 }
                 seasonSelect.appendChild(option);
             });
+
+            // Extraire les dates de début et de fin de la saison de l'une des divisions (en supposant qu'elles sont les mêmes pour toutes les divisions de la même saison)
+            const divisionForSeasonNum = dataLeague.divisions.filter(div => div.seasonNum.toString() === seasonNum).slice().shift();
+            if (divisionForSeasonNum) {
+                const seasonStartYear = new Date(divisionForSeasonNum.season.dateBegin).getFullYear();
+                const seasonEndYear = new Date(divisionForSeasonNum.season.dateEnd).getFullYear();
+                // Formater la saison au format "YYYY-YY" pour appeler l'api openfootball
+                season_fr1 = `${seasonStartYear}-${seasonEndYear.toString().slice(-2)}`;
+            }
+
             displayLeague(dataLeague);
         }
     } catch (error) {
@@ -1294,7 +1318,8 @@ function loadLeague(newLeagueCode) {
 
     codeLeague = newLeagueCode.trim().toUpperCase();
 
-    fetchLeague()
+    fetchMpgLeague()
+        .then(() => fetchLigue1Matches())
         .then(() => {
             // Basculer vers l'onglet Classement
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -1582,8 +1607,38 @@ function showTab(tabName) {
     document.getElementById(tabName + '-tab').classList.add('active');
 }
 
+async function fetchLigue1Matches() {
+    datesJourneesMap = new Map();
+
+    const URL = `https://raw.githubusercontent.com/openfootball/football.json/master/${season_fr1}/fr.1.json`;
+    const resOpenfootballFr1 = await fetch(URL);
+    const dataOpenfootballFr1 = await resOpenfootballFr1.json();
+
+    // Créer une map des journées de championnat pour avoir les dates associées à chaque journée (round : "Matchday 1", "Matchday 2", etc.)
+    dataOpenfootballFr1.matches.forEach(match => {
+        const round = match.round;
+        const date = match.date;
+        if (round && date) {
+            // Ne pas garder les dates identiques pour une même journée
+            datesJourneesMap.set(round, datesJourneesMap.get(round) ? Array.from(new Set([...datesJourneesMap.get(round), date])) : [date]);
+        }
+    });
+
+    // Dans la map datesJourneesMap, pour chaque clé, afin d'avoir la plage de dates, retirer les éléments qui ne sont pas en première ou dernière position
+    datesJourneesMap.forEach((dates, round) => {
+        if (dates.length > 2) {
+            // Garder uniquement la première et la dernière date, en retirant les doublons
+            const uniqueDates = Array.from(new Set(dates));
+            // Trier les dates pour s'assurer que la première et la dernière sont correctes
+            uniqueDates.sort((a, b) => new Date(a) - new Date(b));
+            datesJourneesMap.set(round, [uniqueDates[0], uniqueDates[uniqueDates.length - 1]]);        
+        }
+    });
+}
+
 // Chargement initial
-fetchLeague()
+fetchMpgLeague()
+    .then(() => fetchLigue1Matches())
     .then(() => {    
         // Initialiser les données des divisions
         initializeData();
