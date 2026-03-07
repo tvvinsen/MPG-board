@@ -825,6 +825,7 @@ class ExpandableTable {
         this.data.teams.forEach((mpgTeam, index) => {
             this.container.appendChild(this.createDataRow(mpgTeam, index));
             this.bonusContainer.appendChild(this.createBonusRow(mpgTeam));
+            this.teamsContainer.appendChild(this.createTeamsRow(mpgTeam));
         });
         this.mercatoContainer.appendChild(this.createMercato());
     }
