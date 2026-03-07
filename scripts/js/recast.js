@@ -825,7 +825,6 @@ class ExpandableTable {
         this.data.teams.forEach((mpgTeam, index) => {
             this.container.appendChild(this.createDataRow(mpgTeam, index));
             this.bonusContainer.appendChild(this.createBonusRow(mpgTeam));
-            this.teamsContainer.appendChild(this.createTeamsRow(mpgTeam));
         });
         this.mercatoContainer.appendChild(this.createMercato());
     }
@@ -1147,8 +1146,8 @@ class ExpandableTable {
 
         let tableHTML = `<thead>
                 <tr>
-                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Nom (poste)</th>
-                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Acheteur (tour)</th>
+                    <th style="vertical-align: top; padding-right: 10px;">Joueur (poste)</th>
+                    <th style="vertical-align: top; padding-right: 10px;">Acheteur (tour)</th>
                     <th style="text-align: center; vertical-align: top; padding-right: 10px;">Prix d'achat<br>Cote </th>
                     <th style="text-align: center; vertical-align: top; padding-right: 10px;">Buts réels<br>Buts MPG</th>
                     <th style="text-align: center; vertical-align: top; padding-right: 10px;">Coût par but</th>
@@ -1168,25 +1167,30 @@ class ExpandableTable {
             const goalPrice = totalGoals ? (currentPl.priceBuy / totalGoals).toFixed(1) + ' M€' : '-';            
             const cote = currentPl.player?.ratings[0]?.rate ?? '-';
 
+            // Construction de la liste des enchères pour le tooltip par order décroissant du prix
+            const bids = currentPl.bids?.sort((a, b) => b.price - a.price).map(bid => {
+                return `${bid.price} M€ : ${bid.MPGteam.name}`;
+            }).join('\n');
+
             tableHTML += `
                 <tr>
                     <td>
-                        <div style="font-size: 1em; text-align: center">${playerName}</div>
+                        <div>${playerName}</div>
                     </td>
                     <td>
-                        <div style="font-size: 1em; text-align: center">${currentPl.MPGteam.name} (${currentPl.mercatoTurn})</div>
+                        <div>${currentPl.MPGteam.name} (${currentPl.mercatoTurn})</div>
                     </td>
                     <td>
-                        <div style="font-size: 1em; text-align: center">${currentPl.priceBuy}<br>${cote}</div>
+                        <div style="text-align: center">${currentPl.priceBuy}<br>${cote}</div>
                     </td>
                     <td>
-                        <div style="font-size: 1em; text-align: center">${currentPl.nbGoal}<br>${currentPl.nbMPG}</div>
+                        <div style="text-align: center">${currentPl.nbGoal}<br>${currentPl.nbMPG}</div>
                     </td>
                     <td>
-                        <div style="font-size: 1em; text-align: center">${goalPrice}</div>
+                        <div style="text-align: center">${goalPrice}</div>
                     </td>
-                    <td>
-                        <div style="font-size: 1em; text-align: center">${currentPl.mercatoNbBids}</div>
+                    <td title="${bids}">
+                        <div style="text-align: center">${currentPl.mercatoNbBids}</div>
                     </td>
                 </tr>
             `;
