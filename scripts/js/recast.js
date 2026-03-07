@@ -12,6 +12,8 @@ let liveStandings = [[]];
 let calendarDiv = [[]];
 let divisions = [];
 let bonusesRules = [];
+let mercatos = [[]];
+
 
 function createDivisionPairs() {
     const numDivisions = nbDivisionsForSeason;
@@ -36,11 +38,11 @@ function createDivisionPairs() {
     tabSelectResults.innerHTML = '';
     resultsContent.innerHTML = '';
 
-    const tabSelectTeams = document.querySelector('.division-tab-select-teams');
-    const teamsContent = document.querySelector('.teams-content');
-    if (!tabSelectTeams || !teamsContent) return;
-    tabSelectTeams.innerHTML = '';
-    teamsContent.innerHTML = '';
+    const tabSelectMercato = document.querySelector('.division-tab-select-mercato');
+    const mercatoContent = document.querySelector('.mercato-content');
+    if (!tabSelectMercato || !mercatoContent) return;
+    tabSelectMercato.innerHTML = '';
+    mercatoContent.innerHTML = '';
 
     const tabSelectLigue = document.querySelector('.division-tab-select-ligue');
     const ligueContent = document.querySelector('.ligue-content');
@@ -61,8 +63,8 @@ function createDivisionPairs() {
     const selectResults = select.cloneNode(true);
     tabSelectResults.appendChild(selectResults);
 
-    const selectTeams = select.cloneNode(true);
-    tabSelectTeams.appendChild(selectTeams);
+    const selectMercato = select.cloneNode(true);
+    tabSelectMercato.appendChild(selectMercato);
 
     const selectLigue = select.cloneNode(true);
     tabSelectLigue.appendChild(selectLigue);
@@ -88,8 +90,8 @@ function createDivisionPairs() {
         const optionResults = option.cloneNode(true);
         selectResults.appendChild(optionResults);
 
-        const optionTeams = option.cloneNode(true);
-        selectTeams.appendChild(optionTeams);
+        const optionMercato = option.cloneNode(true);
+        selectMercato.appendChild(optionMercato);
 
         const optionLigue = option.cloneNode(true);
         selectLigue.appendChild(optionLigue);
@@ -230,48 +232,35 @@ function createDivisionPairs() {
         pairResultsContent.innerHTML = htmlResults;
         resultsContent.appendChild(pairResultsContent);
 
-        const panelTeamsId = `panelTeams-${pairNum}`;
-        const pairTeamsContent = document.createElement('div');
-        pairTeamsContent.className = 'division-pair';
-        pairTeamsContent.id = panelTeamsId;
-        pairTeamsContent.setAttribute('role', 'region');
-        pairTeamsContent.setAttribute('aria-labelledby', `divisionPairLabel-${pairNum}`);
-        pairTeamsContent.hidden = (i !== 0);
-
-                                // <th style="text-align: center">Milieux</th>
-                                // <th style="text-align: center">Défenseurs</th>
-                                // <th style="text-align: center">Gardiens</th>
-
-                        // <thead>
-                        //     <tr>
-                        //         <th>Equipe</th>
-                        //         <th style="text-align: center">Nom / Poste / Achat</th>
-                        //     </tr>
-                        // </thead>
+        const panelMercatoId = `panelMercato-${pairNum}`;
+        const pairMercatoContent = document.createElement('div');
+        pairMercatoContent.className = 'division-pair';
+        pairMercatoContent.id = panelMercatoId;
+        pairMercatoContent.setAttribute('role', 'region');
+        pairMercatoContent.setAttribute('aria-labelledby', `divisionPairLabel-${pairNum}`);
+        pairMercatoContent.hidden = (i !== 0);
         
-        let htmlTeams = `
+        let htmlMercato = `
             <div class="divisions">
-                <div id="bnDiv${div1}" class="division">
-                    <h2 id="teamsTitle${div1}"></h2>
-                    <table id="teamsDivision${div1}" class="classement-table">
-                        <tbody id="teamsBodyDiv${div1}"></tbody>
-                    </table>
+                <div id="mercatoDiv${div1}" class="division">
+                    <h2 id="mercatoTitle${div1}"></h2>
+                    <div id="mercatoBodyDiv${div1}">
+                    </div>
                 </div>
         `;
         if (div2) {
-            htmlTeams += `
-                <div id="bnDiv${div2}" class="division">
-                    <h2 id="teamsTitle${div2}"></h2>
-                    <table id="teamsDivision${div2}" class="classement-table">
-                        <tbody id="teamsBodyDiv${div2}"></tbody>
-                    </table>
+            htmlMercato += `
+                <div id="mercatoDiv${div2}" class="division">
+                    <h2 id="mercatoTitle${div2}"></h2>
+                    <div id="mercatoBodyDiv${div2}">
+                    </div>
                 </div>
             `;
         }
 
-        htmlTeams += '</div>';
-        pairTeamsContent.innerHTML = htmlTeams;
-        teamsContent.appendChild(pairTeamsContent);
+        htmlMercato += '</div>';
+        pairMercatoContent.innerHTML = htmlMercato;
+        mercatoContent.appendChild(pairMercatoContent);
 
         const panelLigueId = `panelLigue-${pairNum}`;
         const pairLigueContent = document.createElement('div');
@@ -300,7 +289,7 @@ function createDivisionPairs() {
         pairLigueContent.innerHTML = htmlLigue;
         ligueContent.appendChild(pairLigueContent);
         
-        pairs.push({ pairNum, option, panel: pairContent, bonusPanel: pairBonusContent, resultsPanel: pairResultsContent, teamsPanel: pairTeamsContent, liguePanel: pairLigueContent });
+        pairs.push({ pairNum, option, panel: pairContent, bonusPanel: pairBonusContent, resultsPanel: pairResultsContent, mercatoPanel: pairMercatoContent, liguePanel: pairLigueContent });
     }
 
     // Helper pour charger une paire par son numéro
@@ -332,7 +321,7 @@ function createDivisionPairs() {
     }
 
     function activatePanel(pairNum) {
-        pairs.forEach(({pairNum: pn, panel, option, bonusPanel, resultsPanel, teamsPanel, liguePanel}) => {
+        pairs.forEach(({pairNum: pn, panel, option, bonusPanel, resultsPanel, mercatoPanel, liguePanel}) => {
             const selected = pn === pairNum;
             panel.classList.toggle('active', selected);
             panel.hidden = !selected;
@@ -341,8 +330,8 @@ function createDivisionPairs() {
             bonusPanel.hidden = !selected;
             resultsPanel.classList.toggle('active', selected);
             resultsPanel.hidden = !selected;
-            teamsPanel.classList.toggle('active', selected);
-            teamsPanel.hidden = !selected;
+            mercatoPanel.classList.toggle('active', selected);
+            mercatoPanel.hidden = !selected;
             liguePanel.classList.toggle('active', selected);
             liguePanel.hidden = !selected;
         });
@@ -353,7 +342,7 @@ function createDivisionPairs() {
         const pairNum = parseInt(select.value, 10);
         selectBonus.selectedIndex = select.selectedIndex;
         selectResults.selectedIndex = select.selectedIndex;
-        selectTeams.selectedIndex = select.selectedIndex;
+        selectMercato.selectedIndex = select.selectedIndex;
         selectLigue.selectedIndex = select.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
@@ -368,7 +357,7 @@ function createDivisionPairs() {
         const pairNum = parseInt(selectBonus.value, 10);
         select.selectedIndex = selectBonus.selectedIndex;
         selectResults.selectedIndex = selectBonus.selectedIndex;
-        selectTeams.selectedIndex = selectBonus.selectedIndex;
+        selectMercato.selectedIndex = selectBonus.selectedIndex;
         selectLigue.selectedIndex = selectBonus.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
@@ -383,7 +372,7 @@ function createDivisionPairs() {
         const pairNum = parseInt(selectResults.value, 10);
         select.selectedIndex = selectResults.selectedIndex;
         selectBonus.selectedIndex = selectResults.selectedIndex;
-        selectTeams.selectedIndex = selectResults.selectedIndex;
+        selectMercato.selectedIndex = selectResults.selectedIndex;
         selectLigue.selectedIndex = selectResults.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
@@ -394,12 +383,12 @@ function createDivisionPairs() {
         });
     });
 
-    selectTeams.addEventListener('change', () => {
-        const pairNum = parseInt(selectTeams.value, 10);
-        select.selectedIndex = selectTeams.selectedIndex;
-        selectBonus.selectedIndex = selectTeams.selectedIndex;
-        selectResults.selectedIndex = selectTeams.selectedIndex;
-        selectLigue.selectedIndex = selectTeams.selectedIndex;
+    selectMercato.addEventListener('change', () => {
+        const pairNum = parseInt(selectMercato.value, 10);
+        select.selectedIndex = selectMercato.selectedIndex;
+        selectBonus.selectedIndex = selectMercato.selectedIndex;
+        selectResults.selectedIndex = selectMercato.selectedIndex;
+        selectLigue.selectedIndex = selectMercato.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
         showLoadingClassement();
@@ -414,7 +403,7 @@ function createDivisionPairs() {
         select.selectedIndex = selectLigue.selectedIndex;
         selectBonus.selectedIndex = selectLigue.selectedIndex;
         selectResults.selectedIndex = selectLigue.selectedIndex;
-        selectTeams.selectedIndex = selectLigue.selectedIndex;
+        selectMercato.selectedIndex = selectLigue.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
         showLoadingByType('Ligue');
@@ -429,7 +418,7 @@ function createDivisionPairs() {
         select.selectedIndex = 0;
         selectBonus.selectedIndex = 0;
         selectResults.selectedIndex = 0;
-        selectTeams.selectedIndex = 0;
+        selectMercato.selectedIndex = 0;
         selectLigue.selectedIndex = 0;
         loadPairByNum(pairs[0].pairNum).then(() => {
             activatePanel(pairs[0].pairNum);
@@ -498,17 +487,7 @@ async function loadDivisionData(divisionNumber, urls) {
         // Stocker les équipes (provenant de l'API teams)
         teamsOfDivision[divIndex] = teamsData?.teams || [];
 
-        // Extraire les joueurs obtenus via le mercato pour les associer aux équipes
-        mercatoData.forEach(currentMercatoPlayer => {
-            const team = teamsOfDivision[divIndex]?.filter(it => it.teamNum === currentMercatoPlayer.MPGteam.teamNum).slice().shift();
-            team.playersObtained = team.playersObtained || [];
-            team.playersObtained.push(currentMercatoPlayer);
-        });
-
-        teamsOfDivision[divIndex].forEach(team => {
-            // Trier les joueurs obtenus par ordre de nom pour une présentation plus lisible
-            team?.playersObtained?.sort((a, b) => a.player.name.localeCompare(b.player.name));
-        });
+        mercatos[divIndex] = mercatoData || [];
 
         // Nettoyer les anciens containers DOM
         const classementBody = document.getElementById(`classementBodyDiv${divisionNumber}`);
@@ -526,10 +505,10 @@ async function loadDivisionData(divisionNumber, urls) {
         const resultsBody = document.getElementById(`resultsBodyDiv${divisionNumber}`);
         if (resultsBody) resultsBody.innerHTML = '';
 
-        const teamsTitle = document.getElementById(`teamsTitle${divisionNumber}`);
-        if (teamsTitle) teamsTitle.innerHTML = '';
-        const teamsBody = document.getElementById(`teamsBodyDiv${divisionNumber}`);
-        if (teamsBody) teamsBody.innerHTML = '';
+        const mercatoTitle = document.getElementById(`mercatoTitle${divisionNumber}`);
+        if (mercatoTitle) mercatoTitle.innerHTML = '';
+        const mercatoBody = document.getElementById(`mercatoBodyDiv${divisionNumber}`);
+        if (mercatoBody) mercatoBody.innerHTML = '';
 
         // Récupérer et stocker les données de classement et calendrier
         nbPlayers = matchesData?.division?.teams?.length || nbPlayers;
@@ -579,8 +558,8 @@ async function loadDivisionData(divisionNumber, urls) {
             `resultsTitle${divisionNumber}`,
             `ligueBodyDiv${divisionNumber}`,
             `ligueTitle${divisionNumber}`,
-            `teamsBodyDiv${divisionNumber}`,
-            `teamsTitle${divisionNumber}`
+            `mercatoBodyDiv${divisionNumber}`,
+            `mercatoTitle${divisionNumber}`
         ));
     } catch (error) {
         console.error(`Error loading division ${divisionNumber} data:`, error);
@@ -704,7 +683,7 @@ let expandableTables = [];
 
 // Classe pour gérer le tableau extensible
 class ExpandableTable {
-    constructor(containerId, divisionTitleId, data, bonusContainerId, bonusDivisionTitleId, resultsContainerId, resultsTitleId, ligueContainerId, ligueTitleId, teamsContainerId, teamsTitleId) {
+    constructor(containerId, divisionTitleId, data, bonusContainerId, bonusDivisionTitleId, resultsContainerId, resultsTitleId, ligueContainerId, ligueTitleId, mercatoContainerId, mercatoTitleId) {
         this.container = document.getElementById(containerId);
         this.bonusContainer = document.getElementById(bonusContainerId);
         this.divisionTitleId = divisionTitleId;
@@ -714,8 +693,8 @@ class ExpandableTable {
         this.clickHandler = null; // Référence à l'écouteur de clic
         this.resultsContainer = document.getElementById(resultsContainerId);
         this.resultsTitleId = resultsTitleId;
-        this.teamsContainer = document.getElementById(teamsContainerId);
-        this.teamsTitleId = teamsTitleId;
+        this.mercatoContainer = document.getElementById(mercatoContainerId);
+        this.mercatoTitleId = mercatoTitleId;
         this.ligueContainer = document.getElementById(ligueContainerId);
         this.ligueTitleId = ligueTitleId;
         this.init();
@@ -749,8 +728,8 @@ class ExpandableTable {
         if (this.resultsContainer) {
             this.resultsContainer.innerHTML = '';
         }
-        if (this.teamsContainer) {
-            this.teamsContainer.innerHTML = '';
+        if (this.mercatoContainer) {
+            this.mercatoContainer.innerHTML = '';
         }
         if (this.ligueContainer) {
             this.ligueContainer.innerHTML = '';
@@ -771,9 +750,9 @@ class ExpandableTable {
             resultsTitle.innerHTML = '';
         }
 
-        const teamsTitle = document.getElementById(this.teamsTitleId);
-        if (teamsTitle) {
-            teamsTitle.innerHTML = '';
+        const mercatoTitle = document.getElementById(this.mercatoTitleId);
+        if (mercatoTitle) {
+            mercatoTitle.innerHTML = '';
         }
 
         const ligueTitle = document.getElementById(this.ligueTitleId);
@@ -789,8 +768,8 @@ class ExpandableTable {
         this.data = null;
         this.resultsContainer = null;
         this.resultsTitleId = null;
-        this.teamsContainer = null;
-        this.teamsTitleId = null;
+        this.mercatoContainer = null;
+        this.mercatoTitleId = null;
         this.ligueContainer = null;
         this.ligueTitleId = null;
     }
@@ -817,11 +796,11 @@ class ExpandableTable {
         resultsSpan.innerHTML = `<p>${divisionName}</p>`;
         resultsTitle.appendChild(resultsSpan);
 
-        const teamsTitle = document.getElementById(this.teamsTitleId);
-        teamsTitle.innerHTML = '';
-        const teamsSpan = document.createElement('span');
-        teamsSpan.innerHTML = `<p>${divisionName}</p>`;
-        teamsTitle.appendChild(teamsSpan);
+        const mercatoTitle = document.getElementById(this.mercatoTitleId);
+        mercatoTitle.innerHTML = '';
+        const mercatoSpan = document.createElement('span');
+        mercatoSpan.innerHTML = `<p>${divisionName}</p>`;
+        mercatoTitle.appendChild(mercatoSpan);
 
         const ligueTitle = document.getElementById(this.ligueTitleId);
         ligueTitle.innerHTML = '';
@@ -832,7 +811,7 @@ class ExpandableTable {
         this.container.innerHTML = '';
         this.bonusContainer.innerHTML = '';
         this.resultsContainer.innerHTML = '';
-        this.teamsContainer.innerHTML = '';
+        this.mercatoContainer.innerHTML = '';
         this.ligueContainer.innerHTML = '';
 
         this.resultsContainer.appendChild(this.createResults(this.divNum));
@@ -846,8 +825,8 @@ class ExpandableTable {
         this.data.teams.forEach((mpgTeam, index) => {
             this.container.appendChild(this.createDataRow(mpgTeam, index));
             this.bonusContainer.appendChild(this.createBonusRow(mpgTeam));
-            this.teamsContainer.appendChild(this.createTeamsRow(mpgTeam));
         });
+        this.mercatoContainer.appendChild(this.createMercato());
     }
     
     createDataRow(mpgTeam, index) {
@@ -1161,66 +1140,58 @@ class ExpandableTable {
         return tr;
     }
 
-    createTeamsRow(mpgUser) {
-        const team = teamsOfDivision[this.divNum - 1]?.filter(it => it.teamNum === mpgUser.teamNum).slice().shift();
-
+    createMercato() {
         const tr = document.createElement('table');
-        tr.setAttribute('team-id', mpgUser.id);
+        tr.className = 'classement-table';
 
-        let tableHTML = `
-            `;
-
-        tableHTML += `
-            <table style="font-size: 1em; vertical-align: top; padding-right: 10px;">
-            <thead>
+        let tableHTML = `<thead>
                 <tr>
-                    <th style="font-size: 1em; vertical-align: top; padding-right: 10px;">Nom</th>
-                    <th style="font-size: 1em; vertical-align: top; padding-right: 10px;">Poste</th>
-                    <th style="font-size: 1em; vertical-align: top; padding-right: 10px;">Achat</th>
-                    <th style="font-size: 1em; vertical-align: top; padding-right: 10px;">Côte</th>
-                    <th style="font-size: 1em; vertical-align: top; padding-right: 10px;">Buts (réels/MPG)</th>
-                    <th style="font-size: 1em; vertical-align: top; padding-right: 10px;">Coût par but</th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Nom (poste)</th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Acheteur (tour)</th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Prix d'achat<br>Cote </th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Buts réels<br>Buts MPG</th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Coût par but</th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Nb enchères</th>
                 </tr>
             </thead>
             <tbody>
         `;
-        team.playersObtained/*.filter(currentPl => ["A"].includes(currentPl.player.fullplace))*/.forEach(currentPl => {
+
+        mercatos[this.divNum - 1]?.forEach(currentPl => {
+            // Concaténer le prénom et le nom du joueur, en gérant les cas où le prénom pourrait être manquant
+            let playerName = currentPl.player.firstname ? currentPl.player.firstname + ' ' : '';
+            playerName += currentPl.player.name + ' (' + currentPl.player.fullplace + ')';        
+
+            // Calcul du coût par but
+            const totalGoals = currentPl.nbGoal + currentPl.nbMPG;
+            const goalPrice = totalGoals ? (currentPl.priceBuy / totalGoals).toFixed(1) + ' M€' : '-';            
+            const cote = currentPl.player?.ratings[0]?.rate ?? '-';
+
             tableHTML += `
-            <tr>
-                            <td>
-                                <div style="text-align: center">${currentPl.player.name}</div>
-                            </td>
-                            <td>
-                                <div style="text-align: center">${currentPl.player.fullplace}</div>
-                            </td>
-                            <td>
-                                <div style="text-align: center">${currentPl.priceBuy} M€</div>
-                            </td>
-                            <td>
-                                <div style="text-align: center">${currentPl.player?.ratings[0]?.rate} M€</div>
-                            </td>
-                            <td>
-                                <div style="text-align: center">${currentPl.nbGoal} / ${currentPl.nbMPG}</div>
-                            </td>
-                            <td>
-                                <div style="text-align: center">${currentPl.priceBuy / (currentPl.nbGoal + currentPl.nbMPG)} M€</div>
-                            </td>
-                        </div>
-            </tr>
-                        `;
+                <tr>
+                    <td>
+                        <div style="font-size: 1em; text-align: center">${playerName}</div>
+                    </td>
+                    <td>
+                        <div style="font-size: 1em; text-align: center">${currentPl.MPGteam.name} (${currentPl.mercatoTurn})</div>
+                    </td>
+                    <td>
+                        <div style="font-size: 1em; text-align: center">${currentPl.priceBuy}<br>${cote}</div>
+                    </td>
+                    <td>
+                        <div style="font-size: 1em; text-align: center">${currentPl.nbGoal}<br>${currentPl.nbMPG}</div>
+                    </td>
+                    <td>
+                        <div style="font-size: 1em; text-align: center">${goalPrice}</div>
+                    </td>
+                    <td>
+                        <div style="font-size: 1em; text-align: center">${currentPl.mercatoNbBids}</div>
+                    </td>
+                </tr>
+            `;
         });
-                    // <td style="font-size: 1em; vertical-align: top; padding-right: 10px;">${currentPl.player.name}</td>
-                    // <td style="font-size: 1em; vertical-align: top; padding-right: 10px;">${currentPl.priceBuy} M€</td>
 
-        tableHTML += `
-                </div>  
-            </td>
-        `;
-
-        // <img title="${current.player.name} (${current.player.fullplace})" src="${current.player}" width="36.8" height="48" style="vertical-align: middle;">
-
-        tableHTML += `</table>`;
-        tr.innerHTML += `<div style="display: inline-flex; align-items: center; gap: 16px;">${mpgUser.name}</div>`;
+        tableHTML += `</tbody>`;
         tr.innerHTML += tableHTML;
         return tr;
     }
