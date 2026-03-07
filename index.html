@@ -41,6 +41,7 @@
                         <button class="tab-button active" data-tab="classement">📊 Classement</button>
                         <button class="tab-button" data-tab="bonus">🎁 Bonus</button>
                         <button class="tab-button" data-tab="results">📆 Calendrier</button>
+                        <button class="tab-button" data-tab="mercato">👥 Mercato</button>
                         <button class="tab-button" data-tab="cfg">⚙️ Configuration</button>
                     </div>
                 </li>
@@ -48,7 +49,6 @@
                     <button onclick="displayFrenchLigueCalendar()" id="calendar" class="tab-button" data-tab="calendrier">📆 Calendriers</button>
                 </li>
                 <!-- <li><button class="tab-button" data-tab="stats">📈 Statistiques</button></li> -->
-                <!-- <li><button class="tab-button" data-tab="equipes">👥 Équipes</button></li> -->
             </ul>
         </div>
 
@@ -132,11 +132,13 @@
                 </div>
             </div>
 
-            <!-- Onglet Équipes -->
-            <div id="equipes-tab" class="tab-content">
-                <div style="text-align: center;">
-                    <h2>Équipes</h2>
-                    <p style="margin-top: 20px; color: #666;">Contenu à venir...</p>
+            <!-- Onglet Mercato -->
+            <div id="mercato-tab" class="tab-content">
+                <div class="div-classement-select">
+                    <div class="division-tab-select-mercato"></div>
+                </div>
+                <div class="division-tabs">
+                    <div class="mercato-content"></div>
                 </div>
             </div>
 

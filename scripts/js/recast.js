@@ -1,4 +1,4 @@
-let codeLeague = "PNAL4RJN";
+let codeLeague = "PNAL4RJN"; // "T4D5JPZU";
 let seasonNum = undefined;
 let seasonNumChoice = undefined;
 let nbPlayers = 8;
@@ -12,6 +12,8 @@ let liveStandings = [[]];
 let calendarDiv = [[]];
 let divisions = [];
 let bonusesRules = [];
+let mercatos = [[]];
+
 
 function createDivisionPairs() {
     const numDivisions = nbDivisionsForSeason;
@@ -36,6 +38,12 @@ function createDivisionPairs() {
     tabSelectResults.innerHTML = '';
     resultsContent.innerHTML = '';
 
+    const tabSelectMercato = document.querySelector('.division-tab-select-mercato');
+    const mercatoContent = document.querySelector('.mercato-content');
+    if (!tabSelectMercato || !mercatoContent) return;
+    tabSelectMercato.innerHTML = '';
+    mercatoContent.innerHTML = '';
+
     const tabSelectLigue = document.querySelector('.division-tab-select-ligue');
     const ligueContent = document.querySelector('.ligue-content');
     if (!tabSelectLigue || !ligueContent) return;
@@ -54,6 +62,9 @@ function createDivisionPairs() {
 
     const selectResults = select.cloneNode(true);
     tabSelectResults.appendChild(selectResults);
+
+    const selectMercato = select.cloneNode(true);
+    tabSelectMercato.appendChild(selectMercato);
 
     const selectLigue = select.cloneNode(true);
     tabSelectLigue.appendChild(selectLigue);
@@ -78,6 +89,9 @@ function createDivisionPairs() {
 
         const optionResults = option.cloneNode(true);
         selectResults.appendChild(optionResults);
+
+        const optionMercato = option.cloneNode(true);
+        selectMercato.appendChild(optionMercato);
 
         const optionLigue = option.cloneNode(true);
         selectLigue.appendChild(optionLigue);
@@ -218,6 +232,36 @@ function createDivisionPairs() {
         pairResultsContent.innerHTML = htmlResults;
         resultsContent.appendChild(pairResultsContent);
 
+        const panelMercatoId = `panelMercato-${pairNum}`;
+        const pairMercatoContent = document.createElement('div');
+        pairMercatoContent.className = 'division-pair';
+        pairMercatoContent.id = panelMercatoId;
+        pairMercatoContent.setAttribute('role', 'region');
+        pairMercatoContent.setAttribute('aria-labelledby', `divisionPairLabel-${pairNum}`);
+        pairMercatoContent.hidden = (i !== 0);
+        
+        let htmlMercato = `
+            <div class="divisions">
+                <div id="mercatoDiv${div1}" class="division">
+                    <h2 id="mercatoTitle${div1}"></h2>
+                    <div id="mercatoBodyDiv${div1}">
+                    </div>
+                </div>
+        `;
+        if (div2) {
+            htmlMercato += `
+                <div id="mercatoDiv${div2}" class="division">
+                    <h2 id="mercatoTitle${div2}"></h2>
+                    <div id="mercatoBodyDiv${div2}">
+                    </div>
+                </div>
+            `;
+        }
+
+        htmlMercato += '</div>';
+        pairMercatoContent.innerHTML = htmlMercato;
+        mercatoContent.appendChild(pairMercatoContent);
+
         const panelLigueId = `panelLigue-${pairNum}`;
         const pairLigueContent = document.createElement('div');
         pairLigueContent.className = 'division-pair';
@@ -245,7 +289,7 @@ function createDivisionPairs() {
         pairLigueContent.innerHTML = htmlLigue;
         ligueContent.appendChild(pairLigueContent);
         
-        pairs.push({ pairNum, option, panel: pairContent, bonusPanel: pairBonusContent, resultsPanel: pairResultsContent, liguePanel: pairLigueContent });
+        pairs.push({ pairNum, option, panel: pairContent, bonusPanel: pairBonusContent, resultsPanel: pairResultsContent, mercatoPanel: pairMercatoContent, liguePanel: pairLigueContent });
     }
 
     // Helper pour charger une paire par son numéro
@@ -277,7 +321,7 @@ function createDivisionPairs() {
     }
 
     function activatePanel(pairNum) {
-        pairs.forEach(({pairNum: pn, panel, option, bonusPanel, resultsPanel, liguePanel}) => {
+        pairs.forEach(({pairNum: pn, panel, option, bonusPanel, resultsPanel, mercatoPanel, liguePanel}) => {
             const selected = pn === pairNum;
             panel.classList.toggle('active', selected);
             panel.hidden = !selected;
@@ -286,6 +330,8 @@ function createDivisionPairs() {
             bonusPanel.hidden = !selected;
             resultsPanel.classList.toggle('active', selected);
             resultsPanel.hidden = !selected;
+            mercatoPanel.classList.toggle('active', selected);
+            mercatoPanel.hidden = !selected;
             liguePanel.classList.toggle('active', selected);
             liguePanel.hidden = !selected;
         });
@@ -296,6 +342,7 @@ function createDivisionPairs() {
         const pairNum = parseInt(select.value, 10);
         selectBonus.selectedIndex = select.selectedIndex;
         selectResults.selectedIndex = select.selectedIndex;
+        selectMercato.selectedIndex = select.selectedIndex;
         selectLigue.selectedIndex = select.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
@@ -310,6 +357,7 @@ function createDivisionPairs() {
         const pairNum = parseInt(selectBonus.value, 10);
         select.selectedIndex = selectBonus.selectedIndex;
         selectResults.selectedIndex = selectBonus.selectedIndex;
+        selectMercato.selectedIndex = selectBonus.selectedIndex;
         selectLigue.selectedIndex = selectBonus.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
@@ -324,7 +372,23 @@ function createDivisionPairs() {
         const pairNum = parseInt(selectResults.value, 10);
         select.selectedIndex = selectResults.selectedIndex;
         selectBonus.selectedIndex = selectResults.selectedIndex;
+        selectMercato.selectedIndex = selectResults.selectedIndex;
         selectLigue.selectedIndex = selectResults.selectedIndex;
+
+        document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
+        showLoadingClassement();
+        loadPairByNum(pairNum).then(() => {
+            activatePanel(pairNum);
+            hideLoadingClassement();
+        });
+    });
+
+    selectMercato.addEventListener('change', () => {
+        const pairNum = parseInt(selectMercato.value, 10);
+        select.selectedIndex = selectMercato.selectedIndex;
+        selectBonus.selectedIndex = selectMercato.selectedIndex;
+        selectResults.selectedIndex = selectMercato.selectedIndex;
+        selectLigue.selectedIndex = selectMercato.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
         showLoadingClassement();
@@ -339,6 +403,7 @@ function createDivisionPairs() {
         select.selectedIndex = selectLigue.selectedIndex;
         selectBonus.selectedIndex = selectLigue.selectedIndex;
         selectResults.selectedIndex = selectLigue.selectedIndex;
+        selectMercato.selectedIndex = selectLigue.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
         showLoadingByType('Ligue');
@@ -353,6 +418,7 @@ function createDivisionPairs() {
         select.selectedIndex = 0;
         selectBonus.selectedIndex = 0;
         selectResults.selectedIndex = 0;
+        selectMercato.selectedIndex = 0;
         selectLigue.selectedIndex = 0;
         loadPairByNum(pairs[0].pairNum).then(() => {
             activatePanel(pairs[0].pairNum);
@@ -368,7 +434,8 @@ function getApiUrls(divisionNumber) {
     const codeLeagueAndSeasonNum = codeLeague + '_' + seasonNum;
     return {
         teams: `https://api.mlnstats.com/mpgleague/teams/${codeLeagueAndSeasonNum}_${divisionNumber}`,
-        matches: `https://api.mpgstats.fr/mpgleague/matches/${codeLeagueAndSeasonNum}_${divisionNumber}`
+        matches: `https://api.mpgstats.fr/mpgleague/matches/${codeLeagueAndSeasonNum}_${divisionNumber}`,
+        mercato: `https://api.mpgstats.fr/mpgleague/mercato/${codeLeagueAndSeasonNum}_${divisionNumber}`
     };
 }
 
@@ -404,13 +471,15 @@ function buildCalendarResults(matchesData, divIndex) {
 
 async function loadDivisionData(divisionNumber, urls) {
     try {
-        const [teamsResponse, matchesResponse] = await Promise.all([
+        const [teamsResponse, matchesResponse, mercatoResponse] = await Promise.all([
             fetch(urls.teams),
-            fetch(urls.matches)
+            fetch(urls.matches),
+            fetch(urls.mercato)
         ]);
 
         const teamsData = await teamsResponse.json();
         const matchesData = await matchesResponse.json();
+        const mercatoData = await mercatoResponse.json();
 
         // Normaliser l'indexation : nos tableaux internes sont 0-based, les divisions sont 1-based
         const divIndex = divisionNumber - 1;
@@ -418,11 +487,14 @@ async function loadDivisionData(divisionNumber, urls) {
         // Stocker les équipes (provenant de l'API teams)
         teamsOfDivision[divIndex] = teamsData?.teams || [];
 
+        mercatos[divIndex] = mercatoData || [];
+
         // Nettoyer les anciens containers DOM
         const classementBody = document.getElementById(`classementBodyDiv${divisionNumber}`);
         if (classementBody) classementBody.innerHTML = '';
         const divisionTitle = document.getElementById(`divisionTitle${divisionNumber}`);
         if (divisionTitle) divisionTitle.innerHTML = '';
+
         const bonusBody = document.getElementById(`bonusBodyDiv${divisionNumber}`);
         if (bonusBody) bonusBody.innerHTML = '';
         const bonusDivisionTitle = document.getElementById(`bonusDivisionTitle${divisionNumber}`);
@@ -432,6 +504,11 @@ async function loadDivisionData(divisionNumber, urls) {
         if (resultsTitle) resultsTitle.innerHTML = '';
         const resultsBody = document.getElementById(`resultsBodyDiv${divisionNumber}`);
         if (resultsBody) resultsBody.innerHTML = '';
+
+        const mercatoTitle = document.getElementById(`mercatoTitle${divisionNumber}`);
+        if (mercatoTitle) mercatoTitle.innerHTML = '';
+        const mercatoBody = document.getElementById(`mercatoBodyDiv${divisionNumber}`);
+        if (mercatoBody) mercatoBody.innerHTML = '';
 
         // Récupérer et stocker les données de classement et calendrier
         nbPlayers = matchesData?.division?.teams?.length || nbPlayers;
@@ -480,7 +557,9 @@ async function loadDivisionData(divisionNumber, urls) {
             `resultsBodyDiv${divisionNumber}`,
             `resultsTitle${divisionNumber}`,
             `ligueBodyDiv${divisionNumber}`,
-            `ligueTitle${divisionNumber}`
+            `ligueTitle${divisionNumber}`,
+            `mercatoBodyDiv${divisionNumber}`,
+            `mercatoTitle${divisionNumber}`
         ));
     } catch (error) {
         console.error(`Error loading division ${divisionNumber} data:`, error);
@@ -604,7 +683,7 @@ let expandableTables = [];
 
 // Classe pour gérer le tableau extensible
 class ExpandableTable {
-    constructor(containerId, divisionTitleId, data, bonusContainerId, bonusDivisionTitleId, resultsContainerId, resultsTitleId, ligueContainerId, ligueTitleId) {
+    constructor(containerId, divisionTitleId, data, bonusContainerId, bonusDivisionTitleId, resultsContainerId, resultsTitleId, ligueContainerId, ligueTitleId, mercatoContainerId, mercatoTitleId) {
         this.container = document.getElementById(containerId);
         this.bonusContainer = document.getElementById(bonusContainerId);
         this.divisionTitleId = divisionTitleId;
@@ -614,6 +693,8 @@ class ExpandableTable {
         this.clickHandler = null; // Référence à l'écouteur de clic
         this.resultsContainer = document.getElementById(resultsContainerId);
         this.resultsTitleId = resultsTitleId;
+        this.mercatoContainer = document.getElementById(mercatoContainerId);
+        this.mercatoTitleId = mercatoTitleId;
         this.ligueContainer = document.getElementById(ligueContainerId);
         this.ligueTitleId = ligueTitleId;
         this.init();
@@ -647,6 +728,9 @@ class ExpandableTable {
         if (this.resultsContainer) {
             this.resultsContainer.innerHTML = '';
         }
+        if (this.mercatoContainer) {
+            this.mercatoContainer.innerHTML = '';
+        }
         if (this.ligueContainer) {
             this.ligueContainer.innerHTML = '';
         }
@@ -666,6 +750,11 @@ class ExpandableTable {
             resultsTitle.innerHTML = '';
         }
 
+        const mercatoTitle = document.getElementById(this.mercatoTitleId);
+        if (mercatoTitle) {
+            mercatoTitle.innerHTML = '';
+        }
+
         const ligueTitle = document.getElementById(this.ligueTitleId);
         if (ligueTitle) {
             ligueTitle.innerHTML = '';
@@ -678,8 +767,10 @@ class ExpandableTable {
         this.bonusDivisionTitleId = null;
         this.data = null;
         this.resultsContainer = null;
-        this.ligueContainer = null;
         this.resultsTitleId = null;
+        this.mercatoContainer = null;
+        this.mercatoTitleId = null;
+        this.ligueContainer = null;
         this.ligueTitleId = null;
     }
 
@@ -705,6 +796,12 @@ class ExpandableTable {
         resultsSpan.innerHTML = `<p>${divisionName}</p>`;
         resultsTitle.appendChild(resultsSpan);
 
+        const mercatoTitle = document.getElementById(this.mercatoTitleId);
+        mercatoTitle.innerHTML = '';
+        const mercatoSpan = document.createElement('span');
+        mercatoSpan.innerHTML = `<p>${divisionName}</p>`;
+        mercatoTitle.appendChild(mercatoSpan);
+
         const ligueTitle = document.getElementById(this.ligueTitleId);
         ligueTitle.innerHTML = '';
         const ligueSpan = document.createElement('span');
@@ -714,6 +811,7 @@ class ExpandableTable {
         this.container.innerHTML = '';
         this.bonusContainer.innerHTML = '';
         this.resultsContainer.innerHTML = '';
+        this.mercatoContainer.innerHTML = '';
         this.ligueContainer.innerHTML = '';
 
         this.resultsContainer.appendChild(this.createResults(this.divNum));
@@ -728,6 +826,7 @@ class ExpandableTable {
             this.container.appendChild(this.createDataRow(mpgTeam, index));
             this.bonusContainer.appendChild(this.createBonusRow(mpgTeam));
         });
+        this.mercatoContainer.appendChild(this.createMercato());
     }
     
     createDataRow(mpgTeam, index) {
@@ -1037,6 +1136,67 @@ class ExpandableTable {
         }
 
         tableHTML += `</tr>`;
+        tr.innerHTML += tableHTML;
+        return tr;
+    }
+
+    createMercato() {
+        const tr = document.createElement('table');
+        tr.className = 'classement-table';
+
+        let tableHTML = `<thead>
+                <tr>
+                    <th style="vertical-align: top; padding-right: 10px;">Joueur (poste)</th>
+                    <th style="vertical-align: top; padding-right: 10px;">Acheteur (tour)</th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Prix d'achat<br>Cote </th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Buts réels<br>Buts MPG</th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Coût par but</th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Nb enchères</th>
+                </tr>
+            </thead>
+            <tbody>
+        `;
+
+        mercatos[this.divNum - 1]?.forEach(currentPl => {
+            // Concaténer le prénom et le nom du joueur, en gérant les cas où le prénom pourrait être manquant
+            let playerName = currentPl.player.firstname ? currentPl.player.firstname + ' ' : '';
+            playerName += currentPl.player.name + ' (' + currentPl.player.fullplace + ')';        
+
+            // Calcul du coût par but
+            const totalGoals = currentPl.nbGoal + currentPl.nbMPG;
+            const goalPrice = totalGoals ? (currentPl.priceBuy / totalGoals).toFixed(1) + ' M€' : '-';            
+            const cote = currentPl.player?.ratings[0]?.rate ?? '-';
+
+            // Construction de la liste des enchères pour le tooltip par order décroissant du prix
+            const bids = currentPl.bids?.sort((a, b) => b.price - a.price).map(bid => {
+                return `${bid.price} M€ : ${bid.MPGteam.name}`;
+            }).join('\n');
+
+            tableHTML += `
+                <tr>
+                    <td>
+                        <div>${playerName}</div>
+                    </td>
+                    <td>
+                        <div>${currentPl.MPGteam.name} (${currentPl.mercatoTurn})</div>
+                    </td>
+                    <td>
+                        <div style="text-align: center">${currentPl.priceBuy}<br>${cote}</div>
+                    </td>
+                    <td>
+                        <div style="text-align: center">${currentPl.nbGoal}<br>${currentPl.nbMPG}</div>
+                    </td>
+                    <td>
+                        <div style="text-align: center">${goalPrice}</div>
+                    </td>
+                    <td title="${bids}">
+                        <div style="text-align: center">${currentPl.mercatoNbBids}</div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tableHTML += `</tbody>`;
         tr.innerHTML += tableHTML;
         return tr;
     }
