@@ -1,4 +1,4 @@
-let codeLeague = "PNAL4RJN"; // "T4D5JPZU";
+let codeLeague = "PNAL4RJN";
 let seasonNum = undefined;
 let seasonNumChoice = undefined;
 let nbPlayers = 8;
@@ -1141,10 +1141,62 @@ class ExpandableTable {
     }
 
     createMercato() {
-        const tr = document.createElement('table');
-        tr.className = 'classement-table';
+        const containerMercato = document.createElement('div');
+        containerMercato.id = `mercato-${this.divNum}`;
 
-        let tableHTML = `<thead>
+        const containerFilters = document.createElement('div');
+        containerFilters.id = `mercato-filters-${this.divNum}`;
+        containerFilters.className = 'mercato-filter-selector';
+        containerFilters.style.display = 'flex';
+        containerFilters.style.padding = '10px 5px';
+        containerFilters.style.gap = '10px';
+        containerMercato.appendChild(containerFilters); 
+
+        // Filtrage par acheteur
+        const filterBuyerDiv = document.createElement('div');
+        filterBuyerDiv.id = `mercato-filter-buyer-${this.divNum}`;
+        const filterBuyerInput = document.createElement('input');
+        filterBuyerInput.id = `buyerFilter-${this.divNum}`;
+        filterBuyerInput.type = 'text';
+        filterBuyerInput.placeholder = 'Filtrer par acheteur';
+        filterBuyerInput.style.padding = '5px';
+        filterBuyerInput.style.width = '200px';
+        filterBuyerDiv.appendChild(filterBuyerInput);
+        containerFilters.appendChild(filterBuyerDiv);
+
+        // Filtrage par tour de mercato
+        const filterTurnDiv = document.createElement('div');
+        filterTurnDiv.id = `mercato-filter-turn-${this.divNum}`;
+        const filterTurnSelect = document.createElement('select');
+        filterTurnSelect.id = `turnFilter-${this.divNum}`;
+        filterTurnSelect.className = 'division-pair-select';
+        filterTurnSelect.style.padding = '5px';
+        filterTurnSelect.style.width = '200px';
+        filterTurnSelect.style.height = '33px';
+
+        // Option par défaut
+        const optionAll = document.createElement('option');
+        optionAll.value = '';
+        optionAll.textContent = 'Tous les tours';
+        filterTurnSelect.appendChild(optionAll);
+        
+        // Extraire les valeurs uniques de mercatoTurn
+        const uniqueTurns = [...new Set(mercatos[this.divNum - 1]?.map(pl => pl.mercatoTurn) || [])].sort();
+        uniqueTurns.forEach(turn => {
+            const option = document.createElement('option');
+            option.value = turn;
+            option.textContent = `Tour ${turn}`;
+            filterTurnSelect.appendChild(option);
+        });
+        
+        filterTurnDiv.appendChild(filterTurnSelect);
+        containerFilters.appendChild(filterTurnDiv);
+
+        const table = document.createElement('table');
+        table.className = 'classement-table';
+
+        let tableHTML = `
+            <thead>
                 <tr>
                     <th style="vertical-align: top; padding-right: 10px;">Joueur (poste)</th>
                     <th style="vertical-align: top; padding-right: 10px;">Acheteur (tour)</th>
@@ -1174,31 +1226,53 @@ class ExpandableTable {
 
             tableHTML += `
                 <tr>
-                    <td>
-                        <div>${playerName}</div>
-                    </td>
-                    <td>
-                        <div>${currentPl.MPGteam.name} (${currentPl.mercatoTurn})</div>
-                    </td>
-                    <td>
-                        <div style="text-align: center">${currentPl.priceBuy}<br>${cote}</div>
-                    </td>
-                    <td>
-                        <div style="text-align: center">${currentPl.nbGoal}<br>${currentPl.nbMPG}</div>
-                    </td>
-                    <td>
-                        <div style="text-align: center">${goalPrice}</div>
-                    </td>
-                    <td title="${bids}">
-                        <div style="text-align: center">${currentPl.mercatoNbBids}</div>
-                    </td>
+                    <td><div>${playerName}</div></td>
+                    <td><div>${currentPl.MPGteam.name} (${currentPl.mercatoTurn})</div></td>
+                    <td><div style="text-align: center">${currentPl.priceBuy}<br>${cote}</div></td>
+                    <td><div style="text-align: center">${currentPl.nbGoal}<br>${currentPl.nbMPG}</div></td>
+                    <td><div style="text-align: center">${goalPrice}</div></td>
+                    <td title="${bids}"><div style="text-align: center">${currentPl.mercatoNbBids}</div></td>
                 </tr>
             `;
         });
 
         tableHTML += `</tbody>`;
-        tr.innerHTML += tableHTML;
-        return tr;
+        table.innerHTML += tableHTML;
+        containerMercato.appendChild(table);
+
+        // Fonction pour appliquer les deux filtres ensemble
+        const applyFilters = () => {
+            const buyerFilterValue = filterBuyerInput.value.toLowerCase();
+            const turnFilterValue = filterTurnSelect.value;
+            const tbody = table.querySelector('tbody');
+            const rows = tbody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const buyerCell = row.cells[1]; // Colonne Acheteur (tour)
+                const buyerText = buyerCell ? buyerCell.textContent : '';
+                
+                // Vérifier le filtre sur l'acheteur
+                const buyerMatch = buyerText.toLowerCase().includes(buyerFilterValue);
+                
+                // Extraire et vérifier le tour
+                const turnMatch = buyerText.match(/\((\d+)\)$/);
+                const turn = turnMatch ? turnMatch[1] : '';
+                const turnFilter = turnFilterValue === '' ? true : turn === turnFilterValue;
+                
+                // Afficher la ligne seulement si TOUS les deux critères sont satisfaits
+                if (buyerMatch && turnFilter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        };
+
+        // Ajouter les événements de filtrage qui appliquent les deux filtres ensemble
+        filterBuyerInput.addEventListener('input', applyFilters);
+        filterTurnSelect.addEventListener('change', applyFilters);
+
+        return containerMercato;
     }
 
     createResults(divNum) {
