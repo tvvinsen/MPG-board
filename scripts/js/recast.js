@@ -664,6 +664,13 @@ leagues.set("U3VWU7K8", "👑King’s Ligue 1👑");
 // trier la map leagues par ordre alphabétique de la valeur
 leagues = new Map([...leagues.entries()].sort((a, b) => a[1].localeCompare(b[1])));
 
+// Ajouter une option vide pour permettre de revenir à la sélection manuelle
+const emptyOption = document.createElement('option');
+emptyOption.value = '';
+emptyOption.textContent = '';
+emptyOption.className = 'division-pair-select';
+otherLeaguesSelect.appendChild(emptyOption);
+
 // parcourir la map leagues pour ajouter dans une liste les clés et valeurs
 leagues.forEach((value, key) => {
     const option = document.createElement('option');
