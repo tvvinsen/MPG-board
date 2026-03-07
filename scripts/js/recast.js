@@ -1261,13 +1261,14 @@ class ExpandableTable {
                 const aText = a.cells[colIndex].textContent.trim();
                 const bText = b.cells[colIndex].textContent.trim();
 
-                // tenter conversion numérique
-                const aNum = parseFloat(aText.replace(/[^0-9.-]/g, ''));
-                const bNum = parseFloat(bText.replace(/[^0-9.-]/g, ''));
-                if (!isNaN(aNum) && !isNaN(bNum)) {
-                    return ascending ? aNum - bNum : bNum - aNum;
+                if (colIndex >= 2) { // tri numérique pour les colonnes à partir de "Prix d'achat"
+                    const aNum = parseFloat(aText);
+                    const bNum = parseFloat(bText);
+                    if (!isNaN(aNum) && !isNaN(bNum)) {
+                        return ascending ? aNum - bNum : bNum - aNum;
+                    }
                 }
-                // fallback chaîne
+                // fallback tri alphabétique pour les colonnes de texte
                 return ascending ? aText.localeCompare(bText) : bText.localeCompare(aText);
             });
 
