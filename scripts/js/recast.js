@@ -1224,7 +1224,7 @@ class ExpandableTable {
             // Calcul du coût par but
             const totalGoals = currentPl.nbGoal + currentPl.nbMPG;
             const goalPrice = totalGoals ? (currentPl.priceBuy / totalGoals).toFixed(1) + ' M€' : '-';            
-            const cote = currentPl.player?.ratings[0]?.rate ?? '-';
+            const cote = currentPl.player?.ratings[0]?.rate ?? '0';
 
             // Construction de la liste des enchères pour le tooltip par order décroissant du prix
             const bids = currentPl.bids?.sort((a, b) => b.price - a.price).map(bid => {
@@ -1247,11 +1247,44 @@ class ExpandableTable {
         table.innerHTML += tableHTML;
         containerMercato.appendChild(table);
 
+        // --- tri des colonnes ---
+        const sortStates = new Map(); // clé=indice colonne, valeur=asc/desc
+        const tbody = table.querySelector('tbody');
+        const headers = table.querySelectorAll('th');
+
+        const sortRows = (colIndex) => {
+            let ascending = sortStates.get(colIndex) !== 'asc';
+            sortStates.set(colIndex, ascending ? 'asc' : 'desc');
+
+            const rowsArray = Array.from(tbody.querySelectorAll('tr'));
+            rowsArray.sort((a, b) => {
+                const aText = a.cells[colIndex].textContent.trim();
+                const bText = b.cells[colIndex].textContent.trim();
+
+                // tenter conversion numérique
+                const aNum = parseFloat(aText.replace(/[^0-9.-]/g, ''));
+                const bNum = parseFloat(bText.replace(/[^0-9.-]/g, ''));
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                    return ascending ? aNum - bNum : bNum - aNum;
+                }
+                // fallback chaîne
+                return ascending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+            });
+
+            // réinsérer
+            rowsArray.forEach(row => tbody.appendChild(row));
+        };
+
+        headers.forEach((th, index) => {
+            th.style.cursor = 'pointer';
+            th.addEventListener('click', () => sortRows(index));
+        });
+        // -----------------------
+
         // Fonction pour appliquer les deux filtres ensemble
         const applyFilters = () => {
             const buyerFilterValue = filterBuyerInput.value.toLowerCase();
             const turnFilterValue = filterTurnSelect.value;
-            const tbody = table.querySelector('tbody');
             const rows = tbody.querySelectorAll('tr');
             
             rows.forEach(row => {
