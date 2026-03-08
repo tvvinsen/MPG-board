@@ -1205,12 +1205,13 @@ class ExpandableTable {
         let tableHTML = `
             <thead>
                 <tr>
-                    <th style="vertical-align: top; padding-right: 10px;">Joueur (poste)</th>
-                    <th style="vertical-align: top; padding-right: 10px;">Acheteur (tour)</th>
-                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Prix d'achat<br>Cote </th>
-                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Buts réels<br>Buts MPG</th>
-                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Coût par but</th>
-                    <th style="text-align: center; vertical-align: top; padding-right: 10px;">Nb enchères</th>
+                    <th style="vertical-align: top; padding-right: 10px;width: 25%">Joueur (poste)</th>
+                    <th style="vertical-align: top; padding-right: 10px;width: 25%">Acheteur (tour)</th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 12%">Prix d'achat<br>Cote </th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 11%">Buts réels<br>Buts MPG</th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 11%">M€/but</th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 6%">Nb enchères</th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 10%">Note moyenne</th>
                 </tr>
             </thead>
             <tbody>
@@ -1223,7 +1224,7 @@ class ExpandableTable {
 
             // Calcul du coût par but
             const totalGoals = currentPl.nbGoal + currentPl.nbMPG;
-            const goalPrice = totalGoals ? (currentPl.priceBuy / totalGoals).toFixed(1) + ' M€' : '-';            
+            const goalPrice = totalGoals ? (currentPl.priceBuy / totalGoals).toFixed(1) : '-';            
             const cote = currentPl.player?.ratings[0]?.rate ?? '0';
 
             // Construction de la liste des enchères pour le tooltip par order décroissant du prix
@@ -1231,14 +1232,18 @@ class ExpandableTable {
                 return `${bid.price} M€ : ${bid.MPGteam.name}`;
             }).join('\n');
 
+            const nbMatchJoues = currentPl.nbTitu + currentPl.nbRemp;
+            const noteMoyenne = nbMatchJoues > 0 ? ((currentPl.sumNoteTitu + currentPl.sumNoteRemp) / nbMatchJoues).toFixed(2) : '-';
+
             tableHTML += `
                 <tr>
                     <td><div>${playerName}</div></td>
-                    <td><div>${currentPl.MPGteam.name} (${currentPl.mercatoTurn})</div></td>
+                    <td title="Tour ${currentPl.mercatoTurn}"><div>${currentPl.MPGteam.name}</div></td>
                     <td><div style="text-align: center">${currentPl.priceBuy}<br>${cote}</div></td>
                     <td><div style="text-align: center">${currentPl.nbGoal}<br>${currentPl.nbMPG}</div></td>
                     <td><div style="text-align: center">${goalPrice}</div></td>
                     <td title="${bids}"><div style="text-align: center">${currentPl.mercatoNbBids}</div></td>
+                    <td><div style="text-align: center">${noteMoyenne}</div></td>
                 </tr>
             `;
         });
@@ -1296,7 +1301,8 @@ class ExpandableTable {
                 const buyerMatch = buyerText.toLowerCase().includes(buyerFilterValue);
                 
                 // Extraire et vérifier le tour
-                const turnMatch = buyerText.match(/\((\d+)\)$/);
+                const buyerTitle = buyerCell ? buyerCell.title : '';
+                const turnMatch = buyerTitle.match(/Tour (\d+)$/);
                 const turn = turnMatch ? turnMatch[1] : '';
                 const turnFilter = turnFilterValue === '' ? true : turn === turnFilterValue;
                 
