@@ -1206,8 +1206,8 @@ class ExpandableTable {
             <thead>
                 <tr>
                     <th style="vertical-align: top; padding-right: 10px;width: 25%">Joueur (poste)</th>
-                    <th style="vertical-align: top; padding-right: 10px;width: 25%">Acheteur (tour)</th>
-                    <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 12%">Prix d'achat<br>Cote </th>
+                    <th style="vertical-align: top; padding-right: 10px;width: 25%">Acheteur</th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 12%">Prix d'achat<br>Cote (M€)</th>
                     <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 11%">Buts réels<br>Buts MPG</th>
                     <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 11%">M€/but</th>
                     <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 6%">Nb enchères</th>
@@ -1294,7 +1294,7 @@ class ExpandableTable {
             const rows = tbody.querySelectorAll('tr');
             
             rows.forEach(row => {
-                const buyerCell = row.cells[1]; // Colonne Acheteur (tour)
+                const buyerCell = row.cells[1]; // Colonne Acheteur
                 const buyerText = buyerCell ? buyerCell.textContent : '';
                 
                 // Vérifier le filtre sur l'acheteur
