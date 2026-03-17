@@ -1207,7 +1207,7 @@ class ExpandableTable {
                 <tr>
                     <th style="vertical-align: top; padding-right: 10px;width: 25%">Joueur (poste)</th>
                     <th style="vertical-align: top; padding-right: 10px;width: 25%">Acheteur</th>
-                    <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 12%">Prix d'achat<br>Cote (M€)</th>
+                    <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 12%">Achat (M€)<br>Cote (M€)</th>
                     <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 11%">Buts réels<br>Buts MPG</th>
                     <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 11%">M€/but</th>
                     <th style="text-align: center; vertical-align: top; padding-right: 10px;width: 6%">Nb enchères</th>
@@ -1266,7 +1266,7 @@ class ExpandableTable {
                 const aText = a.cells[colIndex].textContent.trim();
                 const bText = b.cells[colIndex].textContent.trim();
 
-                if (colIndex >= 2) { // tri numérique pour les colonnes à partir de "Prix d'achat"
+                if (colIndex >= 2) { // tri numérique pour les colonnes à partir de "Achat"
                     const aNum = parseFloat(aText);
                     const bNum = parseFloat(bText);
                     if (!isNaN(aNum) && !isNaN(bNum)) {
