@@ -172,9 +172,9 @@ function createDivisionPairs() {
                         <thead>
                             <tr>
                                 <th>Equipe</th>
-                                <th style="text-align: center">Bonus disponibles</th>
-                                <th style="text-align: center">Bonus joués</th>
-                                <th style="text-align: center">Bonus encaissés</th>
+                                <th>Bonus disponibles</th>
+                                <th>Bonus joués</th>
+                                <th>Bonus encaissés</th>
                             </tr>
                         </thead>
                         <tbody id="bonusBodyDiv${div1}"></tbody>
@@ -189,9 +189,9 @@ function createDivisionPairs() {
                         <thead>
                             <tr>
                                 <th>Equipe</th>
-                                <th style="text-align: center">Bonus disponibles</th>
-                                <th style="text-align: center">Bonus joués</th>
-                                <th style="text-align: center">Bonus encaissés</th>
+                                <th>Bonus disponibles</th>
+                                <th>Bonus joués</th>
+                                <th>Bonus encaissés</th>
                             </tr>
                         </thead>
                         <tbody id="bonusBodyDiv${div2}"></tbody>
