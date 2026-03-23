@@ -1636,14 +1636,14 @@ function loadLeague(newLeagueCode) {
 
 function bonusDetails() {
     const bonusMap = new Map();
-    bonusMap.set("valise", ["Valise à Nanard", bonusesRules.valise, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
-    bonusMap.set("uber", ["McDo+", bonusesRules.uber, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
-    bonusMap.set("suarez", ["Suarez", bonusesRules.suarez, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
-    bonusMap.set("zahia", ["Zahia", bonusesRules.zahia, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
-    bonusMap.set("miroir", ["Miroir", bonusesRules.miroir, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
-    bonusMap.set("tonton", ["Tonton Pat'", bonusesRules.tonton, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
-    bonusMap.set("decat", ["4 Decat", bonusesRules.decat, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
-    bonusMap.set("cheat", ["Cheat Code 18-26", bonusesRules.cheat, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
+    bonusMap.set("valise", ["Valise à Nanard", bonusesRules.valise ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
+    bonusMap.set("uber", ["McDo+", bonusesRules.uber ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
+    bonusMap.set("suarez", ["Suarez", bonusesRules.suarez ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
+    bonusMap.set("zahia", ["Zahia", bonusesRules.zahia ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
+    bonusMap.set("miroir", ["Miroir", bonusesRules.miroir ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
+    bonusMap.set("tonton", ["Tonton Pat'", bonusesRules.tonton ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
+    bonusMap.set("decat", ["4 Decat", bonusesRules.decat ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
+    bonusMap.set("cheat", ["Cheat Code 18-26", bonusesRules.cheat ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
     return Object.freeze(bonusMap);
 }
 
