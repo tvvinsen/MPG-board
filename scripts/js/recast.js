@@ -13,7 +13,7 @@ let calendarDiv = [[]];
 let divisions = [];
 let bonusesRules = [];
 let mercatos = [[]];
-
+let baseBonusDetails = new Map();
 
 function createDivisionPairs() {
     const numDivisions = nbDivisionsForSeason;
@@ -455,7 +455,7 @@ function initializeData() {
 function buildCalendarResults(matchesData, divIndex) {
 
     calendarDiv[divIndex].forEach((cal, idxDay) => {
-        cal.matches.forEach((calDay, idxMatch) => {
+        cal.matches.forEach((calDay) => {
             calDay.homePlayer = teamsOfDivision[divIndex]?.filter(it => it.teamNum === calDay[0]).slice().shift();
             calDay.awayPlayer = teamsOfDivision[divIndex]?.filter(it => it.teamNum === calDay[1]).slice().shift();
 
@@ -517,6 +517,34 @@ async function loadDivisionData(divisionNumber, urls) {
         calendarDiv[divIndex] = matchesData?.calendar || [];
         bonusesRules = matchesData?.division.bonusesRules || [];
 
+        // Adapter les règles de bonus en fonction de la date de création de la division pour gérer le remplacement du bonus Chapron par le bonus Cheat à partir d'août 2025
+        const isBonusChapronReplaced = matchesData?.division?.MPGcreatedAt && new Date(matchesData.division.MPGcreatedAt) >= new Date('2025-08-01');
+        if (isBonusChapronReplaced) {
+            bonusesRules.chapron = undefined;
+            if (nbPlayers > 7) {
+                bonusesRules.cheat = 1;
+                bonusesRules.tonton = 1;
+            }
+        } else {
+            if (nbPlayers > 7) {
+                bonusesRules.chapron = 1;
+                bonusesRules.cheat = undefined;
+                bonusesRules.tonton = 1;
+            }
+        }
+        // Adapter le nombre de bonus Uber en fonction du nombre de joueurs dans la division
+        switch (nbPlayers) {
+            case 4:
+                bonusesRules.uber = 1;
+                break;
+            case 6:
+                bonusesRules.uber = 2;
+                break;
+            default:
+                bonusesRules.uber = 3;
+        }
+        baseBonusDetails = bonusDetails();
+
         // Associer les résultats des matchs au calendrier des matchs pour afficher dans l'onglet de résultats
         buildCalendarResults(matchesData, divIndex);
 
@@ -527,8 +555,8 @@ async function loadDivisionData(divisionNumber, urls) {
                 const opponentTeam = matchesData?.division?.teams?.filter(team => team.id == day.o).slice().shift();
                 const opponentPlayerName = farmersPlayers().get(opponentTeam.MPGuserId) || opponentTeam.name;
 
-                // Filtrer les bonus non pertinents (0 : Capitaine, 6 : Chapron, 8 : 4 défenseurs, 9 : 5 défenseurs)
-                const idxBonus = day?.b?.filter(bonus => ![0, 6, 8, 9].includes(bonus)).flatMap(bonus => bonus);
+                // Filtrer les bonus non pertinents (0 : Capitaine, 8 : 4 défenseurs, 9 : 5 défenseurs)
+                const idxBonus = day?.b?.filter(bonus => ![0, 8, 9].includes(bonus)).flatMap(bonus => bonus);
 
                 // Construire une map des bonus ciblés pour chaque opposant
                 const keyOpponentId = day.o;
@@ -898,7 +926,7 @@ class ExpandableTable {
 
         mpgTeam.timeline
             .slice(-5)  // Garder uniquement les 5 derniers éléments
-            .forEach((day, index) => {
+            .forEach((day) => {
                 // Sommer les buts réels marqués
                 let butsGP = day.G?.flatMap(obj => Object.values(obj))
                     .reduce((a, b) => a + b, 0) || 0;
@@ -911,7 +939,7 @@ class ExpandableTable {
                 const currentTeamName = farmersPlayers().get(mpgTeam.MPGuserId) || mpgTeam.name;
 
                 // Identifier le joueur adverse à partir de son ID
-                const opponentTeam = this.data.teams.filter(team => team.id == day.o).slice().shift();
+                const opponentTeam = this.data.teams.filter(team => team.id === day.o).slice().shift();
                 const opponentPlayerName = farmersPlayers().get(opponentTeam.MPGuserId) || opponentTeam.name;
 
                 // Construction du titre de l'icône
@@ -965,10 +993,10 @@ class ExpandableTable {
                 <h4>Informations du joueur ${mpgUser.name} (${mpgUser.abbr})</h4>
         `;
 
-        const nbBonusDefault = Array.from(bonusDetails().entries()).map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);   
+        const nbBonusDefault = Array.from(baseBonusDetails.entries()).map(([, [, compteur]]) => compteur).reduce((a, b) => a + b, 0);
         const bonusCount = getBonusCountUpdated(mpgUser.bonusTab);
-        const availableBonuses = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
-        const nbAvailableBonuses = availableBonuses.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+        const availableBonuses = Array.from(bonusCount.entries()).filter(([, [, compteur]]) => compteur > 0);
+        const nbAvailableBonuses = availableBonuses.map(([, [, compteur]]) => compteur).reduce((a, b) => a + b, 0);
         
         let tableHTML = '<table><tr>';
 
@@ -977,7 +1005,7 @@ class ExpandableTable {
                 <td style="vertical-align: top; padding-right: 16px;">
                     <div>Bonus disponible${nbAvailableBonuses > 1 ? "s" : ""} (${nbAvailableBonuses}/${nbBonusDefault})</div>
                     <div id="dispos" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
-                        ${availableBonuses.map(([nom, [description, compteur, linkImg]]) => `
+                        ${availableBonuses.map(([, [description, compteur, linkImg]]) => `
                             <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                 ${Array.from({ length: compteur }, 
                                     () => `<img title="${description}" src="${linkImg}" width="36.8" height="48" style="vertical-align: middle;">`).join('')}
@@ -1380,10 +1408,10 @@ class ExpandableTable {
         }
 
         matchDay?.matches.forEach(journee => {
-            const idMpgUserHome = this.data.teams.filter(team => team.teamNum == journee.homePlayer.teamNum).slice().shift().MPGuserId;
+            const idMpgUserHome = this.data.teams.filter(team => team.teamNum === journee.homePlayer.teamNum).slice().shift().MPGuserId;
             const firstnameHome = farmersPlayers().get(idMpgUserHome) ?? '';
 
-            const idMpgUserAway = this.data.teams.filter(team => team.teamNum == journee.awayPlayer.teamNum).slice().shift().MPGuserId;
+            const idMpgUserAway = this.data.teams.filter(team => team.teamNum === journee.awayPlayer.teamNum).slice().shift().MPGuserId;
             const firstnameAway = farmersPlayers().get(idMpgUserAway) ?? '';
 
             tableHTML += `
@@ -1634,15 +1662,26 @@ function loadLeague(newLeagueCode) {
 
 function bonusDetails() {
     const bonusMap = new Map();
-    bonusMap.set("valise", ["Valise à Nanard", bonusesRules.valise ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
-    bonusMap.set("uber", ["McDo+", bonusesRules.uber ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
-    bonusMap.set("suarez", ["Suarez", bonusesRules.suarez ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
-    bonusMap.set("zahia", ["Zahia", bonusesRules.zahia ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
-    bonusMap.set("miroir", ["Miroir", bonusesRules.miroir ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/miroir_DPKQOLRY_3fa41cbb7a.png"]);
-    bonusMap.set("tonton", ["Tonton Pat'", bonusesRules.tonton ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
-    bonusMap.set("decat", ["4 Decat", bonusesRules.decat ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
-    bonusMap.set("cheat", ["Cheat Code 18-26", bonusesRules.cheat ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
-    return Object.freeze(bonusMap);
+    if (bonusesRules.valise)
+        bonusMap.set("valise", ["Valise à Nanard", bonusesRules.valise, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_c8a2c4971c.png"]);
+    if (bonusesRules.uber)
+        bonusMap.set("uber", ["McDo+", bonusesRules.uber, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
+    if (bonusesRules.suarez)
+        bonusMap.set("suarez", ["Suarez", bonusesRules.suarez, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
+    if (bonusesRules.zahia)
+        bonusMap.set("zahia", ["Zahia", bonusesRules.zahia, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
+    if (bonusesRules.miroir)
+        bonusMap.set("miroir", ["Miroir", bonusesRules.miroir, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/miroir_DPKQOLRY_3fa41cbb7a.png"]);
+    if (bonusesRules.tonton)
+        bonusMap.set("tonton", ["Tonton Pat'", bonusesRules.tonton, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
+    if (bonusesRules.chapron)
+        bonusMap.set("chapron", ["Chapron rouge", bonusesRules.chapron, "./img/chapron-R33B47FK.png"]);
+    if (bonusesRules.decat)
+        bonusMap.set("decat", ["4 Decat", bonusesRules.decat, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
+    if (bonusesRules.cheat)
+        bonusMap.set("cheat", ["Cheat Code 18-26", bonusesRules.cheat, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
+
+    return bonusMap;
 }
 
 function bonusList() {
@@ -1652,8 +1691,8 @@ function bonusList() {
     bonus.push(["uber", "McDo+", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
     bonus.push(["suarez", "Suarez", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
     bonus.push(["zahia", "Zahia", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
-    bonus.push(["miroir", "Miroir", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
-    bonus.push(["chapron", "Chapron", ""]);
+    bonus.push(["miroir", "Miroir", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/miroir_DPKQOLRY_3fa41cbb7a.png"]);
+    bonus.push(["chapron", "Chapron", "./img/chapron-R33B47FK.png"]);
     bonus.push(["tonton", "Tonton Pat'", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
     bonus.push(["4def", "4 Défenseurs", ""]);
     bonus.push(["5def", "5 Défenseurs", ""]);
@@ -1703,14 +1742,17 @@ function formatGC(goalGC) {
 }
 
 function getBonusCountUpdated(bonusTab) {
-    const detailsBonus = bonusDetails();
+    const detailsBonus = new Map(
+        [...baseBonusDetails.entries()].map(([key, value]) => [key, [value[0], value[1], value[2]]])
+    );
 
-    // Décrémenter le compteur de chacun des bonus joués																	   
+    // Décrémenter le compteur de chacun des bonus joués
     Object.entries(bonusTab)
         .forEach(([key, value]) => {
             const detail = detailsBonus.get(key);
-            if (detail)
+            if (detail) {
                 detail[1] -= value;
+            }
         });
 
     return detailsBonus;
@@ -1719,15 +1761,13 @@ function getBonusCountUpdated(bonusTab) {
 function getBonusTargeted(bonusTab) {
     const setBonus = bonusList();
 
-    const map = new Map(
-    Object.entries(bonusTab)
-        .map(([key, value]) => {                    
-            const detail = setBonus[value.bonus[0]];
-            return [key, [...detail, value]];
-        })
+    return new Map(
+        Object.entries(bonusTab)
+            .map(([key, value]) => {
+                const detail = setBonus[value.bonus[0]];
+                return [key, [...detail, value]];
+            })
     );
-
-    return map;
 }
 
 function formatBonusTitle(bonusTab) {
@@ -1738,11 +1778,15 @@ function formatBonusTitle(bonusTab) {
         .map(([nom, compteur]) => `${nom} (${compteur})`)
         .join(' - ');
 
-    const nbBonusDefault = Array.from(bonusDetails().entries()).map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);   
-    const bonusDispos = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
-    let nbBonusDispos = bonusDispos.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
+    const nbBonusDefault = [...baseBonusDetails.values()]
+        .reduce((sum, [description, compteur]) => sum + compteur, 0);
 
-    return remainingBonuses.length > 0 ? "Bonus disponibles (" + nbBonusDispos + "/" + nbBonusDefault + ") : " + remainingBonuses : "Aucun bonus disponible !"
+    const bonusDispos = [...bonusCount.values()].filter(([description, compteur]) => compteur > 0);
+    const nbBonusDispos = bonusDispos.reduce((sum, [description, compteur]) => sum + compteur, 0);
+
+    return remainingBonuses.length > 0
+        ? `Bonus disponibles (${nbBonusDispos}/${nbBonusDefault}) : ${remainingBonuses}`
+        : "Aucun bonus disponible !";
 }
 
 function contentDisplay() {
@@ -1819,7 +1863,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('cfg-tab').classList.add('active');
 
             console.error('Erreur lors du chargement de la ligue:', error);
-            return; // Sortir de la fonction en cas d'erreur
         }
     });
 
@@ -1841,7 +1884,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('cfg-tab').classList.add('active');
 
             console.error('Erreur lors du chargement de la ligue:', error);
-            return; // Sortir de la fonction en cas d'erreur
         }
     });
 
@@ -1863,7 +1905,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('cfg-tab').classList.add('active');
 
             console.error('Erreur lors du chargement de la ligue:', error);
-            return;
         }
     });
 
