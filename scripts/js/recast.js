@@ -50,7 +50,7 @@ function createDivisionPairs() {
     tabSelectLigue.innerHTML = '';
     ligueContent.innerHTML = '';
 
-    // Créer une liste déroulante pour sélectionner la paire
+    // Créer une liste déroulante pour sélectionner la paire de divisions à afficher
     const select = document.createElement('select');
     select.id = 'divisionPairSelect';
     select.setAttribute('aria-label', 'Sélection des paires de divisions');
@@ -442,12 +442,13 @@ function getApiUrls(divisionNumber) {
 function initializeData() {
     createDivisionPairs();
     // Initialiser structures internes sans déclencher d'appels API (lazy load on tab activation)
+    bonusesRules = [];
+
     divisions.forEach(divisionNumber => {
         const idx = divisionNumber - 1;
         teamsOfDivision[idx] = [];
         liveStandings[idx] = [];
         calendarDiv[idx] = [];
-        bonusesRules = [];
     });
 }
 
@@ -1088,9 +1089,7 @@ class ExpandableTable {
         }
 
         const bonusPlayed = Array.from(mapBonusPlayed.get(mpgUser.id) || []);
-        const nbBonusPlayed = bonusPlayed.length;
-
-        if (nbBonusPlayed > 0) {
+        if (bonusPlayed.length > 0) {
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
                     <div id="used" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
@@ -1114,7 +1113,6 @@ class ExpandableTable {
         }
 
         const bonusTargeted = mapBonusTargeted.get(mpgUser.id);
-
         if (bonusTargeted?.length > 0) {   
             const targetBonus = Array.from(getBonusTargeted(bonusTargeted));
 
@@ -1381,7 +1379,7 @@ class ExpandableTable {
             tableHTML += `<div style="text-align: center">(playoffs)</div>`;
         }
 
-        matchDay?.matches.forEach(journee => {    
+        matchDay?.matches.forEach(journee => {
             const idMpgUserHome = this.data.teams.filter(team => team.teamNum == journee.homePlayer.teamNum).slice().shift().MPGuserId;
             const firstnameHome = farmersPlayers().get(idMpgUserHome) ?? '';
 
@@ -1640,7 +1638,7 @@ function bonusDetails() {
     bonusMap.set("uber", ["McDo+", bonusesRules.uber ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/mcdo_XNSJJIK_7_4d86759c68.png"]);
     bonusMap.set("suarez", ["Suarez", bonusesRules.suarez ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
     bonusMap.set("zahia", ["Zahia", bonusesRules.zahia ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
-    bonusMap.set("miroir", ["Miroir", bonusesRules.miroir ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/thumbnail_miroir_DPKQOLRY_3fa41cbb7a.png"]);
+    bonusMap.set("miroir", ["Miroir", bonusesRules.miroir ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/miroir_DPKQOLRY_3fa41cbb7a.png"]);
     bonusMap.set("tonton", ["Tonton Pat'", bonusesRules.tonton ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
     bonusMap.set("decat", ["4 Decat", bonusesRules.decat ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
     bonusMap.set("cheat", ["Cheat Code 18-26", bonusesRules.cheat ?? 0, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/cheat_Code_RQGFVQYS_c1cf552f40.webp"]);
@@ -1705,7 +1703,6 @@ function formatGC(goalGC) {
 }
 
 function getBonusCountUpdated(bonusTab) {
-
     const detailsBonus = bonusDetails();
 
     // Décrémenter le compteur de chacun des bonus joués																	   
