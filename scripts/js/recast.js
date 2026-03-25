@@ -552,7 +552,7 @@ async function loadDivisionData(divisionNumber, urls) {
         matchesData?.division?.teams?.forEach((mpgTeam) => {
             const listeBonus = bonusList();
             mpgTeam.timeline.forEach((day, index) => {
-                const opponentTeam = matchesData?.division?.teams?.filter(team => team.id == day.o).slice().shift();
+                const opponentTeam = matchesData?.division?.teams?.filter(team => team.id === day.o).slice().shift();
                 const opponentPlayerName = farmersPlayers().get(opponentTeam.MPGuserId) || opponentTeam.name;
 
                 // Filtrer les bonus non pertinents (0 : Capitaine, 8 : 4 défenseurs, 9 : 5 défenseurs)
@@ -568,7 +568,7 @@ async function loadDivisionData(divisionNumber, urls) {
 
                     const existingDataPlayed = mapBonusPlayed.get(mpgTeam.id) || [];
                     const detail = listeBonus[idxBonus[0]];
-                    mapBonusPlayed.set(mpgTeam.id, [...existingDataPlayed, {adversaire : opponentPlayerName, bonus: idxBonus[0], day: index + 1, info: detail}]);
+                    mapBonusPlayed.set(mpgTeam.id, [...existingDataPlayed, {adversaire : opponentPlayerName, bonus: idxBonus[0], day: index + 1, info: detail, teamNum : mpgTeam.teamNum}]);
                 } else {
                     mapBonusTargeted.set(keyOpponentId, mapBonusTargeted.get(keyOpponentId) || []);
                     mapBonusPlayed.set(mpgTeam.id, mapBonusPlayed.get(mpgTeam.id) || []);
@@ -1091,7 +1091,7 @@ class ExpandableTable {
         const availableBonuses = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
         const nbAvailableBonuses = availableBonuses.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
         
-        let tableHTML = `<td style="padding-right: 16px;">${mpgUser.name}</td>`;
+        let tableHTML = `<td style="vertical-align: top; padding-right: 16px;min-width: 20%;">${mpgUser.name}</td>`;
 
         if (nbAvailableBonuses > 0) {
             tableHTML += `
@@ -1396,7 +1396,8 @@ class ExpandableTable {
             const options = { month: 'numeric', day: 'numeric' };
             return new Date(date).toLocaleDateString('fr-FR', options);
         });
-        // Afficher la plage de date ou la date simple
+
+        // Afficher la plage de dates ou la date simple
         let dayDates = `${plage[0]}`; 
         if (plage && plage.length > 1) {
             dayDates = `${plage[0]} au ${plage[plage.length - 1]}`;
@@ -1408,19 +1409,39 @@ class ExpandableTable {
         }
 
         matchDay?.matches.forEach(journee => {
-            const idMpgUserHome = this.data.teams.filter(team => team.teamNum === journee.homePlayer.teamNum).slice().shift().MPGuserId;
-            const firstnameHome = farmersPlayers().get(idMpgUserHome) ?? '';
+            const mpgTeamHome = this.data.teams.filter(team => team.teamNum === journee.homePlayer.teamNum).slice().shift();
+            const firstnameHome = farmersPlayers().get(mpgTeamHome.MPGuserId) ?? '';
 
-            const idMpgUserAway = this.data.teams.filter(team => team.teamNum === journee.awayPlayer.teamNum).slice().shift().MPGuserId;
-            const firstnameAway = farmersPlayers().get(idMpgUserAway) ?? '';
+            const mpgTeamAway = this.data.teams.filter(team => team.teamNum === journee.awayPlayer.teamNum).slice().shift();
+            const firstnameAway = farmersPlayers().get(mpgTeamAway.MPGuserId) ?? '';
+
+            let bonusHomeImg = '';
+            let bonusAwayImg = '';
+            if (matchDay.isPlayed) {
+                mapBonusPlayed.get(mpgTeamHome.id)
+                    .filter(bonus => bonus.teamNum === mpgTeamHome.teamNum)
+                    .filter(bonus => bonus.day === matchDay.gameWeek)
+                    .forEach(bonus => {
+                        bonusHomeImg = '<img title="'+ bonus.info[1] +'" src="'+ bonus.info[2] +'" width="25" height="34" style="vertical-align: middle;"></img>';
+                });
+
+                mapBonusPlayed.get(mpgTeamAway.id)
+                    .filter(bonus => bonus.teamNum === mpgTeamAway.teamNum)
+                    .filter(bonus => bonus.day === matchDay.gameWeek)
+                    .forEach(bonus => {
+                        bonusAwayImg = '<img title="'+ bonus.info[1] +'" src="'+ bonus.info[2] +'" width="25" height="34" style="vertical-align: middle;"></img>';
+                });
+            }
 
             tableHTML += `
-                <div class="match-content" style="padding: 20px;">
+                <div class="match-content" style="padding: 10px;">
                     <div class="team-section">
                         <div class="team-name">${journee.homePlayer.name}<br><span style="font-size: 80%;">${firstnameHome}</span></div>
+                        <div class="team-name" style="min-width: 50px;text-align: center;">${bonusHomeImg}</div>
                     </div>
                     <div class="match-score">${journee.scoreHome ?? ''} - ${journee.scoreAway ?? ''}</div>
                     <div class="team-section-away">
+                        <div class="team-name" style="min-width: 50px;text-align: center;">${bonusAwayImg}</div>
                         <div class="team-name-away">${journee.awayPlayer.name}<br><span style="font-size: 80%;">${firstnameAway}</span></div>
                     </div>
                 </div>
