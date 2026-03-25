@@ -825,7 +825,7 @@ class ExpandableTable {
         const divisionTitle = document.getElementById(this.divisionTitleId);
         divisionTitle.innerHTML = '';
         const divisionSpan = document.createElement('span');
-        divisionSpan.innerHTML = `<p>${divisionName}<h6>(mode : ${this.data.mode === 'default' ? 'défaut' : this.data.mode})</h6></p>`;
+        divisionSpan.innerHTML = `<p>${divisionName}<h6>(mode : ${this.data.mode === 'default' ? 'défaut' : this.data.mode + ' de ' + this.data.playoffsTeams + ' équipes'})</h6></p>`;
         divisionTitle.appendChild(divisionSpan);
 
         const bonusDivisionTitle = document.getElementById(this.bonusDivisionTitleId);
