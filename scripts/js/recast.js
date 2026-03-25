@@ -517,32 +517,40 @@ async function loadDivisionData(divisionNumber, urls) {
         calendarDiv[divIndex] = matchesData?.calendar || [];
         bonusesRules = matchesData?.division.bonusesRules || [];
 
-        // Adapter les règles de bonus en fonction de la date de création de la division pour gérer le remplacement du bonus Chapron par le bonus Cheat à partir d'août 2025
-        const isBonusChapronReplaced = matchesData?.division?.MPGcreatedAt && new Date(matchesData.division.MPGcreatedAt) >= new Date('2025-08-01');
-        if (isBonusChapronReplaced) {
-            bonusesRules.chapron = undefined;
-            if (nbPlayers > 7) {
-                bonusesRules.cheat = 1;
-                bonusesRules.tonton = 1;
+        // Totaliser le nombre de bonus pour la division en sommant les compteurs de chaque type de bonus
+        const nbBonusesDivision = Object.values(bonusesRules).reduce((total, value) => total + value, 0);
+
+        // Pour les ligues avec bonus, adapter dynamiquement les règles de bonus et le nombre de bonus Uber en fonction du nombre de joueurs dans la division et de la date de création de la division pour gérer le remplacement du bonus Chapron par le bonus Cheat à partir d'août 2025
+        if (nbBonusesDivision > 0) {
+            // Adapter les règles de bonus en fonction de la date de création de la division pour gérer le remplacement du bonus Chapron par le bonus Cheat à partir d'août 2025
+            const isBonusChapronReplaced = matchesData?.division?.MPGcreatedAt && new Date(matchesData.division.MPGcreatedAt) >= new Date('2025-08-01');
+            if (isBonusChapronReplaced) {
+                bonusesRules.chapron = undefined;
+                if (nbPlayers > 7) {
+                    bonusesRules.cheat = 1;
+                    bonusesRules.tonton = 1;
+                }
+            } else {
+                if (nbPlayers > 7) {
+                    bonusesRules.chapron = 1;
+                    bonusesRules.cheat = undefined;
+                    bonusesRules.tonton = 1;
+                }
             }
-        } else {
-            if (nbPlayers > 7) {
-                bonusesRules.chapron = 1;
-                bonusesRules.cheat = undefined;
-                bonusesRules.tonton = 1;
+
+            // Adapter le nombre de bonus Uber en fonction du nombre de joueurs dans la division
+            switch (nbPlayers) {
+                case 4:
+                    bonusesRules.uber = 1;
+                    break;
+                case 6:
+                    bonusesRules.uber = 2;
+                    break;
+                default:
+                    bonusesRules.uber = 3;
             }
         }
-        // Adapter le nombre de bonus Uber en fonction du nombre de joueurs dans la division
-        switch (nbPlayers) {
-            case 4:
-                bonusesRules.uber = 1;
-                break;
-            case 6:
-                bonusesRules.uber = 2;
-                break;
-            default:
-                bonusesRules.uber = 3;
-        }
+        // Stocker les détails de base des bonus pour la division
         baseBonusDetails = bonusDetails();
 
         // Associer les résultats des matchs au calendrier des matchs pour afficher dans l'onglet de résultats
