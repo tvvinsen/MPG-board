@@ -662,6 +662,7 @@ body {
         flex-direction: column;
         gap: 12px;
         align-items: stretch;
+        width: 90%;
     }
 
     .match-content {
@@ -691,6 +692,32 @@ body {
 
     .journee-navigation {
         flex-wrap: wrap;
+    }
+
+    .league-selector-content {
+        max-width: 100%;
+    }
+
+    .tab-button {
+        padding: 18px 20px;
+        min-height: 44px;
+    }
+
+    .journee-navigation button {
+        min-height: 44px;
+    }
+
+    .submenu button {
+        min-height: 44px;
+    }
+
+    .legend-table {
+        width: 100%;
+    }
+
+    .divisions {
+        gap: 10px;
+        padding: 10px;
     }
 }
 
