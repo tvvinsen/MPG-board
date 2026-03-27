@@ -15,6 +15,20 @@ let bonusesRules = [];
 let mercatos = [[]];
 let baseBonusDetails = new Map();
 
+function createBadgeImageElements(badgesOfDay) {
+    const BADGE_URL_MAP = {
+        'goldenNerfAllPlayers': 'https://s3.eu-west-1.amazonaws.com/image.mpg/Badge_Cheat_Code_275x275.png'
+    };
+    const URL_PREFIX = 'https://s3.eu-west-1.amazonaws.com/image.mpg/badges/';
+
+    return badgesOfDay.map(badge => {
+        const urlImage = BADGE_URL_MAP[badge] || 
+            `${URL_PREFIX}${badge.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_v2.png`;
+        
+        return `<img title="${badge}" src="${urlImage}" width="34" height="34" style="vertical-align: middle;margin: 5px;">`;
+    }).join('');
+}
+
 function createDivisionPairs() {
     const numDivisions = nbDivisionsForSeason;
     divisions = [];
@@ -462,10 +476,14 @@ function buildCalendarResults(matchesData, divIndex) {
             const timelineDayHome = matchesData?.division?.teams?.filter(it => it.teamNum === calDay[0]).slice().shift().timeline[idxDay];
             // Calcul des buts encaissés pour définir le score adverse
             calDay.scoreAway = cal.isPlayed || cal.isPlayoffs ? (timelineDayHome?.g || 0) + (timelineDayHome?.m || 0) : undefined;
+            // Badges gagnés lors du match par le joueur à domicile
+            calDay.homeBadges = timelineDayHome?.d || [];
 
             const timelineDayAway = matchesData?.division?.teams?.filter(it => it.teamNum === calDay[1]).slice().shift().timeline[idxDay];
             // Calcul des buts encaissés pour définir le score adverse
             calDay.scoreHome = cal.isPlayed || cal.isPlayoffs ? (timelineDayAway?.g || 0) + (timelineDayAway?.m || 0) : undefined;
+            // Badges gagnés lors du match par le joueur visiteur
+            calDay.awayBadges = timelineDayAway?.d || [];
         })
     });
 }
@@ -1011,8 +1029,8 @@ class ExpandableTable {
         if (nbAvailableBonuses > 0) {
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
-                    <div>Bonus disponible${nbAvailableBonuses > 1 ? "s" : ""} (${nbAvailableBonuses}/${nbBonusDefault})</div>
-                    <div id="dispos" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                    <div style="white-space: nowrap;">Bonus disponible${nbAvailableBonuses > 1 ? "s" : ""} (${nbAvailableBonuses}/${nbBonusDefault})</div>
+                    <div id="dispos" style="display: inline-flex; flex-wrap: wrap;">
                         ${availableBonuses.map(([, [description, compteur, linkImg]]) => `
                             <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                 ${Array.from({ length: compteur }, 
@@ -1030,8 +1048,8 @@ class ExpandableTable {
         if (nbBonusPlayed > 0) {
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
-                    <div>Bonus utilisé${nbBonusPlayed > 1 ? "s" : ""} (${nbBonusPlayed}/${nbBonusDefault})</div>
-                    <div id="used" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                    <div style="white-space: nowrap;">Bonus utilisé${nbBonusPlayed > 1 ? "s" : ""} (${nbBonusPlayed}/${nbBonusDefault})</div>
+                    <div id="used" style="display: inline-flex; flex-wrap: wrap;">
                         ${bonusPlayed.map((element) => `
                             <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                 ${Array.from({ length: 1 },
@@ -1054,8 +1072,8 @@ class ExpandableTable {
 
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
-                    <div>Bonus encaissé${nbBonusTarget > 1 ? "s" : ""} (${nbBonusTarget})</div>
-                    <div id="attack" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                    <div style="white-space: nowrap;">Bonus encaissé${nbBonusTarget > 1 ? "s" : ""} (${nbBonusTarget})</div>
+                    <div id="attack" style="display: inline-flex; flex-wrap: wrap;">
                         ${targetBonus.map(([nom, [bKey, libelle, linkImg, tmp]]) => `
                             <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                 ${Array.from({ length: 1 }, 
@@ -1099,12 +1117,12 @@ class ExpandableTable {
         const availableBonuses = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
         const nbAvailableBonuses = availableBonuses.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
         
-        let tableHTML = `<td style="vertical-align: top; padding-right: 16px;min-width: 20%;">${mpgUser.name}</td>`;
+        let tableHTML = `<td style="vertical-align: top; padding-right: 16px;min-width: 20%; white-space: nowrap;">${mpgUser.name}</td>`;
 
         if (nbAvailableBonuses > 0) {
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
-                    <div id="dispos" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                    <div id="dispos" style="display: inline-flex; flex-wrap: wrap;">
                         ${availableBonuses.map(([nom, [description, compteur, linkImg]]) => `
                             <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                 ${Array.from({ length: compteur }, 
@@ -1117,7 +1135,7 @@ class ExpandableTable {
         } else {
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
-                    <div id="dispos" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                    <div id="dispos" style="display: inline-flex; flex-wrap: wrap;">
                         -
                     </div>
                 </td>
@@ -1128,7 +1146,7 @@ class ExpandableTable {
         if (bonusPlayed.length > 0) {
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
-                    <div id="used" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                    <div id="used" style="display: inline-flex; flex-wrap: wrap;">
                         ${bonusPlayed.map((element) => `
                             <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                 ${Array.from({ length: 1 },
@@ -1141,7 +1159,7 @@ class ExpandableTable {
         } else {
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
-                    <div id="used" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                    <div id="used" style="display: inline-flex; flex-wrap: wrap;">
                         -
                     </div>
                 </td>
@@ -1157,7 +1175,7 @@ class ExpandableTable {
 
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
-                    <div id="attack" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                    <div id="attack" style="display: inline-flex; flex-wrap: wrap;">
                         ${targetBonus.map(([nom, [bKey, libelle, linkImg, tmp]]) => `
                             <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
                                 ${Array.from({ length: 1 }, 
@@ -1169,7 +1187,7 @@ class ExpandableTable {
         } else {
             tableHTML += `
                 <td style="vertical-align: top; padding-right: 16px;">
-                    <div id="attack" style="display: inline-flex; margin-right: 16px; flex-wrap: wrap;">
+                    <div id="attack" style="display: inline-flex; flex-wrap: wrap;">
                         -
                     </div>
                 </td>
@@ -1444,13 +1462,15 @@ class ExpandableTable {
             tableHTML += `
                 <div class="match-content" style="padding: 10px;">
                     <div class="team-section">
-                        <div class="team-name">${journee.homePlayer.name}<br><span style="font-size: 80%;">${firstnameHome}</span></div>
+                        <div class="team-name" style="padding-right: 10px; display: flex">${createBadgeImageElements(journee.homeBadges)}</div>
+                        <div class="team-name" style="min-width: 150px;">${journee.homePlayer.name}<br><span style="font-size: 80%;">${firstnameHome}</span></div>
                         <div class="team-name" style="min-width: 50px;text-align: center;">${bonusHomeImg}</div>
                     </div>
                     <div class="match-score">${journee.scoreHome ?? ''} - ${journee.scoreAway ?? ''}</div>
                     <div class="team-section-away">
                         <div class="team-name" style="min-width: 50px;text-align: center;">${bonusAwayImg}</div>
-                        <div class="team-name-away">${journee.awayPlayer.name}<br><span style="font-size: 80%;">${firstnameAway}</span></div>
+                        <div class="team-name-away" style="min-width: 150px;">${journee.awayPlayer.name}<br><span style="font-size: 80%;">${firstnameAway}</span></div>
+                        <div class="team-name" style="padding-left: 10px; display: flex">${createBadgeImageElements(journee.awayBadges)}</div>
                     </div>
                 </div>
             `;
