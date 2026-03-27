@@ -41,3 +41,8 @@ goldenVicky		https://s3.eu-west-1.amazonaws.com/image.mpg/badges/golden_vicky_v2
 
 
 
+TODO LIST
+
+- buteurs dans les matchs de calendrier en infobulle ou autrement avec distinction but réel / but MPG
+- info de matchs Ligue 1 reportés sur une journée de championnat réel
+- revoir la présentation en mode téléphone mobile / responsive design
