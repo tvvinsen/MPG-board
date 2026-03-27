@@ -15,6 +15,8 @@ let bonusesRules = [];
 let mercatos = [[]];
 let baseBonusDetails = new Map();
 
+const isMobileWindow = /Mobi/i.test(window.navigator.userAgent);
+
 function createBadgeImageElements(badgesOfDay) {
     const BADGE_URL_MAP = {
         'goldenNerfAllPlayers': 'https://s3.eu-west-1.amazonaws.com/image.mpg/Badge_Cheat_Code_275x275.png'
@@ -118,25 +120,31 @@ function createDivisionPairs() {
         pairContent.setAttribute('aria-labelledby', `divisionPairLabel-${pairNum}`);
         pairContent.hidden = (i !== 0);
 
+        // Construire le HTML pour les en-têtes de colonnes, en adaptant dynamiquement selon la taille de l'écran
+        let theadHTML = `
+            <th></th>
+            <th>Equipe</th>
+            <th>Points</th>
+            <th style="text-align: center">J</th>
+            <th style="text-align: center">V/N/D</th>
+        `;
+
+        if (!isMobileWindow) {
+            theadHTML += `
+                <th style="text-align: center">Diff.</th>
+                <th style="text-align: center">Buts<br>réels</th>
+                <th style="text-align: center">Buts<br>MPG</th>
+            `;
+        }
+        theadHTML += `<th style="text-align: center">Derniers<br>matchs</th>`;
+
         // Construire le HTML pour la paire (uniquement les classements)
         let html = `
             <div class="divisions">
                 <div id="div${div1}" class="division">
                     <h2 id="divisionTitle${div1}"></h2>
                     <table id="division${div1}" class="classement-table">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>Equipe</th>
-                                <th>Points</th>
-                                <th style="text-align: center">J</th>
-                                <th style="text-align: center">V/N/D</th>
-                                <th style="text-align: center">Diff.</th>
-                                <th style="text-align: center">Buts<br>réels</th>
-                                <th style="text-align: center">Buts<br>MPG</th>
-                                <th style="text-align: center">Derniers<br>matchs</th>
-                            </tr>
-                        </thead>
+                        <thead>${theadHTML}</thead>
                         <tbody id="classementBodyDiv${div1}"></tbody>
                     </table>
                 </div>
@@ -147,19 +155,7 @@ function createDivisionPairs() {
                 <div id="div${div2}" class="division">
                     <h2 id="divisionTitle${div2}"></h2>
                     <table id="division${div2}" class="classement-table">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>Equipe</th>
-                                <th>Points</th>
-                                <th style="text-align: center">J</th>
-                                <th style="text-align: center">V/N/D</th>
-                                <th style="text-align: center">Diff.</th>
-                                <th style="text-align: center">Buts<br>réels</th>
-                                <th style="text-align: center">Buts<br>MPG</th>
-                                <th style="text-align: center">Derniers<br>matchs</th>
-                            </tr>
-                        </thead>
+                        <thead>${theadHTML}</thead>
                         <tbody id="classementBodyDiv${div2}"></tbody>
                     </table>
                 </div>
@@ -951,7 +947,7 @@ class ExpandableTable {
         lastFiveMatches.appendChild(lastFiveMatchesChild);
 
         mpgTeam.timeline
-            .slice(-5)  // Garder uniquement les 5 derniers éléments
+            .slice(isMobileWindow ? -3 : -5)  // Garder uniquement les 3 ou 5 derniers éléments
             .forEach((day) => {
                 // Sommer les buts réels marqués
                 let butsGP = day.G?.flatMap(obj => Object.values(obj))
@@ -985,24 +981,29 @@ class ExpandableTable {
                 }
             });
 
-        const nbMissingTimelines = 5 - mpgTeam.timeline.length;
+        const nbMissingTimelines = (isMobileWindow ? 3 : 5) - mpgTeam.timeline.length;
         Array.from({ length: nbMissingTimelines }, () => {
             lastFiveMatchesChild.appendChild(createNotPlayedIconElement());
         });
 
         const leagueDay = this.data.leagueDayScan ?? '-';
 
-        tr.innerHTML = `
+        let rowHTML = `
             <td class="position ${positionClass}"><span>${position}${variationImg}</span></td>
             <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name} ${ring}<br><span style="font-size: 80%;">${playerName}</span></td>
             <td class="points">${mpgTeam.points} pts</td>
             <td style="text-align: center">${leagueDay}</td>
             <td style="text-align: center">${wdl}</td>
-            <td style="text-align: center">${mpgTeam.goalAvg}</td>
-            <td style="text-align: center">${realGoals}</td>
-            <td style="text-align: center">${mpgGoals}</td>
-            <td style="text-align: center">${lastFiveMatches.innerHTML}</td>
         `;
+        if (!isMobileWindow) {
+            rowHTML += `
+                <td style="text-align: center">${mpgTeam.goalAvg}</td>
+                <td style="text-align: center">${realGoals}</td>
+                <td style="text-align: center">${mpgGoals}</td>
+            `;
+        }
+        rowHTML += `<td style="text-align: center">${lastFiveMatches.innerHTML}</td>`;
+        tr.innerHTML = rowHTML;
         return tr;
     }
 
@@ -1012,7 +1013,7 @@ class ExpandableTable {
         tr.setAttribute('data-expanded-id', mpgUser.id);
 
         const td = document.createElement('td');
-        td.colSpan = 9; // Nombre de colonnes dans le tableau principal																																							
+        td.colSpan = isMobileWindow ? 6 : 9; // Nombre de colonnes dans le tableau principal																																							
 
         td.innerHTML = `
             <div class="details-panel" style="display: inline-flex">
