@@ -1026,7 +1026,7 @@ class ExpandableTable {
         let rowHTML = `
             <td class="position ${positionClass}"><span>${position}${variationImg}</span></td>
             <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name} ${ring}<br><span style="font-size: 80%;">${playerName}</span></td>
-            <td class="points">${mpgTeam.points} pts</td>
+            <td class="points">${mpgTeam.points}</td>
             <td style="text-align: center">${leagueDay}</td>
             <td style="text-align: center">${wdl}</td>
         `;
