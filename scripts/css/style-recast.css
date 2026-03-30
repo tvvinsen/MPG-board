@@ -515,6 +515,7 @@ body {
     color: #003d7a;
     padding: 10px;
     border-radius: 4px;
+    text-align: center;
 }
 
 .match-card {
@@ -549,6 +550,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 20px;
+    padding: 10px 10px 0px 10px;
 }
 
 .team-section {

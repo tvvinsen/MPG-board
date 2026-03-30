@@ -4,6 +4,7 @@ let seasonNumChoice = undefined;
 let nbPlayers = 8;
 let nbDivisionsForSeason = 2;
 
+let poolPlayersLigue1 = [];
 let season_fr1 = undefined;
 let datesJourneesMap = undefined;
 
@@ -23,7 +24,7 @@ function createBadgeImageElements(badgesOfDay) {
     };
     const URL_PREFIX = 'https://s3.eu-west-1.amazonaws.com/image.mpg/badges/';
 
-    return badgesOfDay.map(badge => {
+    return badgesOfDay?.map(badge => {
         const urlImage = BADGE_URL_MAP[badge] || 
             `${URL_PREFIX}${badge.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_v2.png`;
         
@@ -475,11 +476,45 @@ function buildCalendarResults(matchesData, divIndex) {
             // Badges gagnés lors du match par le joueur à domicile
             calDay.homeBadges = timelineDayHome?.d || [];
 
+            const homeScorers = new Map();
+            // Buteurs MPG du joueur à domicile pour ce match
+            timelineDayHome?.M?.forEach(pl => {
+                poolPlayersLigue1.filter(p => p.id === ('mpg_championship_player_' + pl)).forEach(p => {
+                    homeScorers.set(p.lastName, {mpg: true, goals: 1});
+                });
+            });
+            // Buteurs réels du joueur à domicile pour ce match
+            timelineDayHome?.G?.forEach(obj => {
+                Object.entries(obj).forEach(([key, compteur]) => {
+                    poolPlayersLigue1.filter(p => p.id === ('mpg_championship_player_' + key)).forEach(p => {
+                        homeScorers.set(p.lastName, {mpg: false, goals: compteur});
+                    });
+                });
+            });
+            calDay.homeScorers = homeScorers;
+
             const timelineDayAway = matchesData?.division?.teams?.filter(it => it.teamNum === calDay[1]).slice().shift().timeline[idxDay];
             // Calcul des buts encaissés pour définir le score adverse
             calDay.scoreHome = cal.isPlayed || cal.isPlayoffs ? (timelineDayAway?.g || 0) + (timelineDayAway?.m || 0) : undefined;
             // Badges gagnés lors du match par le joueur visiteur
             calDay.awayBadges = timelineDayAway?.d || [];
+
+            const awayScorers = new Map();
+            // Buteurs MPG du joueur visiteur pour ce match
+            timelineDayAway?.M?.forEach(pl => {
+                poolPlayersLigue1.filter(p => p.id === ('mpg_championship_player_' + pl)).forEach(p => {
+                    awayScorers.set(p.lastName, {mpg: true, goals: 1});
+                });
+            });
+            // Buteurs réels du joueur visiteur pour ce match
+            timelineDayAway?.G?.forEach(obj => {
+                Object.entries(obj).forEach(([key, compteur]) => {
+                    poolPlayersLigue1.filter(p => p.id === ('mpg_championship_player_' + key)).forEach(p => {
+                        awayScorers.set(p.lastName, {mpg: false, goals: compteur});
+                    });
+                });
+            });
+            calDay.awayScorers = awayScorers;
         })
     });
 }
@@ -1404,7 +1439,7 @@ class ExpandableTable {
         const elDiv = document.createElement('div');
 
         if (!last) {
-            tableHTML += `<div class="match-date-header" style="text-align: center">Aucun match à venir</div>`;
+            tableHTML += `<div class="match-date-header">Aucun match à venir</div>`;
             tableHTML += `</div>`;
             elDiv.innerHTML += tableHTML;
             return elDiv;
@@ -1429,7 +1464,7 @@ class ExpandableTable {
         if (plage && plage.length > 1) {
             dayDates = `${plage[0]} au ${plage[plage.length - 1]}`;
         }
-        let tableHTML = `<div class="match-date-header" style="text-align: center">Journée ${matchDay.gameWeek} - ${dayDates}</div>`;
+        let tableHTML = `<div class="match-date-header">Journée ${matchDay.gameWeek} - ${dayDates}</div>`;
 
         if (matchDay.isPlayoffs) {
             tableHTML += `<div style="text-align: center">(playoffs)</div>`;
@@ -1461,17 +1496,28 @@ class ExpandableTable {
             }
 
             tableHTML += `
-                <div class="match-content" style="padding: 10px;">
-                    <div class="team-section">
-                        <div class="team-name" style="padding-right: 10px; display: flex">${createBadgeImageElements(journee.homeBadges)}</div>
-                        <div class="team-name" style="min-width: 150px;">${journee.homePlayer.name}<br><span style="font-size: 80%;">${firstnameHome}</span></div>
-                        <div class="team-name" style="min-width: 50px;text-align: center;">${bonusHomeImg}</div>
+                <div style="display: flex; flex-direction: column; padding-bottom: 16px;">
+                    <div class="match-content">
+                        <div class="team-section">
+                            <div class="team-name" style="padding-right: 10px; display: flex">${createBadgeImageElements(journee.homeBadges)}</div>
+                            <div class="team-name" style="min-width: 150px;">${journee.homePlayer.name}<br><span style="font-size: 80%;">${firstnameHome}</span></div>
+                            <div class="team-name" style="min-width: 50px;text-align: center;">${bonusHomeImg}</div>
+                        </div>
+                        <div class="match-score">${journee.scoreHome ?? ''} - ${journee.scoreAway ?? ''}</div>
+                        <div class="team-section-away">
+                            <div class="team-name" style="min-width: 50px;text-align: center;">${bonusAwayImg}</div>
+                            <div class="team-name-away" style="min-width: 150px;">${journee.awayPlayer.name}<br><span style="font-size: 80%;">${firstnameAway}</span></div>
+                            <div class="team-name" style="padding-left: 10px; display: flex">${createBadgeImageElements(journee.awayBadges)}</div>
+                        </div>
                     </div>
-                    <div class="match-score">${journee.scoreHome ?? ''} - ${journee.scoreAway ?? ''}</div>
-                    <div class="team-section-away">
-                        <div class="team-name" style="min-width: 50px;text-align: center;">${bonusAwayImg}</div>
-                        <div class="team-name-away" style="min-width: 150px;">${journee.awayPlayer.name}<br><span style="font-size: 80%;">${firstnameAway}</span></div>
-                        <div class="team-name" style="padding-left: 10px; display: flex">${createBadgeImageElements(journee.awayBadges)}</div>
+                    <div style="flex-direction: row;display: flex;"/>
+                        <div class="team-section" style="align-items: flex-start;">
+                            <div class="team-name" style="padding-right: 10px; display: block">${createScorerElements(journee.homeScorers, true)}</div>
+                        </div>
+                        <div class=""></div>
+                        <div class="team-section-away" style="align-items: flex-start;">
+                            <div class="team-name-away" style="padding-left: 10px; display: block">${createScorerElements(journee.awayScorers, false)}</div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -1581,6 +1627,42 @@ const createNulIconElement = (title) => {
 const createDefeatIconElement = (title) => {
     return createIconElement(title, 'validation-defeat', './img/svg/loss-icon.svg');
 };
+
+const createScorerElements = (scorersMap, homeDisplay) => {
+    let html = '';
+
+    for (const [player, { mpg, goals }] of scorersMap) {
+        // Adapter la couleur en fonction du type de but (MPG ou réel)
+        let playerStyle = mpg === true ? 'color: green;' : '';
+        let imgBallon = mpg === true ? 'ballon-icon-green' : 'ballon-icon';
+
+        const htmlPlayer = `<span style="margin-right: 3px; vertical-align: middle;">${player}</span>`;
+
+        // Ajouter une icône de ballon pour chaque but marqué
+        let htmlGoals = Array.from({ length: goals }, () => `<img src="./img/svg/${imgBallon}.svg" width="16" height="16" style="vertical-align: middle; margin-right: 3px;">`).join('');
+
+        html += `<div style="${playerStyle}font-size: 80%;">`;
+
+        html += homeDisplay ? `${htmlPlayer}${htmlGoals}</div>` : `${htmlGoals}${htmlPlayer}</div>`;
+    }
+
+    return html;
+};
+
+async function fetchMpgPlayersLigue1() {
+    try {
+        let API_MPG_PLAYERS_LIGUE_1 = 'https://api.mpg.football/api/data/championship-players-pool/1';
+        const response = await fetch(API_MPG_PLAYERS_LIGUE_1);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json() || [];
+        poolPlayersLigue1 = data?.poolPlayers || [];
+    } catch (error) {
+        console.error('Récupération des joueurs de Ligue 1 en erreur : ', error);
+    }
+}
 
 async function fetchMpgLeague() {
     try {
@@ -2004,7 +2086,8 @@ async function fetchLigue1Matches() {
 }
 
 // Chargement initial
-fetchMpgLeague()
+fetchMpgPlayersLigue1()
+    .then(() => fetchMpgLeague())
     .then(() => fetchLigue1Matches())
     .then(() => {    
         // Initialiser les données des divisions
