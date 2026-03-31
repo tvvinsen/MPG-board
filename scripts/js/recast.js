@@ -18,6 +18,16 @@ let baseBonusDetails = new Map();
 
 const isMobileWindow = /Mobi/i.test(window.navigator.userAgent);
 
+function displayTechnicalData() {
+    const technicalElement = document.getElementById('technicalDiv');
+    technicalElement.innerHTML = '';
+    const spanELement = document.createElement('span');
+    spanELement.innerHTML = `Largeur de la fenêtre : ${window.innerWidth}px`;
+    spanELement.innerHTML += `<br/>`; 
+    spanELement.innerHTML += `Hauteur de la fenêtre : ${window.innerHeight}px`;
+    technicalElement.appendChild(spanELement);
+}
+
 function createBadgeImageElements(badgesOfDay) {
     const BADGE_URL_MAP = {
         'goldenNerfAllPlayers': 'https://s3.eu-west-1.amazonaws.com/image.mpg/Badge_Cheat_Code_275x275.png'
@@ -2091,6 +2101,8 @@ async function fetchLigue1Matches() {
         }
     });
 }
+
+displayTechnicalData();
 
 // Chargement initial
 fetchMpgPlayersLigue1()
