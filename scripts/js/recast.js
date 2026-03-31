@@ -1741,6 +1741,7 @@ function displayLeague(dataLeague) {
     const leagueTitle = document.getElementById('leagueTitle');
     leagueTitle.innerHTML = '';
     const spanELement = document.createElement('span');
+    spanELement.title = `Largeur de la fenetre : ${window.innerWidth}px`;
     
     let spanLibelle = `<p>${dataLeague.name} / Saison ${seasonNum}</p>`
     if (nbDivisionsForSeason > 1)
