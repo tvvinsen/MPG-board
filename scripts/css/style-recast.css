@@ -339,7 +339,7 @@ body {
 .joueur-name {
     font-weight: 600;
     color: #003d7a;
-    /* text-align: left; */
+    word-break: break-word;
 }
 
 .points {
@@ -762,4 +762,11 @@ body {
 
 .submenu button:last-child {
     border-radius: 0 0 4px 4px;
+}
+
+.bonus-player {
+    width: 28%;
+    vertical-align: top; 
+    padding-right: 0px;
+    word-break: break-word;
 }
