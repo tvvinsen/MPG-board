@@ -126,7 +126,13 @@ function createDivisionPairs() {
             <th></th>
             <th>Equipe</th>
             <th>Points</th>
-            <th style="text-align: center">J</th>
+        `;
+        if (!isMobileWindow) {
+            theadHTML += `
+                <th style="text-align: center">J</th>
+            `;
+        }
+        theadHTML += `
             <th style="text-align: center">V/N/D</th>
         `;
 
@@ -183,9 +189,9 @@ function createDivisionPairs() {
                         <thead>
                             <tr>
                                 <th>Equipe</th>
-                                <th>Bonus disponibles</th>
-                                <th>Bonus joués</th>
-                                <th>Bonus encaissés</th>
+                                <th>Disponibles</th>
+                                <th>Joués</th>
+                                <th>Encaissés</th>
                             </tr>
                         </thead>
                         <tbody id="bonusBodyDiv${div1}"></tbody>
@@ -200,9 +206,9 @@ function createDivisionPairs() {
                         <thead>
                             <tr>
                                 <th>Equipe</th>
-                                <th>Bonus disponibles</th>
-                                <th>Bonus joués</th>
-                                <th>Bonus encaissés</th>
+                                <th>Disponibles</th>
+                                <th>Joués</th>
+                                <th>Encaissés</th>
                             </tr>
                         </thead>
                         <tbody id="bonusBodyDiv${div2}"></tbody>
@@ -953,11 +959,11 @@ class ExpandableTable {
         
         // Gestion du classement
         if (position === 1) {
-            positionClass = 'first';
+            positionClass = ' first';
         } else if (position === 2) {
-            positionClass = 'second';
+            positionClass = ' second';
         } else if (position === 3) {
-            positionClass = 'third';
+            positionClass = ' third';
         }
 
         const tr = document.createElement('tr');
@@ -1024,10 +1030,16 @@ class ExpandableTable {
         const leagueDay = this.data.leagueDayScan ?? '-';
 
         let rowHTML = `
-            <td class="position ${positionClass}"><span>${position}${variationImg}</span></td>
+            <td class="position${positionClass}"><span>${position}${variationImg}</span></td>
             <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name} ${ring}<br><span style="font-size: 80%;">${playerName}</span></td>
             <td class="points">${mpgTeam.points}</td>
-            <td style="text-align: center">${leagueDay}</td>
+        `;
+        if (!isMobileWindow) {
+            rowHTML += `
+                <td style="text-align: center">${leagueDay}</td>
+            `;
+        }
+        rowHTML += `
             <td style="text-align: center">${wdl}</td>
         `;
         if (!isMobileWindow) {
@@ -1048,7 +1060,7 @@ class ExpandableTable {
         tr.setAttribute('data-expanded-id', mpgUser.id);
 
         const td = document.createElement('td');
-        td.colSpan = isMobileWindow ? 6 : 9; // Nombre de colonnes dans le tableau principal																																							
+        td.colSpan = isMobileWindow ? 5 : 9; // Nombre de colonnes dans le tableau principal																																							
 
         td.innerHTML = `
             <div class="details-panel" style="display: inline-flex">
@@ -1153,24 +1165,22 @@ class ExpandableTable {
         const availableBonuses = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
         const nbAvailableBonuses = availableBonuses.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
         
-        let tableHTML = `<td style="vertical-align: top; padding-right: 16px;min-width: 20%; white-space: nowrap;">${mpgUser.name}</td>`;
+        let tableHTML = `<td style="vertical-align: top; padding-right: 0px;width: 28%; white-space: nowrap;">${mpgUser.name}</td>`;
 
         if (nbAvailableBonuses > 0) {
             tableHTML += `
-                <td style="vertical-align: top; padding-right: 16px;">
-                    <div id="dispos" style="display: inline-flex; flex-wrap: wrap;">
+                <td style="width: 24%; vertical-align: top; padding-right: 0px;">
+                    <div id="dispos" style="display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; margin: 4px; vertical-align: middle;">
                         ${availableBonuses.map(([nom, [description, compteur, linkImg]]) => `
-                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-                                ${Array.from({ length: compteur }, 
-                                    () => `<img title="${description}" src="${linkImg}" width="18" height="25" style="vertical-align: middle;">`).join('')}
-                            </div>
+                            ${Array.from({ length: compteur },
+                                () => `<img title="${description}" src="${linkImg}" width="18" height="25" style="vertical-align: middle;">`).join('')}
                         `).join('')}
                     </div>
                 </td>
                 `;
         } else {
             tableHTML += `
-                <td style="vertical-align: top; padding-right: 16px;">
+                <td style="width: 24%; vertical-align: top; padding-right: 0px;">
                     <div id="dispos" style="display: inline-flex; flex-wrap: wrap;">
                         -
                     </div>
@@ -1181,20 +1191,18 @@ class ExpandableTable {
         const bonusPlayed = Array.from(mapBonusPlayed.get(mpgUser.id) || []);
         if (bonusPlayed.length > 0) {
             tableHTML += `
-                <td style="vertical-align: top; padding-right: 16px;">
-                    <div id="used" style="display: inline-flex; flex-wrap: wrap;">
+                <td style="width: 24%; vertical-align: top; padding-right: 0px;">
+                    <div id="used" style="display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; margin: 4px; vertical-align: middle;">
                         ${bonusPlayed.map((element) => `
-                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-                                ${Array.from({ length: 1 },
-                                    () => `<img title="${element.info[1]} : contre ${element.adversaire} (J${element.day})" src="${element.info[2]}" width="18" height="25" style="vertical-align: middle;">`).join('')}
-                            </div>
+                            ${Array.from({ length: 1 },
+                                () => `<img title="${element.info[1]} : contre ${element.adversaire} (J${element.day})" src="${element.info[2]}" width="18" height="25" style="vertical-align: middle;">`)}
                         `).join('')}
                     </div>
                 </td>
                 `;
         } else {
             tableHTML += `
-                <td style="vertical-align: top; padding-right: 16px;">
+                <td style="width: 24%; vertical-align: top; padding-right: 0px;">
                     <div id="used" style="display: inline-flex; flex-wrap: wrap;">
                         -
                     </div>
@@ -1210,19 +1218,17 @@ class ExpandableTable {
             targetBonus.sort((a, b) => a[1][3].day - b[1][3].day);
 
             tableHTML += `
-                <td style="vertical-align: top; padding-right: 16px;">
-                    <div id="attack" style="display: inline-flex; flex-wrap: wrap;">
+                <td style="width: 24%; vertical-align: top; padding-right: 0px;">
+                    <div id="attack" style="display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; margin: 4px; vertical-align: middle;">
                         ${targetBonus.map(([nom, [bKey, libelle, linkImg, tmp]]) => `
-                            <div style="display: inline-flex; align-items: center; gap: 8px; margin: 4px; vertical-align: middle;">
-                                ${Array.from({ length: 1 }, 
-                                    () => `<img title="${libelle} : attaque de ${tmp.nom} (J${tmp.day})" src="${linkImg}" width="18" height="25" style="vertical-align: middle;">`).join('')}
-                            </div>
+                            ${Array.from({ length: 1 }, 
+                                () => `<img title="${libelle} : attaque de ${tmp.nom} (J${tmp.day})" src="${linkImg}" width="18" height="25" style="vertical-align: middle;">`)}
                         `).join('')}
                     </div>
                 </td>`;
         } else {
             tableHTML += `
-                <td style="vertical-align: top; padding-right: 16px;">
+                <td style="width: 24%; vertical-align: top; padding-right: 0px;">
                     <div id="attack" style="display: inline-flex; flex-wrap: wrap;">
                         -
                     </div>
