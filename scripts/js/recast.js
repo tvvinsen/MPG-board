@@ -508,12 +508,9 @@ function buildCalendarResults(matchesData, divIndex) {
                     homeScorers.set('Inconnu', { mpg: true, csc: false, goals: 1 });                    
                 }
             });
-            console.log(`Division ${divIndex + 1} / Match ${idxDay + 1} : HOME MPG Scorers ${JSON.stringify(Object.fromEntries(homeScorers))}`);
 
             // Gérer les rotaldos de l'équipe extérieure
             const nbRotaldosAway = timelineDayAway?.R;
-            nbRotaldosAway ? console.log(`Division ${divIndex+1} / Match ${idxDay+1} : ${nbRotaldosAway} rotaldos pour l'équipe extérieure`) : '';
-
             if (nbRotaldosAway !== undefined || nbRotaldosAway < 2) {
                 let nbRotaldosAdded = undefined;
                 switch (nbRotaldosAway) {
