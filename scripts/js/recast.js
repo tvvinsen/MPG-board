@@ -501,11 +501,11 @@ function buildCalendarResults(matchesData, divIndex) {
             // Buteurs MPG du joueur à domicile pour ce match
             timelineDayHome?.M?.forEach(plMpgId => {
                 // si rien ne correspond dans poolPlayersMPGLigue1, comment ajouter un buteur inconnu
-                const  plMpg = poolPlayersMPGLigue1.filter(p => p.id === ('mpg_championship_player_' + plMpgId))
-                if (plMpg) {
+                const plMpg = poolPlayersMPGLigue1.filter(p => p.id === ('mpg_championship_player_' + plMpgId));
+                if (plMpg.length > 0) {
                     plMpg.map(pl => homeScorers.set(pl.lastName, { mpg: true, csc: false, goals: 1 }));
                 } else {
-                    homeScorers.set('Inconnu', { mpg: true, csc: false, goals: 1 });                    
+                    homeScorers.set('Inconnu (' + plMpgId + ')', { mpg: true, csc: false, goals: 1 });                    
                 }
             });
 
@@ -530,7 +530,7 @@ function buildCalendarResults(matchesData, divIndex) {
                     default:
                         break;
                 }
-                nbRotaldosAdded !== undefined && homeScorers.set('Rotaldo', { mpg: false, csc: true, goals: nbRotaldosAdded });
+                // nbRotaldosAdded !== undefined && homeScorers.set('Rotaldo', { mpg: false, csc: true, goals: nbRotaldosAdded });
             }
 
             // Concétener les balises l et s de la timeline pour identifier tous les joueurs titulaires et remplaçants de l'équipe à domicile pour ce match
@@ -539,17 +539,20 @@ function buildCalendarResults(matchesData, divIndex) {
             // Buteurs réels du joueur à domicile pour ce match
             timelineDayHome?.G?.forEach(goals => {
                 Object.entries(goals).forEach(([key, compteur]) => {
-                    const mpgStatsPlayer = poolPlayersMpgStatsLigue1ByK[Number(key)];
-                    // si rien ne correspond dans poolPlayersMPGLigue1, comment ajouter un buteur inconnu
-                    if (mpgStatsPlayer === undefined) {
-                        homeScorers.set('Inconnu', { mpg: false, csc: false, goals: compteur });
+                    if (key === 'NaN') { // Cas des rotaldos
+                        homeScorers.set('Rotaldo', { mpg: false, csc: true, goals: compteur });
                     } else {
-                        const csc = !idHomePlayers.includes(mpgStatsPlayer?.i);
-                        const plMpgK = poolPlayersMPGLigue1.filter(p => p.id === ('mpg_championship_player_' + key));
-                        if (plMpgK) {
-                            plMpgK.map(p => homeScorers.set((csc ? '(csc)' : '') + p.lastName, { mpg: false, csc: csc, goals: compteur }));
+                        const mpgStatsPlayer = poolPlayersMpgStatsLigue1ByK[Number(key)];
+                        if (mpgStatsPlayer === undefined) {
+                            homeScorers.set('Inconnu (' + key + ')', { mpg: false, csc: false, goals: compteur });
                         } else {
-                            awayScorers.set((csc ? '(csc)' : '') + mpgStatsPlayer.name, { mpg: false, csc: csc, goals: compteur });
+                            const csc = !idHomePlayers.includes(mpgStatsPlayer?.i);
+                            const plMpgK = poolPlayersMPGLigue1.filter(p => p.id === ('mpg_championship_player_' + key));
+                            if (plMpgK) {
+                                plMpgK.map(p => homeScorers.set((csc ? '(csc) ' : '') + p.lastName, { mpg: false, csc: csc, goals: compteur }));
+                            } else {
+                                homeScorers.set((csc ? '(csc) ' : '') + mpgStatsPlayer.name, { mpg: false, csc: csc, goals: compteur });
+                            }
                         }
                     }
                 });
@@ -565,11 +568,11 @@ function buildCalendarResults(matchesData, divIndex) {
             // Buteurs MPG du joueur visiteur pour ce match
             timelineDayAway?.M?.forEach(plMpgId => {
                 // si rien ne correspond dans poolPlayersMPGLigue1, comment ajouter un buteur inconnu
-                const  plMpg = poolPlayersMPGLigue1.filter(p => p.id === ('mpg_championship_player_' + plMpgId))
-                if (plMpg) {
+                const plMpg = poolPlayersMPGLigue1.filter(p => p.id === ('mpg_championship_player_' + plMpgId))
+                if (plMpg.length > 0) {
                     plMpg.map(p => awayScorers.set(p.lastName, { mpg: true, csc: false, goals: 1 }));
                 } else {
-                    awayScorers.set('Inconnu', { mpg: true, csc: false, goals: 1 });                    
+                    awayScorers.set('Inconnu (' + plMpgId + ')', { mpg: true, csc: false, goals: 1 });                    
                 }
             });
 
@@ -594,7 +597,7 @@ function buildCalendarResults(matchesData, divIndex) {
                     default:
                         break;
                 }
-                nbRotaldosAdded !== undefined && awayScorers.set('Rotaldo', { mpg: false, csc: true, goals: nbRotaldosAdded });
+                //nbRotaldosAdded !== undefined && awayScorers.set('Rotaldo0', { mpg: false, csc: true, goals: nbRotaldosAdded });
             }
 
             // Concétener les balises l et s de la timeline pour identifier tous les joueurs titulaires et remplaçants de l'équipe extérieure pour ce match
@@ -603,17 +606,20 @@ function buildCalendarResults(matchesData, divIndex) {
             // Buteurs réels du joueur visiteur pour ce match
             timelineDayAway?.G?.forEach(goals => {
                 Object.entries(goals).forEach(([key, compteur]) => {
-                    const mpgStatsPlayer = poolPlayersMpgStatsLigue1ByK[Number(key)];
-                    // si rien ne correspond dans poolPlayersMPGLigue1, comment ajouter un buteur inconnu
-                    if (mpgStatsPlayer === undefined) {
-                        awayScorers.set('Inconnu', { mpg: false, csc: false, goals: compteur });
+                    if (key === 'NaN') { // Cas des rotaldos
+                        awayScorers.set('Rotaldo', { mpg: false, csc: true, goals: compteur });
                     } else {
-                        const csc = !iAwayPlayers.includes(mpgStatsPlayer?.i);
-                        const plMpgK = poolPlayersMPGLigue1.filter(p => p.id === ('mpg_championship_player_' + key));
-                        if (plMpgK) {
-                            plMpgK.map(p => awayScorers.set(p.lastName + (csc ? '(csc)' : ''), { mpg: false, csc: csc, goals: compteur }));
+                        const mpgStatsPlayer = poolPlayersMpgStatsLigue1ByK[Number(key)];
+                        if (mpgStatsPlayer === undefined) {
+                            awayScorers.set('Inconnu (' + key + ')', { mpg: false, csc: false, goals: compteur });
                         } else {
-                            awayScorers.set(mpgStatsPlayer.name + (csc ? '(csc) ' : ''), { mpg: false, csc: csc, goals: compteur });
+                            const csc = !iAwayPlayers.includes(mpgStatsPlayer?.i);
+                            const plMpgK = poolPlayersMPGLigue1.filter(p => p.id === ('mpg_championship_player_' + key));
+                            if (plMpgK) {
+                                plMpgK.map(p => awayScorers.set(p.lastName + (csc ? ' (csc)' : ''), { mpg: false, csc: csc, goals: compteur }));
+                            } else {
+                                awayScorers.set(mpgStatsPlayer.name + (csc ? ' (csc)' : ''), { mpg: false, csc: csc, goals: compteur });
+                            }
                         }
                     }
                 });
