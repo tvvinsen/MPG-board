@@ -346,6 +346,7 @@ body {
     font-weight: bold;
     color: #1a7f17;
     font-size: 1.1em;
+    width: 2ch; /* 2 caractères de large */
 }
 
 .badge {
