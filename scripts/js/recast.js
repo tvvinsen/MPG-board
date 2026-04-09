@@ -857,6 +857,7 @@ leagues.set("TK8UPTE8", "Les strasbourgeois");
 leagues.set("RDRE1KZA", "Saison 2025/2026");
 leagues.set("U3VWU7K8", "👑King’s Ligue 1👑");
 leagues.set("TTTPA7T2", "Ligue two");
+leagues.set("1A5AN2EPQX", "Ligue des talents cachés");
 
 // trier la map leagues par ordre alphabétique de la valeur
 leagues = new Map([...leagues.entries()].sort((a, b) => a[1].localeCompare(b[1])));
