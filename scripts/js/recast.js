@@ -149,7 +149,7 @@ function createDivisionPairs() {
             `;
         }
         theadHTML += `
-            <th style="text-align: center">V/N/D</th>
+            <th style="text-align: center; text-wrap: nowrap">V/N/D</th>
         `;
 
         if (!isMobileWindow) {
