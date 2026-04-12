@@ -141,7 +141,7 @@ function createDivisionPairs() {
         let theadHTML = `
             <th></th>
             <th>Equipe</th>
-            <th>Points</th>
+            <th style="text-align: center">Points</th>
         `;
         if (!isMobileWindow) {
             theadHTML += `
@@ -1111,7 +1111,7 @@ class ExpandableTable {
         let rowHTML = `
             <td class="position${positionClass}"><span>${position}${variationImg}</span></td>
             <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name}<br><span style="font-size: 80%;">${playerName}</span>${ring}</td>
-            <td><span class="points">${mpgTeam.points}</span></td>
+            <td style="text-align: center"><span class="points">${mpgTeam.points}</span></td>
         `;
         if (!isMobileWindow) {
             rowHTML += `
