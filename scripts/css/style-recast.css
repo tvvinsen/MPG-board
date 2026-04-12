@@ -346,6 +346,9 @@ body {
     color: #1a7f17;
     font-size: 1.1em;
     width: 2ch; /* 2 caractères de large */
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    display: inline-block;
 }
 
 .badge {
