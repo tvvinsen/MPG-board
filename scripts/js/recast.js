@@ -735,7 +735,8 @@ async function loadDivisionData(divisionNumber, urls) {
     }
 }
 
-const ringElement = '<span class="badge"><img src="./img/ring.png" style="vertical-align: bottom; width: 20px"/></span>';
+const ringElement = '<span class="badge"><img src="./img/png/ring.png" style="vertical-align: bottom; width: 20px"/></span>';
+const spoonElement = '<span class="badge"><img src="./img/png/spoon.png" style="vertical-align: bottom; width: 40px"/></span>';
 
 /**
  * Charger et injecter des fragments SVG référencés par [data-src].
@@ -1000,14 +1001,16 @@ class ExpandableTable {
         this.data.teams.sort((a, b) => {
             return a.poolRank - b.poolRank;
         });
+        // Récupérer la dernière équipe de la division avant les playoffs pour lui attribuer la cuillère de bois
+        const lastTeam = this.data.teams[this.data.teams.length - 1];
         this.data.teams.forEach((mpgTeam, index) => {
-            this.container.appendChild(this.createDataRow(mpgTeam, index));
+            this.container.appendChild(this.createDataRow(mpgTeam, index, lastTeam));
             this.bonusContainer.appendChild(this.createBonusRow(mpgTeam));
         });
         this.mercatoContainer.appendChild(this.createMercato());
     }
     
-    createDataRow(mpgTeam, index) {
+    createDataRow(mpgTeam, index, lastTeam) {
         const position = index + 1;
         let positionClass = '';
 
@@ -1024,6 +1027,11 @@ class ExpandableTable {
         const lastTimeline = [...mpgTeam.timeline].pop();
         if (lastTimeline?.P === 1) {
             ring = ringElement;
+        }
+
+        let spoon = '';
+        if (mpgTeam.teamNum === lastTeam.teamNum) {
+            spoon = spoonElement;
         }
 
         // Gestion de la variation de position
@@ -1110,7 +1118,7 @@ class ExpandableTable {
 
         let rowHTML = `
             <td class="position${positionClass}"><span>${position}${variationImg}</span></td>
-            <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name}<br><span style="font-size: 80%;">${playerName}</span>${ring}</td>
+            <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name}<br><span style="font-size: 80%;">${playerName}</span>${ring}${spoon}</td>
             <td style="text-align: center"><span class="points">${mpgTeam.points}</span></td>
         `;
         if (!isMobileWindow) {
@@ -1950,7 +1958,7 @@ function bonusDetails() {
     if (bonusesRules.tonton)
         bonusMap.set("tonton", ["Tonton Pat'", bonusesRules.tonton, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
     if (bonusesRules.chapron)
-        bonusMap.set("chapron", ["Chapron rouge", bonusesRules.chapron, "./img/chapron-R33B47FK.png"]);
+        bonusMap.set("chapron", ["Chapron rouge", bonusesRules.chapron, "./img/png/chapron-R33B47FK.png"]);
     if (bonusesRules.decat)
         bonusMap.set("decat", ["4 Decat", bonusesRules.decat, "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_8b62f75294.png"]);
     if (bonusesRules.cheat)
@@ -1967,7 +1975,7 @@ function bonusList() {
     bonus.push(["suarez", "Suarez", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_73c40fcf0f.png"]);
     bonus.push(["zahia", "Zahia", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_587179007b.png"]);
     bonus.push(["miroir", "Miroir", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/miroir_DPKQOLRY_3fa41cbb7a.png"]);
-    bonus.push(["chapron", "Chapron", "./img/chapron-R33B47FK.png"]);
+    bonus.push(["chapron", "Chapron", "./img/png/chapron-R33B47FK.png"]);
     bonus.push(["tonton", "Tonton Pat'", "https://s3.eu-west-3.amazonaws.com/ligue1.image/cms/image_45de0b018a.png"]);
     bonus.push(["4def", "4 Défenseurs", ""]);
     bonus.push(["5def", "5 Défenseurs", ""]);
