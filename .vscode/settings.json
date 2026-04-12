@@ -4,6 +4,7 @@
     "editor.defaultFormatter": "vscode.json-language-features",
     "editor.wordWrap": "on",
     "editor.formatOnPaste": true,
+    "gitlens.ai.generateCommitMessage.customInstructions": "Generate the commit message in French. Use the conventional commits format (type(scope): description). The description must be in French.",
     "gitlens.ai.generateCommitMessage.customInstructionsForChat": [
         "Utilise le format de message de commit conventionnel en français.",
         "Limite la première ligne à 72 caractères ou moins."
