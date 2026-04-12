@@ -155,7 +155,7 @@ class MatchCalendar {
     card.innerHTML = `
       <div class="match-time">${time}</div>
       <div class="match-content">
-        <div class="team-section"><div class="team-name">${match.homeTeam?.name ?? 'NA'}</div></div>
+        <div class="team-section-home"><div class="team-name">${match.homeTeam?.name ?? 'NA'}</div></div>
         <div class="match-score">${match.score?.fullTime?.home ?? ''} - ${match.score?.fullTime?.away ?? ''}</div>
         <div class="team-section-away"><div class="team-name-away">${match.awayTeam?.name ?? 'NA'}</div></div>
       </div>

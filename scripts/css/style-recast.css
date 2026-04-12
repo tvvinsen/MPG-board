@@ -520,18 +520,19 @@ body {
     padding: 10px 10px 10px 10px;
 }
 
-.team-section {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
-
+.team-section-home,
 .team-section-away {
     flex: 1;
     display: flex;
-    justify-content: flex-start;
     align-items: center;
+}
+
+.team-section-home {
+    justify-content: flex-end;
+}
+
+.team-section-away {
+    justify-content: flex-start;
 }
 
 .team-name {
@@ -643,10 +644,19 @@ body {
         gap: 12px;
     }
 
-    .team-section,
+    .team-section-home,
     .team-section-away {
         flex: 1;
-        justify-content: center;
+        display: flex;
+        align-items: center;
+    }
+
+    .team-section-home {
+        justify-content: flex-end;
+    }
+
+    .team-section-away {
+        justify-content: flex-start;
     }
 
     .team-name,

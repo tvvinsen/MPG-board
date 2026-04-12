@@ -1584,7 +1584,7 @@ class ExpandableTable {
             tableHTML += `
                 <div style="display: flex; flex-direction: column; padding-bottom: 16px;">
                     <div class="match-content">
-                        <div class="team-section">
+                        <div class="team-section-home">
                             <div class="team-name" style="padding-right: 10px; display: flex">${createBadgeImageElements(journee.homeBadges)}</div>
                             <div class="team-name" style="min-width: 150px;">${journee.homePlayer.name}<br><span style="font-size: 80%;">${firstnameHome}</span></div>
                             <div class="team-name" style="min-width: 50px;text-align: center;">${bonusHomeImg}</div>
@@ -1597,7 +1597,7 @@ class ExpandableTable {
                         </div>
                     </div>
                     <div style="flex-direction: row;display: flex;"/>
-                        <div class="team-section" style="align-items: flex-start;">
+                        <div class="team-section-home" style="align-items: flex-start;">
                             <div class="team-name" style="padding-right: 10px; display: block">${createScorerElements(journee.homeScorers, true)}</div>
                         </div>
                         <div class=""></div>
