@@ -112,8 +112,7 @@ body {
 }
 
 .tab-button {
-    flex: 1;
-    min-width: 170px;
+    flex: 1;    
     padding: 15px 20px;
     background: transparent;
     border: none;
