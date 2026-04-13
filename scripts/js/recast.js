@@ -1590,18 +1590,16 @@ class ExpandableTable {
             }
 
             tableHTML += `
-                <div style="display: flex; flex-direction: column; padding-bottom: 16px;">
+                <div style="display: flex; flex-direction: column; padding-bottom: 30px;">
                     <div class="match-content">
                         <div class="team-section-home">
-                            <div class="team-name" style="padding-right: 10px; display: flex">${createBadgeImageElements(journee.homeBadges)}</div>
-                            <div class="team-name" style="min-width: 150px;">${journee.homePlayer.name}<br><span style="font-size: 80%;">${firstnameHome}</span></div>
-                            <div class="team-name" style="min-width: 50px;text-align: center;">${bonusHomeImg}</div>
+                            <div class="team-name" style="padding-right: 5px">${createBadgeImageElements(journee.homeBadges)}${bonusHomeImg}</div>
+                            <div class="team-name">${journee.homePlayer.name}<br><span style="color: purple; font-size: 80%;">${firstnameHome}</span></div>
                         </div>
                         <div class="match-score">${journee.scoreHome ?? ''} - ${journee.scoreAway ?? ''}</div>
                         <div class="team-section-away">
-                            <div class="team-name" style="min-width: 50px;text-align: center;">${bonusAwayImg}</div>
-                            <div class="team-name-away" style="min-width: 150px;">${journee.awayPlayer.name}<br><span style="font-size: 80%;">${firstnameAway}</span></div>
-                            <div class="team-name" style="padding-left: 10px; display: flex">${createBadgeImageElements(journee.awayBadges)}</div>
+                            <div class="team-name-away">${journee.awayPlayer.name}<br><span style="color: purple; font-size: 80%;">${firstnameAway}</span></div>
+                            <div class="team-name" style="padding-left: 5px;">${bonusAwayImg}${createBadgeImageElements(journee.awayBadges)}</div>
                         </div>
                     </div>
                     <div style="flex-direction: row;display: flex;"/>

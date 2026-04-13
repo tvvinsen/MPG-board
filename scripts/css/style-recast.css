@@ -482,9 +482,10 @@ body {
     font-size: 1.1em;
     font-weight: bold;
     color: #003d7a;
-    padding: 10px;
+    padding: 10px 10px 30px 10px;
     border-radius: 4px;
     text-align: center;
+    background: #f5f5f5;
 }
 
 .match-card {
@@ -518,8 +519,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
-    padding: 10px 10px 10px 10px;
+    gap: 8px;
+    padding-top: 5px
 }
 
 .team-section-home,
@@ -643,7 +644,13 @@ body {
     }
 
     .match-content {
-        gap: 12px;
+        gap: 8px;
+    }
+
+    .team-name,
+    .team-name-away {
+        font-size: 0.8em;
+        line-height: 1;
     }
 
     .team-section-home,
@@ -659,11 +666,6 @@ body {
 
     .team-section-away {
         justify-content: flex-start;
-    }
-
-    .team-name,
-    .team-name-away {
-        text-align: center;
     }
 
     .match-score {

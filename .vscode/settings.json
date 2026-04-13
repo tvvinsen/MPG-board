@@ -3,7 +3,7 @@
     "files.autoSave": "onWindowChange",
     "editor.defaultFormatter": "vscode.json-language-features",
     "editor.fontSize": 14,
-    "editor.wordWrapColumn": 150,
+    "editor.wordWrapColumn": 180,
     "editor.wordWrap": "wordWrapColumn",
     "editor.formatOnPaste": true,
     "gitlens.ai.generateCommitMessage.customInstructions": "Generate the commit message in French. Use the conventional commits format (type(scope): description). The description must be in French.",
