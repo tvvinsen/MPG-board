@@ -40,6 +40,9 @@ badCoaching		https://s3.eu-west-1.amazonaws.com/image.mpg/badges/bad_coaching_v2
 goldenVicky		https://s3.eu-west-1.amazonaws.com/image.mpg/badges/golden_vicky_v2.png
 
 
+Suppression de l'arrière-plan d'une image :
+https://www.remove.bg/fr
+
 
 TODO LIST
 

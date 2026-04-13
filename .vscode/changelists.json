@@ -1,0 +1,13 @@
+{
+  "changelists": [
+    {
+      "name": "Default",
+      "files": [
+        "notes.txt",
+        ".vscode/settings.json",
+        ".vscode/changelists.json"
+      ]
+    }
+  ],
+  "active": "Default"
+}
