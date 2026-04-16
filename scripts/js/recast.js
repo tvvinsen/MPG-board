@@ -22,7 +22,7 @@ let bonusesRules = [];
 let mercatos = [[]];
 let baseBonusDetails = new Map();
 
-let showAddons = true; // Indique si les buteurs et badges doivent être affichés dans le calendrier de la Ligue MPG
+let showAddons = false; // Indique si les buteurs et badges doivent être affichés dans le calendrier de la Ligue MPG
 
 const isMobileWindow = /Mobi/i.test(window.navigator.userAgent);
 
@@ -1591,6 +1591,9 @@ class ExpandableTable {
                 });
             }
 
+            document.querySelector('#toggleScorersButton').checked = showAddons;
+            let displayMode = showAddons ? 'flex' : 'none';
+
             tableHTML += `
                 <div style="display: flex; flex-direction: column; padding-bottom: 30px; row-gap: 2px;">
                     <div class="match-content">
@@ -1604,7 +1607,7 @@ class ExpandableTable {
                             <div class="team-name" style="padding-left: 5px;">${bonusAwayImg}</div>
                         </div>
                     </div>
-                    <div id="scorersContainer" style="flex-direction: row;display: flex;"/>
+                    <div id="scorersContainer" style="flex-direction: row;display: ${displayMode};"/>
                         <div class="team-section-home" style="align-items: flex-start;">
                             <div class="team-name" style="padding-right: 10px; display: flex; flex-direction: column; row-gap: 1px;">${createScorerElements(journee.homeScorers, true)}</div>
                         </div>
@@ -1613,7 +1616,7 @@ class ExpandableTable {
                             <div class="team-name-away" style="padding-left: 10px; display: flex; flex-direction: column; row-gap: 1px;">${createScorerElements(journee.awayScorers, false)}</div>
                         </div>
                     </div>
-                    <div id="badgesContainer" style="flex-direction: row;display: flex;"/>
+                    <div id="badgesContainer" style="flex-direction: row;display: ${displayMode};"/>
                         <div class="team-section-home" style="align-items: flex-start;">
                             <div class="team-name" style="padding-right: 10px; display: flex; flex-direction: row; column-gap: 2px;">${createBadgeImageElements(journee.homeBadges)}</div>
                         </div>
@@ -2268,12 +2271,9 @@ fetchMpgLeague()
 
 // Fonction pour afficher/masquer les buteurs/badges dans le calendrier de la Ligue MPG
 function displayResultsAddons() {
-    // const toggleAddonsContainer = document.querySelectorAll('#toggleAddonsContainer');
-
     showAddons = !showAddons;
-    let displayMode = showAddons ? 'flex' : 'none';
     const scorersElements = document.querySelectorAll('#scorersContainer, #badgesContainer');
     scorersElements.forEach(element => {
-        element.style.display = displayMode;
+        element.style.display = showAddons ? 'flex' : 'none';
     });
 }

@@ -622,7 +622,7 @@ body {
     }
 
     .div-classement-select {
-        flex-direction: column;
+        justify-content: left;
     }
 
     .classement-table th,
@@ -732,6 +732,7 @@ body {
         gap: 10px;
         padding: 0px;
     }
+
 }
 
 .tab-item {
@@ -784,4 +785,13 @@ body {
     vertical-align: top; 
     padding-right: 0px;
     word-break: break-word;
+}
+
+.toggle-addons-container {
+    display: flex;
+    flex-direction: row;
+    padding: 10px; 
+    gap: 3px; 
+    position: absolute; 
+    right: 20px;
 }

@@ -3,9 +3,12 @@
     {
       "name": "Default",
       "files": [
-        "scripts/js/recast.js",
+        "notes.txt",
+        ".vscode/changelists.json",
         "index.html",
-        ".vscode/changelists.json"
+        "scripts/js/recast.js",
+        "scripts/css/style-recast.css",
+        "notes.md"
       ]
     }
   ],

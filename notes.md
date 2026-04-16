@@ -62,6 +62,7 @@ TODO LIST
 
 - Utiliser la nouvelle API de MPGSTATS : https://api.mlnstats.com/mpgleague/userdivs/3535140
 
-- 2026/04/16 Changer l'apparence du bouton pour afficher/masquer les buteurs et badges du calendrier 
+- 2026/04/16 Changer l'apparence du bouton pour afficher/masquer les buteurs et badges du calendrier ✅
+
 
 
