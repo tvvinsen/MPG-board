@@ -4,6 +4,7 @@
       "name": "Default",
       "files": [
         "scripts/js/recast.js",
+        "index.html",
         ".vscode/changelists.json"
       ]
     }
