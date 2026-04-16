@@ -44,7 +44,7 @@ function createBadgeImageElements(badgesOfDay) {
         const urlImage = BADGE_URL_MAP[badge] || 
             `${URL_PREFIX}${badge.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_v2.png`;
         
-        return `<img title="${badge}" src="${urlImage}" width="34" height="34" style="vertical-align: middle;margin: 5px;">`;
+        return `<img title="${badge}" src="${urlImage}" width="34" height="34" style="vertical-align: middle;margin-top: 2px;">`;
     }).join('');
 }
 
@@ -1590,16 +1590,16 @@ class ExpandableTable {
             }
 
             tableHTML += `
-                <div style="display: flex; flex-direction: column; padding-bottom: 30px;">
+                <div style="display: flex; flex-direction: column; padding-bottom: 30px; row-gap: 2px;">
                     <div class="match-content">
                         <div class="team-section-home">
-                            <div class="team-name" style="padding-right: 5px">${createBadgeImageElements(journee.homeBadges)}${bonusHomeImg}</div>
+                            <div class="team-name" style="padding-right: 5px">${bonusHomeImg}</div>
                             <div class="team-name">${journee.homePlayer.name}<br><span style="color: purple; font-size: 80%;">${firstnameHome}</span></div>
                         </div>
                         <div class="match-score">${journee.scoreHome ?? ''} - ${journee.scoreAway ?? ''}</div>
                         <div class="team-section-away">
                             <div class="team-name-away">${journee.awayPlayer.name}<br><span style="color: purple; font-size: 80%;">${firstnameAway}</span></div>
-                            <div class="team-name" style="padding-left: 5px;">${bonusAwayImg}${createBadgeImageElements(journee.awayBadges)}</div>
+                            <div class="team-name" style="padding-left: 5px;">${bonusAwayImg}</div>
                         </div>
                     </div>
                     <div style="flex-direction: row;display: flex;"/>
@@ -1609,6 +1609,15 @@ class ExpandableTable {
                         <div class=""></div>
                         <div class="team-section-away" style="align-items: flex-start;">
                             <div class="team-name-away" style="padding-left: 10px; display: flex; flex-direction: column; row-gap: 1px;">${createScorerElements(journee.awayScorers, false)}</div>
+                        </div>
+                    </div>
+                    <div style="flex-direction: row;display: flex;"/>
+                        <div class="team-section-home" style="align-items: flex-start;">
+                            <div class="team-name" style="padding-right: 10px; display: flex; flex-direction: row; column-gap: 2px;">${createBadgeImageElements(journee.homeBadges)}</div>
+                        </div>
+                        <div class=""></div>
+                        <div class="team-section-away" style="align-items: flex-start;">
+                            <div class="team-name-away" style="padding-left: 10px; display: flex; flex-direction: row; column-gap: 2px;">${createBadgeImageElements(journee.awayBadges)}</div>
                         </div>
                     </div>
                 </div>
