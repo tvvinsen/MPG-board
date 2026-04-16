@@ -1604,11 +1604,11 @@ class ExpandableTable {
                     </div>
                     <div style="flex-direction: row;display: flex;"/>
                         <div class="team-section-home" style="align-items: flex-start;">
-                            <div class="team-name" style="padding-right: 10px; display: block">${createScorerElements(journee.homeScorers, true)}</div>
+                            <div class="team-name" style="padding-right: 10px; display: flex; flex-direction: column; row-gap: 1px;">${createScorerElements(journee.homeScorers, true)}</div>
                         </div>
                         <div class=""></div>
                         <div class="team-section-away" style="align-items: flex-start;">
-                            <div class="team-name-away" style="padding-left: 10px; display: block">${createScorerElements(journee.awayScorers, false)}</div>
+                            <div class="team-name-away" style="padding-left: 10px; display: flex; flex-direction: column; row-gap: 1px;">${createScorerElements(journee.awayScorers, false)}</div>
                         </div>
                     </div>
                 </div>

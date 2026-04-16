@@ -3,10 +3,8 @@
     {
       "name": "Default",
       "files": [
-        ".vscode/settings.json",
-        ".vscode/changelists.json",
         "scripts/js/recast.js",
-        "scripts/css/style-recast.css"
+        ".vscode/changelists.json"
       ]
     }
   ],
