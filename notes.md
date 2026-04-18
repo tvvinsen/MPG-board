@@ -52,17 +52,17 @@ où 3535140 est mon id MPG
 {"id":3535140,"name":"twin","userTeams":[{"teamNum":4,"name":"Uber Git","abbr":"VKG","division":{"seasonNum":9,"divisionNum":1,"status":4,"size":8,"isExpert":false,"name":"Division 1 - France-Visas","MPGleague":{"id":"PNAL4RJN","name":"Farmers-Visas League"},"league":{"name":"Ligue 1"},"season":{"name":"Ligue 1 2025-2026"}}},{"teamNum":3,"name":"Canap' FC","abbr":"KOP","division":{"seasonNum":1,"divisionNum":1,"status":5,"size":10,"isExpert":false,"name":"undefined","MPGleague":{"id":"TKMXKZDF","name":"La kadastrophe"},"league":{"name":"Ligue 1"},"season":{"name":"Ligue 1 2025-2026"}}},{"teamNum":3,"name":"Twin","abbr":"JFO","division":{"seasonNum":1,"divisionNum":1,"status":5,"size":8,"isExpert":false,"name":"undefined","MPGleague":{"id":"PNAL4RJN","name":"Farmers-Visas League"},"league":{"name":"Ligue 1"},"season":{"name":"Ligue 1 2022-2023"}}},{"teamNum":3,"name":"Twin","abbr":"JFO","division":{"seasonNum":2,"divisionNum":1,"status":5,"size":8,"isExpert":false,"name":"undefined","MPGleague":{"id":"PNAL4RJN","name":"Farmers-Visas League"},"league":{"name":"Ligue 1"},"season":{"name":"Ligue 1 2022-2023"}}},{"teamNum":0,"name":"Viking United","abbr":"VKG","division":{"seasonNum":1,"divisionNum":16,"status":4,"size":6,"isExpert":false,"name":"Division General Tire","MPGleague":{"id":"TJVFFDC5","name":"🐤 Mon Petit Poussin 🐤"},"league":{"name":"Ligue 2"},"season":{"name":"Ligue 2 2025-2026"}}},{"teamNum":9,"name":"Canap' FC","abbr":"KOP","division":{"seasonNum":1,"divisionNum":1,"status":4,"size":10,"isExpert":false,"name":"Division 1","MPGleague":{"id":"TK91JWTX","name":"CHICO 🤝"},"league":{"name":"Premier League"},"season":{"name":"Premier League 2025-2026"}}},{"teamNum":4,"name":"Canap' FC","abbr":"KOP","division":{"seasonNum":5,"divisionNum":1,"status":4,"size":6,"isExpert":false,"name":"Division 1","MPGleague":{"id":"RDRE1KZA","name":"Saison 2025/2026"},"league":{"name":"Ligue 1"},"season":{"name":"Ligue 1 2025-2026"}}},{"teamNum":5,"name":"FC Camembert 🐮","abbr":"M50","division":{"seasonNum":3,"divisionNum":2,"status":4,"size":6,"isExpert":false,"name":"Ligue 2","MPGleague":{"id":"T4D5JPZU","name":"Referential League"},"league":{"name":"Ligue 1"},"season":{"name":"Ligue 1 2025-2026"}}},{"teamNum":5,"name":"FC Camembert 🐮","abbr":"M50","division":{"seasonNum":3,"divisionNum":1,"status":4,"size":6,"isExpert":false,"name":"undefined","MPGleague":{"id":"T3UZYS9D","name":"Staging League"},"league":{"name":"Ligue 1"},"season":{"name":"Ligue 1 2025-2026"}}},{"teamNum":2,"name":"FC Cool","abbr":"FUN","division":{"seasonNum":6,"divisionNum":2,"status":4,"size":6,"isExpert":false,"name":"Division 2","MPGleague":{"id":"RDRE1KZA","name":"Saison 2025/2026"},"league":{"name":"Ligue 1"},"season":{"name":"Ligue 1 2025-2026"}}},{"teamNum":0,"name":"😤⛏️🕳️🪦💀","abbr":"M50","division":{"seasonNum":10,"divisionNum":2,"status":4,"size":8,"isExpert":false,"name":"Division 2 - RMV","MPGleague":{"id":"PNAL4RJN","name":"Farmers-Visas League"},"league":{"name":"Ligue 1"},"season":{"name":"Ligue 1 2025-2026"}}},{"teamNum":5,"name":"FC Camembert 🐮","abbr":"M50","division":{"seasonNum":4,"divisionNum":1,"status":4,"size":8,"isExpert":false,"name":"undefined","MPGleague":{"id":"T3UZYS9D","name":"Staging League"},"league":{"name":"Ligue 1"},"season":{"name":"Ligue 1 2025-2026"}}},{"teamNum":4,"name":"Canap' FC","abbr":"KOP","division":{"seasonNum":1,"divisionNum":1,"status":4,"size":8,"isExpert":false,"name":"undefined","MPGleague":{"id":"U3VWU7K8","name":"👑King’s Ligue 1👑"},"league":{"name":"Ligue 1"},"season":{"name":"Ligue 1 2025-2026"}}},{"teamNum":0,"name":"FC Camembert 🐮","abbr":"M50","division":{"seasonNum":4,"divisionNum":3,"status":4,"size":6,"isExpert":false,"name":"National 1","MPGleague":{"id":"T4D5JPZU","name":"Referential League"},"league":{"name":"Ligue 1"},"season":{"name":"Ligue 1 2025-2026"}}}]}
 
 
+DONE
+
+- buteurs dans les matchs de calendrier en infobulle ou autrement avec distinction but réel / but MPG ✅
+- revoir la présentation en mode téléphone mobile / responsive design ✅
+- 2026/04/16 Changer l'apparence du bouton pour afficher/masquer les buteurs et badges du calendrier ✅
+
 TODO LIST
 
-- buteurs dans les matchs de calendrier en infobulle ou autrement avec distinction but réel / but MPG
 - info de matchs Ligue 1 reportés sur une journée de championnat réel
-- revoir la présentation en mode téléphone mobile / responsive design
-
 - mettre en place un cache d'appel aux API MPGSTATS
-
 - Utiliser la nouvelle API de MPGSTATS : https://api.mlnstats.com/mpgleague/userdivs/3535140
-
-- 2026/04/16 Changer l'apparence du bouton pour afficher/masquer les buteurs et badges du calendrier ✅
 
 
 
