@@ -3,10 +3,12 @@
     {
       "name": "Default",
       "files": [
-        "notes.md",
+        "palmares-mpg.html",
         ".vscode/changelists.json",
         "scripts/css/style-recast.css",
-        "index.html"
+        "scripts/js/recast.js",
+        "notes.md",
+        ".vscode/settings.json"
       ]
     }
   ],

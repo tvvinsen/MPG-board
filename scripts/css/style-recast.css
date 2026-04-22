@@ -341,6 +341,11 @@ body {
     word-break: break-word;
 }
 
+.joueur-name-real {
+    color: purple;
+    font-size: 80%;
+}
+
 .points {
     font-weight: bold;
     color: #1a7f17;

@@ -22,6 +22,8 @@ let bonusesRules = [];
 let mercatos = [[]];
 let baseBonusDetails = new Map();
 
+let dataLeague;
+
 let showAddons = false; // Indique si les buteurs et badges doivent être affichés dans le calendrier de la Ligue MPG
 
 const isMobileWindow = /Mobi/i.test(window.navigator.userAgent);
@@ -693,7 +695,7 @@ async function loadDivisionData(divisionNumber, urls) {
         // Construire les maps de bonus
         matchesData?.division?.teams?.forEach((mpgTeam) => {
             const listeBonus = bonusList();
-            mpgTeam.timeline.forEach((day, index) => {
+            mpgTeam.timeline.filter(t => t !== null).forEach((day, index) => {
                 const opponentTeam = matchesData?.division?.teams?.filter(team => team.id === day.o).slice().shift();
                 const opponentPlayerName = farmersPlayers().get(opponentTeam.MPGuserId) || opponentTeam.name;
 
@@ -1019,7 +1021,8 @@ class ExpandableTable {
         const wdl = mpgTeam.win + '/' + mpgTeam.draw + '/' + mpgTeam.loss;
         const realGoals = formatGP(mpgTeam.realGP) + '/' + formatGC(mpgTeam.realGC)
         const mpgGoals = formatGP(mpgTeam.MPGGP) + '/' + formatGC(mpgTeam.MPGGC);
-        const playerName = farmersPlayers().get(mpgTeam.MPGuserId) ?? '<br>';
+        const playerName = farmersPlayers().get(mpgTeam.MPGuserId) ?? dataLeague.divisions.filter(div => div.seasonNum.toString() === seasonNum && div.divisionNum === this.divNum)
+            .slice().shift().teams.filter(t => t.teamNum === mpgTeam.teamNum).slice().shift().user.name;
     
         // Construire une liste des bonus utilisés par le joueur
         const bonusFormates = formatBonusTitle(mpgTeam.bonusTab);
@@ -1076,7 +1079,7 @@ class ExpandableTable {
         lastFiveMatchesChild.style.display = 'inline-flex';
         lastFiveMatches.appendChild(lastFiveMatchesChild);
 
-        mpgTeam.timeline
+        mpgTeam.timeline.filter(t => t !== null)
             .slice(isMobileWindow ? -3 : -5)  // Garder uniquement les 3 ou 5 derniers éléments
             .forEach((day) => {
                 // Sommer les buts réels marqués
@@ -1120,7 +1123,7 @@ class ExpandableTable {
 
         let rowHTML = `
             <td class="position${positionClass}"><span>${position}${variationImg}</span></td>
-            <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name}<br><span style="font-size: 80%;">${playerName}</span>${ring}${spoon}</td>
+            <td class="joueur-name" title="${bonusFormates}">${mpgTeam.name}<br>${playerName !== '' ? '<span class="joueur-name-real">' + playerName + '</span>' : ''}${ring}${spoon}</td>
             <td style="text-align: center"><span class="points">${mpgTeam.points}</span></td>
         `;
         if (!isMobileWindow) {
@@ -1255,7 +1258,9 @@ class ExpandableTable {
         const availableBonuses = Array.from(bonusCount.entries()).filter(([nom, [description, compteur]]) => compteur > 0);
         const nbAvailableBonuses = availableBonuses.map(([nom, [description, compteur]]) => compteur).reduce((a, b) => a + b, 0);
         
-        let tableHTML = `<td class="bonus-player">${mpgUser.name}</td>`;
+        const playerName = farmersPlayers().get(mpgUser.MPGuserId) ?? dataLeague.divisions.filter(div => div.seasonNum.toString() === seasonNum && div.divisionNum === this.divNum).slice().shift().teams.filter(t => t.teamNum === mpgUser.teamNum).slice().shift().user.name;
+
+        let tableHTML = `<td class="bonus-player">${mpgUser.name}<br>${playerName !== '' ? '<span class="joueur-name-real">' + playerName + '</span>' : ''}</td>`;
 
         if (nbAvailableBonuses > 0) {
             tableHTML += `
@@ -1568,10 +1573,12 @@ class ExpandableTable {
 
         matchDay?.matches.forEach(journee => {
             const mpgTeamHome = this.data.teams.filter(team => team.teamNum === journee.homePlayer.teamNum).slice().shift();
-            const firstnameHome = farmersPlayers().get(mpgTeamHome.MPGuserId) ?? '';
+            const firstnameHome = farmersPlayers().get(mpgTeamHome.MPGuserId) ?? 
+                dataLeague.divisions.filter(div => div.seasonNum.toString() === seasonNum && div.divisionNum === this.divNum).slice().shift().teams.filter(t => t.teamNum === mpgTeamHome.teamNum).slice().shift().user.name;
 
             const mpgTeamAway = this.data.teams.filter(team => team.teamNum === journee.awayPlayer.teamNum).slice().shift();
-            const firstnameAway = farmersPlayers().get(mpgTeamAway.MPGuserId) ?? '';
+            const firstnameAway = farmersPlayers().get(mpgTeamAway.MPGuserId) ?? 
+                dataLeague.divisions.filter(div => div.seasonNum.toString() === seasonNum && div.divisionNum === this.divNum).slice().shift().teams.filter(t => t.teamNum === mpgTeamAway.teamNum).slice().shift().user.name;
 
             let bonusHomeImg = '';
             let bonusAwayImg = '';
@@ -1599,11 +1606,11 @@ class ExpandableTable {
                     <div class="match-content">
                         <div class="team-section-home">
                             <div class="team-name" style="padding-right: 5px">${bonusHomeImg}</div>
-                            <div class="team-name">${journee.homePlayer.name}<br><span style="color: purple; font-size: 80%;">${firstnameHome}</span></div>
+                            <div class="team-name">${journee.homePlayer.name}<br><span class="joueur-name-real">${firstnameHome}</span></div>
                         </div>
                         <div class="match-score">${journee.scoreHome ?? ''} - ${journee.scoreAway ?? ''}</div>
                         <div class="team-section-away">
-                            <div class="team-name-away">${journee.awayPlayer.name}<br><span style="color: purple; font-size: 80%;">${firstnameAway}</span></div>
+                            <div class="team-name-away">${journee.awayPlayer.name}<br><span class="joueur-name-real">${firstnameAway}</span></div>
                             <div class="team-name" style="padding-left: 5px;">${bonusAwayImg}</div>
                         </div>
                     </div>
@@ -1833,7 +1840,7 @@ async function fetchMpgLeague() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const dataLeague = await response.json();
+        dataLeague = await response.json();
 
         if(dataLeague?.error === 'championshipNotManaged') {
             throw new Error('Championnat non géré par la source de données.');
