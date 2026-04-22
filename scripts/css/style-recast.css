@@ -787,6 +787,7 @@ body {
 }
 
 .bonus-player {
+    font-weight: 600;
     width: 28%;
     vertical-align: top; 
     padding-right: 0px;
