@@ -3,9 +3,9 @@
     {
       "name": "Default",
       "files": [
-        "palmares-mpg.html",
-        "scripts/js/recast.js",
-        ".vscode/changelists.json"
+        ".gitignore",
+        ".vscode/changelists.json",
+        "scripts/js/recast.js"
       ]
     }
   ],

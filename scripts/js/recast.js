@@ -1524,21 +1524,33 @@ class ExpandableTable {
     }
 
     createNextDayMatch(divNum) {
-        let tableHTML = `<div class="match-date-group">`;
+        let last;
 
         let nextMatchDays = calendarDiv[divNum - 1]
             .filter(day => !day.isPlayed)
             .filter(day => !(day.isPlayoffs && day.matches.length === 0));
-        let last = nextMatchDays.slice().shift();
+        
+        if (nextMatchDays.length === 1) {
+            last = nextMatchDays.slice().shift();
+        }
+
         if (!last) {
-            nextMatchDays = calendarDiv[divNum - 1].filter(day => day.matches.length > 0);
+            nextMatchDays = calendarDiv[divNum - 1].filter(day => !day.isPlayed && !day.isPlayoffs);
             if (nextMatchDays.length > 1) {
-                last = nextMatchDays.slice().reverse().shift();
-            } else {
                 last = nextMatchDays.slice().shift();
+            }
+
+            if (!last) {
+                nextMatchDays = calendarDiv[divNum - 1].filter(day => !(day.isPlayoffs && day.matches.length === 0));
+                if (nextMatchDays.length > 1) {
+                    last = nextMatchDays.slice().reverse().shift();
+                } else {
+                    last = nextMatchDays.slice().shift();
+                }
             }
         }
         
+        let tableHTML = `<div class="match-date-group">`;
         const elDiv = document.createElement('div');
 
         if (!last) {
