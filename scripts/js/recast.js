@@ -518,7 +518,8 @@ function buildCalendarResults(matchesData, divIndex) {
             const timelineDayAway = matchesData?.division?.teams?.filter(it => it.teamNum === calDay[1]).slice().shift().timeline[idxDay];
 
             // Calcul des buts encaissés pour définir le score adverse
-            calDay.scoreAway = cal.isPlayed || cal.isPlayoffs ? (timelineDayHome?.g || 0) + (timelineDayHome?.m || 0) : undefined;
+            calDay.scoreAway = cal.isPlayed || cal.isPlayoffs ? timelineDayHome ? (timelineDayHome.g || 0) + (timelineDayHome.m || 0) : undefined : undefined;
+
             // Badges gagnés lors du match par le joueur à domicile
             calDay.homeBadges = timelineDayHome?.d || [];
 
@@ -561,7 +562,8 @@ function buildCalendarResults(matchesData, divIndex) {
             calDay.homeScorers = homeScorers;
             
             // Calcul des buts encaissés pour définir le score adverse
-            calDay.scoreHome = cal.isPlayed || cal.isPlayoffs ? (timelineDayAway?.g || 0) + (timelineDayAway?.m || 0) : undefined;
+            calDay.scoreHome = cal.isPlayed || cal.isPlayoffs ? timelineDayAway ? (timelineDayAway.g || 0) + (timelineDayAway.m || 0) : undefined : undefined;
+
             // Badges gagnés lors du match par le joueur visiteur
             calDay.awayBadges = timelineDayAway?.d || [];
 
@@ -1524,10 +1526,10 @@ class ExpandableTable {
     createNextDayMatch(divNum) {
         let tableHTML = `<div class="match-date-group">`;
 
-        let nextMatchDays = calendarDiv[divNum - 1].filter(day => !day.isPlayed);
-        nextMatchDays = nextMatchDays.filter(day => !(day.isPlayoffs && day.matches.length > 0));
+        let nextMatchDays = calendarDiv[divNum - 1]
+            .filter(day => !day.isPlayed)
+            .filter(day => !(day.isPlayoffs && day.matches.length === 0));
         let last = nextMatchDays.slice().shift();
-        
         if (!last) {
             nextMatchDays = calendarDiv[divNum - 1].filter(day => day.matches.length > 0);
             if (nextMatchDays.length > 1) {

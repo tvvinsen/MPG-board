@@ -4,11 +4,8 @@
       "name": "Default",
       "files": [
         "palmares-mpg.html",
-        ".vscode/changelists.json",
-        "scripts/css/style-recast.css",
         "scripts/js/recast.js",
-        "notes.md",
-        ".vscode/settings.json"
+        ".vscode/changelists.json"
       ]
     }
   ],
