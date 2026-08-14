@@ -802,3 +802,147 @@ body {
     position: absolute; 
     right: 20px;
 }
+
+/* ===================== Évolution du classement ===================== */
+
+.evolution-empty {
+    text-align: center;
+    color: #666;
+    padding: 40px 20px;
+}
+
+.evolution-section {
+    margin-bottom: 36px;
+    padding: 0 10px;
+}
+
+.evolution-section-title {
+    color: #003d7a;
+    font-size: 1.1em;
+    margin: 18px 0 10px;
+    text-align: center;
+}
+
+.evolution-chart-wrapper {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.evolution-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.evolution-grid {
+    stroke: #e0e0e0;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+.evolution-axis-label {
+    font-size: 11px;
+    fill: #666;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.evolution-line {
+    fill: none;
+    stroke-width: 2;
+    transition: opacity 0.15s ease, stroke-width 0.15s ease;
+}
+
+.evolution-dot {
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.evolution-dot:hover {
+    r: 5;
+}
+
+.evolution-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: #003d7a;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.1s ease, transform 0.1s ease;
+    z-index: 10;
+}
+
+.evolution-tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.evolution-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 0 10px;
+}
+
+.evolution-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    user-select: none;
+}
+
+.evolution-chip:hover {
+    background: #eaf1fb;
+    transform: translateY(-1px);
+}
+
+.evolution-chip.active {
+    background: #003d7a;
+    border-color: #003d7a;
+}
+
+.evolution-chip.active .evolution-chip-name,
+.evolution-chip.active .evolution-chip-pos {
+    color: #fff;
+}
+
+.evolution-dot-legend {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.evolution-chip-name {
+    color: #333;
+}
+
+.evolution-chip-pos {
+    color: #666;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 700px) {
+    .evolution-chip-name {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
