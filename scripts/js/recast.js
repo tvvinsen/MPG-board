@@ -22,6 +22,8 @@ let bonusesRules = [];
 let mercatos = [[]];
 let baseBonusDetails = new Map();
 
+let pairNumSelected = 1;
+
 let dataLeague;
 
 let showAddons = false; // Indique si les buteurs et badges doivent être affichés dans le calendrier de la Ligue MPG
@@ -81,6 +83,12 @@ function createDivisionPairs() {
     tabSelectMercato.innerHTML = '';
     mercatoContent.innerHTML = '';
 
+    const tabSelectStats = document.querySelector('.division-tab-select-stats');
+    const statsContent = document.querySelector('.stats-content');
+    if (!tabSelectStats || !statsContent) return;
+    tabSelectStats.innerHTML = '';
+    statsContent.innerHTML = '';
+   
     const tabSelectLigue = document.querySelector('.division-tab-select-ligue');
     const ligueContent = document.querySelector('.ligue-content');
     if (!tabSelectLigue || !ligueContent) return;
@@ -102,6 +110,9 @@ function createDivisionPairs() {
 
     const selectMercato = select.cloneNode(true);
     tabSelectMercato.appendChild(selectMercato);
+
+    const selectStats = select.cloneNode(true);
+    tabSelectStats.appendChild(selectStats);
 
     const selectLigue = select.cloneNode(true);
     tabSelectLigue.appendChild(selectLigue);
@@ -129,6 +140,9 @@ function createDivisionPairs() {
 
         const optionMercato = option.cloneNode(true);
         selectMercato.appendChild(optionMercato);
+
+        const optionStats = option.cloneNode(true);
+        selectStats.appendChild(optionStats);
 
         const optionLigue = option.cloneNode(true);
         selectLigue.appendChild(optionLigue);
@@ -299,6 +313,34 @@ function createDivisionPairs() {
         pairMercatoContent.innerHTML = htmlMercato;
         mercatoContent.appendChild(pairMercatoContent);
 
+        const panelStatsId = `panelStats-${pairNum}`;
+        const pairStatsContent = document.createElement('div');
+        pairStatsContent.className = 'division-pair';
+        pairStatsContent.id = panelStatsId;
+        pairStatsContent.setAttribute('role', 'region');
+        pairStatsContent.setAttribute('aria-labelledby', `divisionPairLabel-${pairNum}`);
+        pairStatsContent.hidden = (i !== 0);
+        
+        let htmlStats = `
+            <div class="divisions">
+                <div id="statsDiv${div1}" class="division">
+                    <div id="evolutionContent${div1}">
+                    </div>
+                </div>
+        `;
+        if (div2) {
+            htmlStats += `
+                <div id="statsDiv${div2}" class="division">
+                    <div id="evolutionContent${div2}">
+                    </div>
+                </div>
+            `;
+        }
+
+        htmlStats += '</div>';
+        pairStatsContent.innerHTML = htmlStats;
+        statsContent.appendChild(pairStatsContent);
+
         const panelLigueId = `panelLigue-${pairNum}`;
         const pairLigueContent = document.createElement('div');
         pairLigueContent.className = 'division-pair';
@@ -326,7 +368,7 @@ function createDivisionPairs() {
         pairLigueContent.innerHTML = htmlLigue;
         ligueContent.appendChild(pairLigueContent);
         
-        pairs.push({ pairNum, option, panel: pairContent, bonusPanel: pairBonusContent, resultsPanel: pairResultsContent, mercatoPanel: pairMercatoContent, liguePanel: pairLigueContent });
+        pairs.push({ pairNum, option, panel: pairContent, bonusPanel: pairBonusContent, resultsPanel: pairResultsContent, mercatoPanel: pairMercatoContent, statsPanel: pairStatsContent, liguePanel: pairLigueContent });
     }
 
     // Helper pour charger une paire par son numéro
@@ -358,7 +400,7 @@ function createDivisionPairs() {
     }
 
     function activatePanel(pairNum) {
-        pairs.forEach(({pairNum: pn, panel, option, bonusPanel, resultsPanel, mercatoPanel, liguePanel}) => {
+        pairs.forEach(({pairNum: pn, panel, option, bonusPanel, resultsPanel, mercatoPanel, statsPanel, liguePanel}) => {
             const selected = pn === pairNum;
             panel.classList.toggle('active', selected);
             panel.hidden = !selected;
@@ -369,6 +411,8 @@ function createDivisionPairs() {
             resultsPanel.hidden = !selected;
             mercatoPanel.classList.toggle('active', selected);
             mercatoPanel.hidden = !selected;
+            statsPanel.classList.toggle('active', selected);
+            statsPanel.hidden = !selected;
             liguePanel.classList.toggle('active', selected);
             liguePanel.hidden = !selected;
         });
@@ -376,14 +420,17 @@ function createDivisionPairs() {
 
     // Écouter le changement de sélection
     select.addEventListener('change', () => {
-        const pairNum = parseInt(select.value, 10);
         selectBonus.selectedIndex = select.selectedIndex;
         selectResults.selectedIndex = select.selectedIndex;
         selectMercato.selectedIndex = select.selectedIndex;
+        selectStats.selectedIndex = select.selectedIndex;
         selectLigue.selectedIndex = select.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
         showLoadingClassement();
+
+        const pairNum = parseInt(select.value, 10);
+        pairNumSelected = pairNum;
         loadPairByNum(pairNum).then(() => {
             activatePanel(pairNum);
             hideLoadingClassement();
@@ -391,14 +438,17 @@ function createDivisionPairs() {
     });
 
     selectBonus.addEventListener('change', () => {
-        const pairNum = parseInt(selectBonus.value, 10);
         select.selectedIndex = selectBonus.selectedIndex;
         selectResults.selectedIndex = selectBonus.selectedIndex;
         selectMercato.selectedIndex = selectBonus.selectedIndex;
+        selectStats.selectedIndex = selectBonus.selectedIndex;
         selectLigue.selectedIndex = selectBonus.selectedIndex;
 
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
         showLoadingClassement();
+
+        const pairNum = parseInt(selectBonus.value, 10);
+        pairNumSelected = pairNum;
         loadPairByNum(pairNum).then(() => {
             activatePanel(pairNum);
             hideLoadingClassement();
@@ -406,12 +456,14 @@ function createDivisionPairs() {
     });
 
     selectResults.addEventListener('change', () => {
-        const pairNum = parseInt(selectResults.value, 10);
         select.selectedIndex = selectResults.selectedIndex;
         selectBonus.selectedIndex = selectResults.selectedIndex;
         selectMercato.selectedIndex = selectResults.selectedIndex;
+        selectStats.selectedIndex = selectResults.selectedIndex;
         selectLigue.selectedIndex = selectResults.selectedIndex;
 
+        const pairNum = parseInt(selectResults.value, 10);
+        pairNumSelected = pairNum;
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
         showLoadingClassement();
         loadPairByNum(pairNum).then(() => {
@@ -421,12 +473,14 @@ function createDivisionPairs() {
     });
 
     selectMercato.addEventListener('change', () => {
-        const pairNum = parseInt(selectMercato.value, 10);
         select.selectedIndex = selectMercato.selectedIndex;
         selectBonus.selectedIndex = selectMercato.selectedIndex;
         selectResults.selectedIndex = selectMercato.selectedIndex;
+        selectStats.selectedIndex = selectMercato.selectedIndex;
         selectLigue.selectedIndex = selectMercato.selectedIndex;
 
+        const pairNum = parseInt(selectMercato.value, 10);
+        pairNumSelected = pairNum;
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
         showLoadingClassement();
         loadPairByNum(pairNum).then(() => {
@@ -435,13 +489,39 @@ function createDivisionPairs() {
         });
     });
 
+    selectStats.addEventListener('change', () => {
+        select.selectedIndex = selectStats.selectedIndex;
+        selectBonus.selectedIndex = selectStats.selectedIndex;
+        selectResults.selectedIndex = selectStats.selectedIndex;
+        selectMercato.selectedIndex = selectStats.selectedIndex;
+        selectLigue.selectedIndex = selectStats.selectedIndex;
+
+        const pairNum = parseInt(selectStats.value, 10);
+        pairNumSelected = pairNum;
+        document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
+        const root = document.getElementsByName('evolutionContent');
+        if (root.length > 0) {
+            root.forEach(el => el.innerHTML = '');
+        }
+
+        showLoadingByType('Evolution');
+        loadPairByNum(pairNum).then(() => {
+            activatePanel(pairNum);
+            hideLoadingByType('Evolution');
+            renderEvolutionTab();
+        });
+
+    });
+
     selectLigue.addEventListener('change', () => {
-        const pairNum = parseInt(selectLigue.value, 10);
         select.selectedIndex = selectLigue.selectedIndex;
         selectBonus.selectedIndex = selectLigue.selectedIndex;
         selectResults.selectedIndex = selectLigue.selectedIndex;
         selectMercato.selectedIndex = selectLigue.selectedIndex;
+        selectStats.selectedIndex = selectLigue.selectedIndex;
 
+        const pairNum = parseInt(selectLigue.value, 10);
+        pairNumSelected = pairNum;
         document.querySelectorAll('.division-pair').forEach(btn => btn.classList.remove('active'));
         showLoadingByType('Ligue');
         loadPairByNum(pairNum).then(() => {
@@ -456,6 +536,7 @@ function createDivisionPairs() {
         selectBonus.selectedIndex = 0;
         selectResults.selectedIndex = 0;
         selectMercato.selectedIndex = 0;
+        selectStats.selectedIndex = 0;
         selectLigue.selectedIndex = 0;
         loadPairByNum(pairs[0].pairNum).then(() => {
             activatePanel(pairs[0].pairNum);
@@ -486,6 +567,7 @@ function initializeData() {
         teamsOfDivision[idx] = [];
         liveStandings[idx] = [];
         calendarDiv[idx] = [];
+        matches[idx] = [];
     });
 }
 
@@ -627,6 +709,7 @@ async function loadDivisionData(divisionNumber, urls) {
         teamsOfDivision[divIndex] = teamsData?.teams || [];
 
         mercatos[divIndex] = mercatoData || [];
+        matches[divIndex] = matchesData || [];
 
         // Nettoyer les anciens containers DOM
         const classementBody = document.getElementById(`classementBodyDiv${divisionNumber}`);
@@ -865,6 +948,7 @@ let currentExpandedRowId = null;
 let mapBonusTargeted = new Map();
 let mapBonusPlayed = new Map();
 let expandableTables = [];
+let matches = [];
 
 // Classe pour gérer le tableau extensible
 class ExpandableTable {

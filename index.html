@@ -41,6 +41,7 @@
                         <button class="tab-button" data-tab="bonus">🎁 Bonus</button>
                         <button class="tab-button" data-tab="results">📆 Calendrier</button>
                         <button class="tab-button" data-tab="mercato">👥 Mercato</button>
+                        <button class="tab-button" data-tab="stats">📈 Évolution</button>
                         <button class="tab-button" data-tab="cfg">⚙️ Configuration</button>
                     </div>
                 </li>
@@ -164,11 +165,17 @@
                 </div>
             </div>
 
-            <!-- Onglet Statistiques -->
+            <!-- Onglet Statistiques : évolution du classement -->
             <div id="stats-tab" class="tab-content">
-                <div style="text-align: center;">
-                    <h2>Statistiques</h2>
-                    <p style="margin-top: 20px; color: #666;">Contenu à venir...</p>
+                <div class="div-classement-select">
+                    <div class="division-tab-select-stats"></div>
+                </div>
+                <div id="loadingEvolution" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    Chargement des données...
+                </div>
+                <div class="division-tabs">
+                    <div class="stats-content"></div>
                 </div>
             </div>
 
@@ -224,6 +231,7 @@
     <script src="scripts/js/script-tag.js"></script>
     <script src="scripts/js/matchCalendar.js"></script>
     <script src="scripts/js/recast.js"></script>
+    <script src="scripts/js/evolution.js"></script>
     <script src="scripts/js/ligues.js"></script>
 </body>
 </html>
