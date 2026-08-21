@@ -1575,9 +1575,11 @@ class ExpandableTable {
         });
 
         // Afficher la plage de dates ou la date simple
-        let dayDates = `${plage[0]}`; 
+        let dayDates = undefined; 
         if (plage && plage.length > 1) {
             dayDates = `${plage[0]} au ${plage[plage.length - 1]}`;
+        } else if (plage && plage.length === 1) {
+            dayDates = `${plage[0]}`;
         }
         let tableHTML = `<div class="match-date-header">Journée ${matchDay.gameWeek} - ${dayDates}</div>`;
 
@@ -2245,28 +2247,30 @@ async function fetchLigue1Matches() {
 
     const URL = `https://raw.githubusercontent.com/openfootball/football.json/master/${season_fr1}/fr.1.json`;
     const resOpenfootballFr1 = await fetch(URL);
-    const dataOpenfootballFr1 = await resOpenfootballFr1.json();
+    if(resOpenfootballFr1.ok) {
+        const dataOpenfootballFr1 = await resOpenfootballFr1.json();
 
-    // Créer une map des journées de championnat pour avoir les dates associées à chaque journée (round : "Matchday 1", "Matchday 2", etc.)
-    dataOpenfootballFr1.matches.forEach(match => {
-        const round = match.round;
-        const date = match.date;
-        if (round && date) {
-            // Ne pas garder les dates identiques pour une même journée
-            datesJourneesMap.set(round, datesJourneesMap.get(round) ? Array.from(new Set([...datesJourneesMap.get(round), date])) : [date]);
-        }
-    });
+        // Créer une map des journées de championnat pour avoir les dates associées à chaque journée (round : "Matchday 1", "Matchday 2", etc.)
+        dataOpenfootballFr1.matches.forEach(match => {
+            const round = match.round;
+            const date = match.date;
+            if (round && date) {
+                // Ne pas garder les dates identiques pour une même journée
+                datesJourneesMap.set(round, datesJourneesMap.get(round) ? Array.from(new Set([...datesJourneesMap.get(round), date])) : [date]);
+            }
+        });
 
-    // Dans la map datesJourneesMap, pour chaque clé, afin d'avoir la plage de dates, retirer les éléments qui ne sont pas en première ou dernière position
-    datesJourneesMap.forEach((dates, round) => {
-        if (dates.length > 2) {
-            // Garder uniquement la première et la dernière date, en retirant les doublons
-            const uniqueDates = Array.from(new Set(dates));
-            // Trier les dates pour s'assurer que la première et la dernière sont correctes
-            uniqueDates.sort((a, b) => new Date(a) - new Date(b));
-            datesJourneesMap.set(round, [uniqueDates[0], uniqueDates[uniqueDates.length - 1]]);        
-        }
-    });
+        // Dans la map datesJourneesMap, pour chaque clé, afin d'avoir la plage de dates, retirer les éléments qui ne sont pas en première ou dernière position
+        datesJourneesMap.forEach((dates, round) => {
+            if (dates.length > 2) {
+                // Garder uniquement la première et la dernière date, en retirant les doublons
+                const uniqueDates = Array.from(new Set(dates));
+                // Trier les dates pour s'assurer que la première et la dernière sont correctes
+                uniqueDates.sort((a, b) => new Date(a) - new Date(b));
+                datesJourneesMap.set(round, [uniqueDates[0], uniqueDates[uniqueDates.length - 1]]);        
+            }
+        });
+    }
 }
 
 displayTechnicalData();
