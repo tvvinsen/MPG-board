@@ -906,11 +906,9 @@ otherLeaguesSelect.innerHTML = '';
 otherLeaguesSelect.className = 'division-pair-select';
 
 let leagues = new Map();
-leagues.set("TKMXKZDF", "La kadastrophe");
 leagues.set("PNAL4RJN", "Farmers-Visas League");
-leagues.set("T4D5JPZU", "Referential League");
-leagues.set("PJ4V8EXJ", "Notchup 25-26");
 
+leagues.set("T4D5JPZU", "Referential League");
 leagues.set("T3UZYS9D", "Staging League");
 leagues.set("TTD7J493", "Champions Referential League");
 leagues.set("U4L8ADMK", "Referential Champion's League");
@@ -918,7 +916,6 @@ leagues.set("U5HVTWCR", "Gold Referential League");
 
 leagues.set("TK8UPTE8", "Les strasbourgeois");
 leagues.set("RDRE1KZA", "Saison 2025/2026");
-leagues.set("U3VWU7K8", "👑King’s Ligue 1👑");
 leagues.set("TTTPA7T2", "Ligue two");
 leagues.set("1A5AN2EPQX", "Ligue des talents cachés");
 
